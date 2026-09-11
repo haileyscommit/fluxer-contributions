@@ -84,6 +84,7 @@ import type {SweegoWebhookService} from '../webhook/SweegoWebhookService';
 import type {WebhookRequestService} from '../webhook/WebhookRequestService';
 import type {WebhookService} from '../webhook/WebhookService';
 import type {WorkerTaskName} from '../worker/WorkerLaneConfig';
+import type { PersonaService } from '../personas/services/PersonaService';
 
 export interface HonoEnv {
 	Variables: {
@@ -188,6 +189,7 @@ export interface HonoEnv {
 		instanceConfigRepository: InstanceConfigRepository;
 		singleCommunityService: SingleCommunityService;
 		limitConfigService: LimitConfigService;
+		personaService: PersonaService;
 		requestLocale: string;
 		errorI18nService: ErrorI18nService;
 		channelUpdateType?: number;

@@ -21,6 +21,7 @@ import {TorExitMiddleware} from '../middleware/TorExitMiddleware';
 import {TrustedClientIpHeaderMiddleware} from '../middleware/TrustedClientIpHeaderMiddleware';
 import {UserMiddleware} from '../middleware/UserMiddleware';
 import type {HonoApp} from '../types/HonoEnv';
+import { PersonaMiddleware } from '../middleware/PersonaMiddleware';
 
 interface MiddlewarePipelineOptions {
 	logger: ILogger;
@@ -97,4 +98,5 @@ export function configureMiddleware(routes: HonoApp, options: MiddlewarePipeline
 	routes.use(ContentFilterMiddleware);
 	routes.use(GuildAvailabilityMiddleware);
 	routes.use(LocaleMiddleware);
+	routes.use(PersonaMiddleware);
 }

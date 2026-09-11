@@ -37,6 +37,7 @@ import type {HonoApp} from '../types/HonoEnv';
 import {UnfurlController} from '../unfurl/UnfurlController';
 import {UserController} from '../user/controllers/UserController';
 import {WebhookController} from '../webhook/WebhookController';
+import { PersonaController } from '../personas/controllers/PersonaController';
 
 export function registerControllers(routes: HonoApp, config: APIConfig): void {
 	InternalRpcController(routes);
@@ -75,6 +76,7 @@ export function registerControllers(routes: HonoApp, config: APIConfig): void {
 		DonationController(routes);
 		StripeController(routes);
 	}
+	PersonaController(routes);
 }
 
 function registerInboundSmsWebhook(routes: HonoApp): void {

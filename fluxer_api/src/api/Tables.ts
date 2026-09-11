@@ -335,6 +335,7 @@ import {
 	type UserSettingsRow,
 	type UsersPendingDeletionRow,
 } from './database/types/UserTypes';
+import {type PersonaRow, type PersonaGroupRow, PERSONA_COLUMNS, PERSONA_GROUP_COLUMNS, type PersonaTriggerRow, PERSONA_TRIGGER_COLUMNS} from './database/types/PersonaTypes';
 import {ATTACHMENT_DECAY_COLUMNS, type AttachmentDecayRow} from './types/AttachmentDecayTypes';
 
 export const Users = defineTable<UserRow, 'user_id'>({
@@ -1449,4 +1450,19 @@ export const BillingActionIntents = defineTable<BillingActionIntentRow, 'intent_
 	name: 'billing_action_intents',
 	columns: BILLING_ACTION_INTENT_COLUMNS,
 	primaryKey: ['intent_id'],
+});
+export const Personas = defineTable<PersonaRow, 'owner_id' | 'persona_id'>({
+	name: 'personas',
+	columns: PERSONA_COLUMNS,
+	primaryKey: ['owner_id', 'persona_id'],
+});
+export const PersonaTriggers = defineTable<PersonaTriggerRow, 'owner_id' | 'prefix' | 'suffix'>({
+	name: 'persona_triggers',
+	columns: PERSONA_TRIGGER_COLUMNS,
+	primaryKey: ['owner_id', 'prefix', 'suffix'],
+});
+export const PersonaGroups = defineTable<PersonaGroupRow, 'owner_id' | 'persona_group_id'>({
+	name: 'persona_groups',
+	columns: PERSONA_GROUP_COLUMNS,
+	primaryKey: ['owner_id', 'persona_group_id'],
 });
