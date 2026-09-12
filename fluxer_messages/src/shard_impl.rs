@@ -4,15 +4,7 @@ use crate::mention_extractor::{
     MessageMentions, extend_mentions_from_markdown, extract_mentions_from_markdown,
 };
 use crate::types::{
-    ApiChannelMentionResponse, ApiEmbedAuthorResponse, ApiEmbedFieldResponse,
-    ApiEmbedFooterResponse, ApiEmbedMediaResponse, ApiEmbedProviderResponse,
-    ApiMessageAttachmentResponse, ApiMessageCallResponse, ApiMessageEmbedChildResponse,
-    ApiMessageEmbedResponse, ApiMessageReactionResponse, ApiMessageReferenceResponse,
-    ApiMessageResponse, ApiMessageSnapshotResponse, ApiMessageStickerResponse,
-    ApiReactionEmojiResponse, ApiUserPartialResponse, Message, MessageAttachment, MessageCall,
-    MessageEmbed, MessageEmbedAuthor, MessageEmbedChild, MessageEmbedField, MessageEmbedFooter,
-    MessageEmbedMedia, MessageEmbedProvider, MessageReference, MessageRequest, MessageResponse,
-    MessageSnapshot, MessageStickerItem,
+    ApiChannelMentionResponse, ApiEmbedAuthorResponse, ApiEmbedFieldResponse, ApiEmbedFooterResponse, ApiEmbedMediaResponse, ApiEmbedProviderResponse, ApiMessageAttachmentResponse, ApiMessageCallResponse, ApiMessageEmbedChildResponse, ApiMessageEmbedResponse, ApiMessagePersonaSnapshotResponse, ApiMessageReactionResponse, ApiMessageReferenceResponse, ApiMessageResponse, ApiMessageSnapshotResponse, ApiMessageStickerResponse, ApiReactionEmojiResponse, ApiUserPartialResponse, Message, MessageAttachment, MessageCall, MessageEmbed, MessageEmbedAuthor, MessageEmbedChild, MessageEmbedField, MessageEmbedFooter, MessageEmbedMedia, MessageEmbedProvider, MessagePersonaSnapshot, MessageReference, MessageRequest, MessageResponse, MessageSnapshot, MessageStickerItem,
 };
 use crate::udt;
 use chrono::{DateTime, Utc};
@@ -147,6 +139,7 @@ struct MessageDbRow {
     message_reference: Option<udt::MessageReferenceUdt>,
     call: Option<udt::MessageCallUdt>,
     message_snapshots: Option<Vec<udt::MessageSnapshotUdt>>,
+		persona: Option<udt::MessagePersonaSnapshotUdt>,
 }
 
 #[cfg_attr(feature = "scylla", derive(DeserializeRow))]
@@ -1158,6 +1151,12 @@ impl<T: Transport> MessagesShard<T> {
             nonce: options.nonce.clone(),
             call: message.call.as_ref().map(map_call),
             referenced_message,
+						persona: message.persona.as_ref().map(|v| ApiMessagePersonaSnapshotResponse {
+							id: v.id.clone(),
+							name: v.name.clone(),
+							avatar: v.avatar.clone(),
+							pronouns: v.pronouns.clone(),
+						}),
         }
     }
 
@@ -3036,6 +3035,15 @@ fn convert_message_snapshot(s: udt::MessageSnapshotUdt) -> MessageSnapshot {
     }
 }
 
+fn convert_message_persona_snapshot(s: udt::MessagePersonaSnapshotUdt) -> MessagePersonaSnapshot {
+	MessagePersonaSnapshot {
+		id: s.id.clone(),
+    name: s.name.clone(),
+    avatar: s.avatar.clone(),
+    pronouns: s.pronouns.clone(),
+	}
+}
+
 impl From<MessageDbRow> for Message {
     fn from(row: MessageDbRow) -> Self {
         Self {
@@ -3080,6 +3088,7 @@ impl From<MessageDbRow> for Message {
             message_snapshots: row
                 .message_snapshots
                 .map(|v| v.into_iter().map(convert_message_snapshot).collect()),
+						persona: row.persona.map(convert_message_persona_snapshot),
         }
     }
 }

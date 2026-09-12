@@ -205,6 +205,7 @@ export class CallService {
 				participant_ids: new Set(allRecipients),
 				ended_timestamp: null,
 			},
+			persona: null,
 			has_reaction: false,
 			version: 1,
 		});

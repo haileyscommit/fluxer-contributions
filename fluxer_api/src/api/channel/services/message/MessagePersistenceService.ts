@@ -48,6 +48,7 @@ import {type DmNsfwContext, MessageContentService} from './MessageContentService
 import {MessageEmbedAttachmentResolver} from './MessageEmbedAttachmentResolver';
 import {assertAttachmentFileSizesWithinLimit, collectMessageAttachments} from './MessageHelpers';
 import {MessageStickerService} from './MessageStickerService';
+import type { PersonaSnapshot } from '@fluxer/schema/src/domains/persona/PersonaSchemas.js';
 
 function mapAttachmentForEmbedResolution(att: MessageAttachment) {
 	return {
@@ -108,6 +109,7 @@ interface CreateMessageParams {
 	};
 	allowEmbeds?: boolean;
 	dmNsfwContext?: DmNsfwContext;
+	persona?: PersonaSnapshot;
 }
 
 export class MessagePersistenceService {
@@ -234,6 +236,7 @@ export class MessagePersistenceService {
 					: null,
 			call: null,
 			has_reaction: false,
+			persona: params.persona || null,
 			version: 1,
 		};
 		const message = await this.channelRepository.messages.upsertMessage(messageRowData, null);
@@ -530,6 +533,10 @@ export class MessagePersistenceService {
 				updatedRowData.embeds = nextEmbeds.length > 0 ? nextEmbeds : null;
 			}
 			hasUncachedUrls = embedUrls;
+			hasChanges = true;
+		}
+		if (data.persona !== undefined) {
+			updatedRowData.persona = data.persona;
 			hasChanges = true;
 		}
 		let updatedMessage = message;

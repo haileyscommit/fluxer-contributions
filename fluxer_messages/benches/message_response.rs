@@ -139,6 +139,7 @@ fn sample_message(index: u64) -> ApiMessageResponse {
         nonce: None,
         call: None,
         referenced_message: None,
+				persona: None, // TODO: add one (trying not to break tests for now)
     }
 }
 

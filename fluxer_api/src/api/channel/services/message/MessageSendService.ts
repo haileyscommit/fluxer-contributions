@@ -977,6 +977,7 @@ export class MessageSendService {
 			hasPermission: guild ? hasPermission : undefined,
 			mentionData,
 			allowEmbeds: canEmbedLinks,
+			persona: data.persona || undefined,
 			dmNsfwContext,
 		});
 		this.cacheMentionChannels({
@@ -1358,6 +1359,7 @@ export class MessageSendService {
 			messageReference,
 			messageSnapshots,
 			guildId: null,
+			persona: data.persona || undefined,
 			channel,
 		});
 		await this.deps.dispatchService.dispatchMessageCreate({

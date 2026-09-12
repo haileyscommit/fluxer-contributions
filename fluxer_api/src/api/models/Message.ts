@@ -9,6 +9,7 @@ import {Embed} from './Embed';
 import {MessageRef} from './MessageRef';
 import {MessageSnapshot} from './MessageSnapshot';
 import {StickerItem} from './StickerItem';
+import type { PersonaSnapshot } from '@fluxer/schema/src/domains/persona/PersonaSchemas.js';
 
 export class Message {
 	readonly channelId: ChannelID;
@@ -35,6 +36,7 @@ export class Message {
 	readonly call: CallInfo | null;
 	readonly hasReaction: boolean | null;
 	readonly version: number;
+	readonly persona: PersonaSnapshot | null;
 
 	constructor(row: MessageRow) {
 		this.channelId = row.channel_id;
@@ -67,6 +69,7 @@ export class Message {
 		this.call = row.call ? new CallInfo(row.call) : null;
 		this.hasReaction = row.has_reaction ?? null;
 		this.version = row.version;
+		this.persona = row.persona;
 	}
 
 	toRow(): MessageRow {
@@ -96,6 +99,7 @@ export class Message {
 			call: this.call?.toMessageCall() ?? null,
 			has_reaction: this.hasReaction ?? null,
 			version: this.version,
+			persona: this.persona,
 		};
 	}
 }

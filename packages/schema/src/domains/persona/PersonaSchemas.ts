@@ -50,3 +50,12 @@ export type PersonaCreateRequest = z.infer<typeof PersonaCreateRequest>;
 export const PersonaPatchRequest = PersonaCreateRequest.partial(); // use .omit({field: true}) to omit any field that is in create that shouldn't be in patch
 
 export type PersonaPatchRequest = z.infer<typeof PersonaCreateRequest>;
+
+export const PersonaSnapshot = z.object({
+	id: SnowflakeStringType.nullable().describe('The unique identifier (snowflake) for this persona. THIS CAN BE NULL!'),
+	name: z.string().min(1).max(100).describe('The display name of the persona'),
+	avatar: z.string().nullish().describe('The hash of the persona avatar'),
+	pronouns: z.string().nullish().describe('The preferred pronouns of the persona'),
+});
+
+export type PersonaSnapshot = z.infer<typeof PersonaSnapshot>;

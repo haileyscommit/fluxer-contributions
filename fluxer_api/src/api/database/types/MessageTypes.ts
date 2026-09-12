@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
+import type { PersonaSnapshot } from '@fluxer/schema/src/domains/persona/PersonaSchemas.js';
 import type {
 	AttachmentID,
 	ChannelID,
@@ -148,6 +149,7 @@ export interface MessageRow {
 	message_snapshots: Nullish<Array<MessageSnapshot>>;
 	call: Nullish<MessageCall>;
 	has_reaction: Nullish<boolean>;
+	persona: Nullish<PersonaSnapshot>;
 	version: number;
 }
 
@@ -175,6 +177,7 @@ export const MESSAGE_COLUMNS = [
 	'message_snapshots',
 	'call',
 	'has_reaction',
+	'persona',
 	'version',
 ] as const satisfies ReadonlyArray<keyof MessageRow>;
 

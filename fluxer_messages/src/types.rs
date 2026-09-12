@@ -196,6 +196,7 @@ pub struct Message {
     pub call: Option<MessageCall>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub message_snapshots: Option<Vec<MessageSnapshot>>,
+		pub persona: Option<MessagePersonaSnapshot>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -466,6 +467,7 @@ pub struct ApiMessageResponse {
         deserialize_with = "deserialize_double_option"
     )]
     pub referenced_message: Option<Option<Box<ApiMessageResponse>>>,
+		pub persona: Option<ApiMessagePersonaSnapshotResponse>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -668,6 +670,25 @@ pub struct MessageSnapshot {
     pub flags: Option<i32>,
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ApiMessagePersonaSnapshotResponse {
+	pub id: Option<String>,
+	pub name: String,
+	#[serde(skip_serializing_if = "Option::is_none")]
+	pub avatar: Option<String>,
+	#[serde(skip_serializing_if = "Option::is_none")]
+	pub pronouns: Option<String>
+}
+
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct MessagePersonaSnapshot {
+	pub id: Option<String>,
+	pub name: String,
+	pub avatar: Option<String>,
+	pub pronouns: Option<String>
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -783,6 +804,7 @@ mod tests {
             nonce: None,
             call: None,
             referenced_message: referenced,
+						persona: None,
         }
     }
 

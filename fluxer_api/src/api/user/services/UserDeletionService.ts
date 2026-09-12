@@ -317,6 +317,7 @@ export async function processUserDeletion(
 				message_snapshots: null,
 				call: null,
 				has_reaction: false,
+				persona: null,
 				version: 1,
 			});
 			const recipientUserResponse = await userCacheService.getUserPartialResponse(userId, createRequestCache());
