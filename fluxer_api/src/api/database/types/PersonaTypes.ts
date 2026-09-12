@@ -6,8 +6,10 @@ export interface PersonaRow {
 	persona_id: PersonaID;
 	/** The ID of the account that can edit and use this persona. */
 	owner_id: UserID;
-	global_name: string;
+	internal_name: string;
+	display_name: Nullish<string>;
 	group: Nullish<PersonaGroupID>;
+	tags: Nullish<Array<string>>;
 	avatar_hash: Nullish<string>;
 	avatar_color: Nullish<number>;
 	banner_hash: Nullish<string>;
@@ -22,7 +24,8 @@ export interface PersonaRow {
 export const PERSONA_COLUMNS = [
 	'persona_id',
 	'owner_id',
-	'global_name',
+	'internal_name',
+	'display_name',
 	'group',
 	'avatar_hash',
 	'avatar_color',

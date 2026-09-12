@@ -12,9 +12,10 @@ export const PersonaResponse = z.object({
 	banner: z.string().nullish().describe('The hash of the persona banner'),
 	banner_color: Int32Type.nullable().describe('The default banner color if no custom banner is set'),
 	accent_color: Int32Type.nullish().describe('The accent colour of the persona as an integer'),
-	global_name: z.string().describe('The display name of the persona'),
+	display_name: z.string().describe('The display name of the persona'),
 	bio: z.string().nullable().describe('The persona biography or description text'),
 	pronouns: z.string().nullable().describe('The preferred pronouns of the persona'),
+	tags: z.array(z.string()).default([]).describe('A list of arbitrary string tags used for search and categorization'),
 	triggers: z.array(z.object({
 		prefix: z.string().min(1).nullable().describe('A prefix that, with the paired suffix, should activate a persona for a message'),
 		suffix: z.string().min(1).nullable().describe('A suffix that, with the paired prefix, should activate a persona for a message'),
@@ -23,18 +24,26 @@ export const PersonaResponse = z.object({
 
 export type PersonaResponse = z.infer<typeof PersonaResponse>;
 
+export const OwnPersonaResponse = PersonaResponse.and(z.object({
+	internal_name: z.string().describe('A name to use for the persona in the persona picker. Also used as the default display name if one is not set.')
+}));
+
+export type OwnPersonaResponse = z.infer<typeof OwnPersonaResponse>;
+
 export const PersonaCreateRequest = z.object({
-	global_name: z.string().min(1).max(100).describe('The display name of the persona'),
+	internal_name: z.string().min(1).max(100).describe('The name to use for the persona in private lists'),
+	display_name: z.string().min(1).max(100).nullish().describe('The display name of the persona, defaults to internal_name'),
 	avatar: createBase64StringType(0, AVATAR_MAX_SIZE).nullish().describe('The hash of the persona avatar'),
 	banner: createBase64StringType(0, AVATAR_MAX_SIZE).nullish().describe('The hash of the persona banner'),
-	accent_color: Int32Type.nullish().describe('The accent colour of the persona as an integer'),
+	accent_color: z.int32().nullish().describe('The accent colour of the persona as an RGB integer'),
 	bio: z.string().nullish().describe('The persona biography or description text'),
 	pronouns: z.string().nullish().describe('The preferred pronouns of the persona'),
+	tags: z.array(z.string().max(100)).max(10).nullish().describe('A list of arbitrary string tags used for search and categorization'),
 	triggers: z.array(z.object({
 		prefix: z.string().min(1).nullish().describe('A prefix that, with the paired suffix, should activate a persona for a message'),
 		suffix: z.string().min(1).nullish().describe('A suffix that, with the paired prefix, should activate a persona for a message'),
 	})).default([]).describe('Pairs of prefixes and suffixes that can activate a persona'),
-})
+});
 
 export type PersonaCreateRequest = z.infer<typeof PersonaCreateRequest>;
 

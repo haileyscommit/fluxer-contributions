@@ -1,5 +1,5 @@
 import { createPersonaID, type PersonaID, type UserID } from "@app/api/BrandedTypes";
-import type { PersonaCreateRequest, PersonaResponse } from "@fluxer/schema/src/domains/persona/PersonaSchemas.js";
+import type { OwnPersonaResponse, PersonaCreateRequest, PersonaResponse } from "@fluxer/schema/src/domains/persona/PersonaSchemas.js";
 import type { PersonaRepository } from "../repositories/PersonaRepository";
 import type { User } from "@app/api/models/User";
 import { contentModerationService } from "@app/api/infrastructure/ContentModerationService";
@@ -12,6 +12,10 @@ import type { ISnowflakeService } from "@app/api/infrastructure/ISnowflakeServic
 import type { IStorageService } from "@app/api/infrastructure/IStorageService";
 import type { IMediaService } from "@app/api/infrastructure/IMediaService";
 import { PersonaTrigger } from "@app/api/models/PersonaTrigger";
+import { deriveDominantAvatarColor } from "@app/api/utils/AvatarColorUtils";
+import type { UserCacheService } from "@app/api/infrastructure/UserCacheService";
+import { getCachedUserPartialResponse } from "@app/api/user/UserCacheHelpers";
+import type { RequestCache } from "@app/api/middleware/RequestCacheMiddleware";
 
 export class PersonaService {
 	private readonly attachmentService: AttachmentProcessingService;
@@ -20,6 +24,8 @@ export class PersonaService {
 		private readonly personaRepository: PersonaRepository,
 		private readonly snowflakeService: ISnowflakeService,
 		private readonly entityAssetService: EntityAssetService,
+		private readonly userCacheService: UserCacheService,
+		private readonly requestCache: RequestCache,
 		storageService: IStorageService,
 		attachmentUploadTraceRepository: AttachmentUploadTraceRepository,
 		mediaService: IMediaService,
@@ -34,28 +40,27 @@ export class PersonaService {
 		);
 		this.attachmentDecayService = new AttachmentDecayService();
 	}
-	async getUserPersonas(userId: UserID): Promise<Array<PersonaResponse>> {
+	async getUserPersonas(userId: UserID): Promise<Array<OwnPersonaResponse>> {
 		const results = await this.personaRepository.listUserPersonas(userId);
-		const personas = new Set<PersonaResponse>();
+		const user = await getCachedUserPartialResponse({
+			userId,
+			userCacheService: this.userCacheService,
+			requestCache: this.requestCache
+		});
+		const personas = new Set<OwnPersonaResponse>();
 		for (const v of results) {
 			const triggers = await this.personaRepository.getPersonaTriggers(userId, v.id)
 			personas.add({
 				id: v.id.toString(),
-				user: {
-					id: v.owner.toString(),
-					username: "",
-					avatar: null,
-					avatar_color: null,
-					discriminator: "0000",
-					flags: 0,
-					global_name: "",
-				},
+				user: user,
 				avatar: v.avatarHash,
 				avatar_color: v.avatarColor,
 				banner: v.bannerHash,
 				banner_color: v.bannerColor,
-				global_name: v.globalName,
+				display_name: v.displayName || v.internalName,
+				internal_name: v.internalName,
 				bio: v.bio,
+				tags: v.tags || [],
 				pronouns: v.pronouns,
 				accent_color: v.accentColor,
 				triggers: triggers || [],
@@ -69,28 +74,27 @@ export class PersonaService {
 		return !!v;
 	}
 
-	async getPersona(userId: UserID, personaId: PersonaID): Promise<PersonaResponse | null> {
+	async getPersona(userId: UserID, personaId: PersonaID): Promise<OwnPersonaResponse | null> {
 		const v = await this.personaRepository.getPersona(userId, personaId);
+		const user = await getCachedUserPartialResponse({
+			userId,
+			userCacheService: this.userCacheService,
+			requestCache: this.requestCache
+		});
 		if (v === null) return null;
 		const triggers = await this.personaRepository.getPersonaTriggers(userId, v.id)
 		return {
 			id: v.id.toString(),
-			user: {
-				id: v.owner.toString(),
-				username: "",
-				avatar: null,
-				avatar_color: null,
-				discriminator: "0000",
-				flags: 0,
-				global_name: "",
-			},
+			user: user,
 			avatar: v.avatarHash,
 			avatar_color: v.avatarColor,
 			banner: v.bannerHash,
 			banner_color: v.bannerColor,
-			global_name: v.globalName,
+			internal_name: v.internalName,
+			display_name: v.displayName || v.internalName,
 			bio: v.bio,
 			pronouns: v.pronouns,
+			tags: v.tags || [],
 			accent_color: v.accentColor,
 			triggers: triggers || [],
 		};
@@ -99,7 +103,14 @@ export class PersonaService {
 	async createPersona(user: User, data: PersonaCreateRequest): Promise<PersonaID> {
 		// TODO: it looks like this is the right place to do data validation, screening, and snowflake generation
 		const personaId = createPersonaID(await this.snowflakeService.generate());
-		contentModerationService.scanText(data.global_name, {
+		contentModerationService.scanText(data.display_name, {
+			userId: user.id,
+			guildId: null,
+			channelId: null,
+			messageId: null,
+			surface: 'profile_field',
+		});
+		contentModerationService.scanText(data.internal_name, {
 			userId: user.id,
 			guildId: null,
 			channelId: null,
@@ -137,14 +148,16 @@ export class PersonaService {
 			persona_id: personaId,
 			owner_id: user.id,
 			accent_color: data.accent_color || null,
-			global_name: data.global_name,
+			internal_name: data.internal_name,
+			display_name: data.display_name || data.internal_name,
 			bio: data.bio || null,
 			group: null,
+			tags: null,
 			pronouns: data.pronouns || null,
 			avatar_hash: avatarHash,
 			banner_hash: bannerHash,
-			avatar_color: null,
-			banner_color: null,
+			avatar_color: preparedAvatar?.imageBuffer ? await deriveDominantAvatarColor(preparedAvatar?.imageBuffer) : null,
+			banner_color: preparedBanner?.imageBuffer ? await deriveDominantAvatarColor(preparedBanner?.imageBuffer) : null,
 			last_used_at: null
 		});
 		await this.personaRepository.setPersonaTriggers(user.id, personaId, data.triggers.map((v) => new PersonaTrigger(v.prefix || null, v.suffix || null)))
@@ -153,7 +166,14 @@ export class PersonaService {
 
 	async updatePersona(userId: UserID, personaId: PersonaID, data: Partial<PersonaCreateRequest>): Promise<PersonaResponse> {
 		// TODO: it looks like this is the right place to do data validation, screening, and snowflake generation
-		if (data.global_name) contentModerationService.scanText(data.global_name, {
+		if (data.internal_name) contentModerationService.scanText(data.internal_name, {
+			userId: userId,
+			guildId: null,
+			channelId: null,
+			messageId: null,
+			surface: 'profile_field',
+		});
+		if (data.display_name) contentModerationService.scanText(data.display_name, {
 			userId: userId,
 			guildId: null,
 			channelId: null,
@@ -189,11 +209,15 @@ export class PersonaService {
 		// Write to database via repository
 		await this.personaRepository.updatePersona(userId, personaId, {
 			accent_color: data.accent_color,
-			global_name: data.global_name,
+			internal_name: data.internal_name,
+			display_name: data.display_name,
 			bio: data.bio,
 			pronouns: data.pronouns,
+			tags: data.tags,
 			avatar_hash: preparedAvatar === undefined ? undefined : avatarHash,
 			banner_hash: preparedBanner === undefined ? undefined : bannerHash,
+			avatar_color: preparedAvatar === undefined ? undefined : preparedAvatar?.imageBuffer ? await deriveDominantAvatarColor(preparedAvatar?.imageBuffer) : null,
+			banner_color: preparedBanner === undefined ? undefined : preparedBanner?.imageBuffer ? await deriveDominantAvatarColor(preparedBanner?.imageBuffer) : null,
 		});
 		if (data.triggers) await this.personaRepository.setPersonaTriggers(userId, personaId, data.triggers.map((v) => new PersonaTrigger(v.prefix || null, v.suffix || null)));
 		if (data.triggers === null) await this.personaRepository.setPersonaTriggers(userId, personaId, []);

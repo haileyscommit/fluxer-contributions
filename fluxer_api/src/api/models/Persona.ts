@@ -5,8 +5,10 @@ export class Persona {
 	readonly id: PersonaID;
 	/** The ID of the account that can edit and use this persona. */
 	readonly owner: UserID;
-	readonly globalName: string;
+	readonly internalName: string;
+	readonly displayName: string | null;
 	readonly group: PersonaGroupID | null;
+	readonly tags: Array<string> | null;
 	readonly avatarHash: string | null;
 	readonly avatarColor: number | null;
 	readonly bannerHash: string | null;
@@ -20,8 +22,10 @@ export class Persona {
 	constructor(row: PersonaRow) {
 		this.id = row.persona_id;
 		this.owner = row.owner_id;
-		this.globalName = row.global_name;
+		this.internalName = row.internal_name;
+		this.displayName = row.display_name;
 		this.group = row.group;
+		this.tags = row.tags;
 		this.avatarHash = row.avatar_hash;
 		this.avatarColor = row.avatar_color;
 		this.bannerHash = row.banner_hash;
@@ -36,8 +40,10 @@ export class Persona {
 		return {
 			persona_id: this.id,
 			owner_id: this.owner,
-			global_name: this.globalName,
+			internal_name: this.internalName,
+			display_name: this.displayName,
 			group: this.group,
+			tags: this.tags,
 			avatar_hash: this.avatarHash,
 			avatar_color: this.avatarColor,
 			banner_hash: this.bannerHash,

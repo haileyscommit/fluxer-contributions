@@ -7,7 +7,7 @@ import type { HonoApp } from "@app/api/types/HonoEnv";
 import { Validator } from "@app/api/Validator";
 import { RelationshipTypes } from "@fluxer/constants/src/UserConstants.js";
 import { PersonaIdParam, UserPersonaIdParam } from "@fluxer/schema/src/domains/common/CommonParamSchemas.js";
-import { PersonaCreateRequest, PersonaPatchRequest, PersonaResponse } from "@fluxer/schema/src/domains/persona/PersonaSchemas.js";
+import { OwnPersonaResponse, PersonaCreateRequest, PersonaPatchRequest, PersonaResponse } from "@fluxer/schema/src/domains/persona/PersonaSchemas.js";
 import { z } from "zod";
 
 export function PersonaController(app: HonoApp) {
@@ -20,7 +20,7 @@ export function PersonaController(app: HonoApp) {
 		OpenAPI({
 			operationId: 'list_own_personas',
 			summary: 'List own personas',
-			responseSchema: z.array(PersonaResponse),
+			responseSchema: z.array(OwnPersonaResponse),
 			statusCode: 200,
 			security: ['botToken', 'bearerToken', 'sessionToken'],
 			tags: ['Personas'],
@@ -84,7 +84,7 @@ export function PersonaController(app: HonoApp) {
 		OpenAPI({
 			operationId: 'create_persona',
 			summary: 'Create a new persona',
-			responseSchema: PersonaResponse,
+			responseSchema: OwnPersonaResponse,
 			statusCode: 200,
 			security: ['botToken', 'bearerToken', 'sessionToken'],
 			tags: ['Personas'],
