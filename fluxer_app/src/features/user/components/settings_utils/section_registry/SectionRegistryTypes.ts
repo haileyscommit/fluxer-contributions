@@ -12,6 +12,7 @@ export type SectionKeyword = MessageDescriptor | string;
 
 export type UserSettingsTabType =
 	| 'my_profile'
+	| 'personas'
 	| 'account_security'
 	| 'plutonium'
 	| 'gift_inventory'

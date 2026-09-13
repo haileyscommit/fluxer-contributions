@@ -42,17 +42,12 @@ export class PersonaService {
 	}
 	async getUserPersonas(userId: UserID): Promise<Array<OwnPersonaResponse>> {
 		const results = await this.personaRepository.listUserPersonas(userId);
-		const user = await getCachedUserPartialResponse({
-			userId,
-			userCacheService: this.userCacheService,
-			requestCache: this.requestCache
-		});
 		const personas = new Set<OwnPersonaResponse>();
 		for (const v of results) {
 			const triggers = await this.personaRepository.getPersonaTriggers(userId, v.id)
 			personas.add({
 				id: v.id.toString(),
-				user: user,
+				//user: user,
 				avatar: v.avatarHash,
 				avatar_color: v.avatarColor,
 				banner: v.bannerHash,
@@ -74,7 +69,7 @@ export class PersonaService {
 		return !!v;
 	}
 
-	async getPersona(userId: UserID, personaId: PersonaID): Promise<OwnPersonaResponse | null> {
+	async getPersona(userId: UserID, personaId: PersonaID): Promise<PersonaResponse | null> {
 		const v = await this.personaRepository.getPersona(userId, personaId);
 		const user = await getCachedUserPartialResponse({
 			userId,
@@ -82,10 +77,30 @@ export class PersonaService {
 			requestCache: this.requestCache
 		});
 		if (v === null) return null;
-		const triggers = await this.personaRepository.getPersonaTriggers(userId, v.id)
+		//const triggers = await this.personaRepository.getPersonaTriggers(userId, v.id)
 		return {
 			id: v.id.toString(),
 			user: user,
+			avatar: v.avatarHash,
+			avatar_color: v.avatarColor,
+			banner: v.bannerHash,
+			banner_color: v.bannerColor,
+			//internal_name: v.internalName,
+			display_name: v.displayName || v.internalName,
+			bio: v.bio,
+			pronouns: v.pronouns,
+			//tags: v.tags || [],
+			accent_color: v.accentColor,
+			//triggers: triggers || [],
+		};
+	}
+
+	async getOwnPersona(userId: UserID, personaId: PersonaID): Promise<OwnPersonaResponse | null> {
+		const v = await this.personaRepository.getPersona(userId, personaId);
+		if (v === null) return null;
+		const triggers = await this.personaRepository.getPersonaTriggers(userId, v.id)
+		return {
+			id: v.id.toString(),
 			avatar: v.avatarHash,
 			avatar_color: v.avatarColor,
 			banner: v.bannerHash,

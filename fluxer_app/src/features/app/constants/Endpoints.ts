@@ -237,4 +237,6 @@ export const Endpoints = {
 	CONNECTION: (type: string, connectionId: string) => `/users/@me/connections/${type}/${connectionId}`,
 	CONNECTION_VERIFY: (type: string, connectionId: string) => `/users/@me/connections/${type}/${connectionId}/verify`,
 	CONNECTIONS_REORDER: '/users/@me/connections/reorder',
+	USER_PERSONAS: '/users/@me/personas',
+	USER_PERSONA: (personaId: string) => `/users/@me/personas/${personaId}`,
 } as const;

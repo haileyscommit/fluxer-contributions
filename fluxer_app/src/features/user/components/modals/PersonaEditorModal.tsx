@@ -1,0 +1,246 @@
+import * as Modal from '@app/features/app/components/dialogs/Modal';
+import type { Persona } from '@app/features/personas/models/Persona';
+import { i18n } from "@lingui/core";
+import { msg } from '@lingui/core/macro';
+import { observer } from 'mobx-react-lite';
+import profileStyles from '@app/features/user/components/modals/tabs/MyProfileTab.module.css';
+import { Form } from '@app/features/ui/components/form/Form';
+import {useForm} from 'react-hook-form';
+import { Input } from '@app/features/ui/components/form/FormInput';
+import { Trans, useLingui } from '@lingui/react/macro';
+import { DISPLAY_NAME_DESCRIPTOR, PRONOUNS_DESCRIPTOR } from './tabs/MyProfileTab';
+import { SettingsSection } from '@app/features/app/components/dialogs/shared/SettingsSection';
+import styles from '@app/features/user/components/modals/PersonaEditorModal.module.css';
+import { clsx } from 'clsx';
+import Users from '../../state/Users';
+import { ProfilePreview } from '../profile/ProfilePreview';
+import { Button } from '@app/features/ui/button/Button';
+import { modal } from '@app/features/ui/commands/ModalCommands';
+import { Modals } from '@app/features/app/components/dialogs/Modals';
+import { useCallback, useMemo } from 'react';
+import * as ToastCommands from '@app/features/ui/commands/ToastCommands';
+import * as UnsavedChangesCommands from '@app/features/ui/commands/UnsavedChangesCommands';
+import * as PersonaCommands from '@app/features/personas/commands/Personas';
+import type { PersonaPatchRequest } from '@fluxer/schema/src/domains/persona/PersonaSchemas.js';
+import { useFormSubmit } from '@app/features/app/hooks/useFormSubmit';
+import { AccentColorPicker } from './tabs/my_profile_tab/AccentColorPicker';
+import { useRemoteFormReset } from '@app/lib/forms/RemoteFormReset';
+import Personas from '../../state/Personas';
+import * as ModalCommands from '@app/features/ui/commands/ModalCommands';
+import { DeleteIcon } from '@app/features/ui/action_menu/ContextMenuIcons';
+import { ConfirmModal } from '@app/features/app/components/dialogs/ConfirmModal';
+
+const EDIT_PERSONA_DESCRIPTOR = msg({
+	message: 'Edit Persona',
+	comment: "The title of the persona editor modal."
+});
+const CREATE_PERSONA_DESCRIPTOR = msg({
+	message: 'New Persona',
+	comment: "The title of the persona editor modal when it's being used to create a new persona."
+});
+const INTERNAL_NAME_DESCRIPTOR = msg({
+	message: 'Internal Name',
+	comment: "Label in the persona editor for a private name for a persona."
+});
+const PERSONA_UPDATED_DESCRIPTOR = msg({
+	message: 'Persona updated',
+	comment: "Short label in the persona editor. Keep it concise."
+});
+const PERSONA_CREATED_DESCRIPTOR = msg({
+	message: 'Persona created',
+	comment: "Short label in the persona editor. Keep it concise."
+});
+const PERSONA_DELETED_DESCRIPTOR = msg({
+	message: 'Persona deleted',
+	comment: "Short label in the persona editor. Keep it concise."
+});
+
+interface PersonaEditorModalProps {
+	initialPersona: Persona | null;
+}
+
+interface FormInputs {
+	avatar?: string | null;
+	banner?: string | null;
+	bio: string | null;
+	internal_name: string | null;
+	display_name: string | null;
+	pronouns: string | null;
+	accent_color: number | null;
+}
+
+export const PersonaEditorModal: React.FC<PersonaEditorModalProps> = observer(
+	({initialPersona}) => {
+		console.log("Using persona", initialPersona, Personas.allPersonasList);
+		const {i18n} = useLingui();
+		const user = useMemo(() => Users.currentUser!, []);
+		const form = useForm<FormInputs>({
+			defaultValues: {...initialPersona, avatar: null, banner: null},
+		});
+		const onSubmit = useCallback(
+			async (data: FormInputs) => {
+				if (initialPersona) {
+					const updateData: PersonaPatchRequest = {
+						bio: data.bio,
+						internal_name: data.internal_name || undefined,
+						display_name: data.display_name || undefined,
+						pronouns: data.pronouns,
+						accent_color: data.accent_color,
+					};
+					const newPersona = await PersonaCommands.update(initialPersona!.id, updateData);
+					form.reset({...newPersona, avatar: null, banner: null});
+					Personas.cachePersonas([newPersona]);
+					ToastCommands.createToast({type: 'success', children: i18n._(PERSONA_UPDATED_DESCRIPTOR)});
+				} else {
+					// Create a persona
+					const newPersona = await PersonaCommands.create({
+						...form.getValues(),
+						internal_name: form.getValues().internal_name!,
+						triggers: [],
+					});
+					//form.reset({...newPersona, avatar: null, banner: null});
+					Personas.cachePersonas([newPersona]);
+					ModalCommands.pop();
+					ToastCommands.createToast({type: 'success', children: i18n._(PERSONA_CREATED_DESCRIPTOR)});
+				}
+			},
+			[
+				// commitProfileFormValues,
+				// isPerGuildProfile,
+				// isProfileCustomizationLocked,
+				// hasProfileTimezoneAccess,
+				// selectedGuildId,
+				user,
+				initialPersona,
+				// activeProfileData,
+				// avatarAsset,
+				// bannerAsset,
+				// profileIdentityKey,
+			],
+		);
+		const handleReset = useCallback(() => {
+			// TODO: Get new default values, i.e. what was submitted last
+			form.reset();
+		}, [initialPersona]);
+		const {handleSubmit: handleSave} = useFormSubmit({
+			form,
+			onSubmit,
+			defaultErrorField: 'internal_name',
+		});
+		const handleDelete = useCallback(async () => {
+			if (!initialPersona) return;
+			ModalCommands.push(() => <ConfirmModal
+				title="Delete this persona?"
+				description={`You are about to delete ${initialPersona.internal_name}. Are you sure this is what you want to do?`}
+				onPrimary={async () => {
+					await PersonaCommands.deletePersona(initialPersona.id);
+					Personas.removePersona(initialPersona.id);
+					ToastCommands.createToast({type: 'success', children: i18n._(PERSONA_DELETED_DESCRIPTOR)});
+					ModalCommands.popAllByType(PersonaEditorModal);
+				}}
+				primaryText={<Trans>Delete</Trans>}
+			/>)
+		}, [initialPersona]);
+		/* TODO: still need UnsavedChanges */
+		return <Modal.Root size={"large"}>
+			<Modal.Header title={initialPersona ? i18n._(EDIT_PERSONA_DESCRIPTOR) : i18n._(CREATE_PERSONA_DESCRIPTOR)} />
+			<Modal.Content>
+				<Form
+					form={form}
+					onSubmit={onSubmit}
+					data-flx="user.persona-editor-modal.form.submit"
+				>
+					<div
+						className={clsx(profileStyles.contentLayout)}
+						data-flx="user.persona-editor-modal.content-layout"
+					>
+						<div className={profileStyles.formColumn} data-flx="user.persona-editor-modal.form-column">
+							<Input
+								data-flx="user.persona-editor-modal.input--internal-name"
+								label={i18n._(INTERNAL_NAME_DESCRIPTOR)}
+								footer={<span className={styles.footerHintText}><Trans>This name stays private, and only appears in lists of your own personas.</Trans></span>}
+								{...form.register('internal_name')}
+								value={form.watch('internal_name') || ''}
+								required
+							/>
+							<Input
+								data-flx="user.persona-editor-modal.input--display-name"
+								label={i18n._(DISPLAY_NAME_DESCRIPTOR)}
+								{...form.register('display_name')}
+								value={form.watch('display_name') || ''}
+							/>
+							<Input
+								data-flx="user.persona-editor-modal.input--pronouns"
+								label={i18n._(PRONOUNS_DESCRIPTOR)}
+								{...form.register('pronouns')}
+								value={form.watch('pronouns') || ''}
+							/>
+							{/* TODO: avatar and banner */}
+							<div
+								// className={isPerGuildProfile && !hasPerGuildProfiles ? styles.opacityHalf : ''}
+								// data-flx="user.persona-editor-modal.opacity-half"
+							>
+								<AccentColorPicker
+									value={form.watch('accent_color') ?? null}
+									onChange={(value: number | null) => form.setValue('accent_color', value, {shouldDirty: true})}
+									//disabled={isProfileCustomizationLocked || isPerGuildProfileCustomizationDisabled}
+									errorMessage={form.formState.errors.accent_color?.message}
+									data-flx="user.persona-editor-modal.accent-color-picker.set-value"
+								/>
+							</div>
+							{/* <div
+								className={isPerGuildProfile && !hasPerGuildProfiles ? styles.opacityHalf : ''}
+								data-flx="user.my-profile-tab.my-profile-tab-component.opacity-half--2"
+							>
+								<BioEditor
+									initialValue={bioValue}
+									initialSegments={bioSegments}
+									hydrationKey={bioHydrationKey}
+									onChange={handleBioChange}
+									onEmojiSelect={handleBioEmojiSelect}
+									placeholder={
+										isPerGuildProfile && user?.bio
+											? convertMarkdownToSegments(user.bio, selectedGuildId).displayText
+											: i18n._(DOC_I_M_FROM_THE_FUTURE_I_CAME_DESCRIPTOR)
+									}
+									actualLength={actualBio.length}
+									actualMaxLength={maxBioActualLength}
+									disabled={isProfileCustomizationLocked || isPerGuildProfileCustomizationDisabled}
+									isMobile={mobileLayout.enabled}
+									errorMessage={
+										form.formState.errors.bio != null && form.formState.errors.bio.message != null
+											? form.formState.errors.bio.message
+											: null
+									}
+									composerRef={bioComposerRef}
+									emojiPickerOpen={bioExpressionPickerOpen}
+									onEmojiPickerOpenChange={setBioExpressionPickerOpen}
+									data-flx="user.my-profile-tab.my-profile-tab-component.bio-editor.bio-change"
+								/>
+							</div> */}
+						</div>
+						<div
+							className={profileStyles.previewColumn}
+							data-flx="user.my-profile-tab.my-profile-tab-component.preview-column"
+						>
+							<ProfilePreview
+								user={user}
+							/>
+						</div>
+					</div>
+				</Form>
+			</Modal.Content>
+			<Modal.FormFooter>
+				{form.formState.isDirty && <span className={styles.unsavedChangesWarning}><Trans>You have unsaved changes.</Trans></span>}
+				{!form.formState.isDirty && initialPersona && <Button
+					variant="danger"
+					className={styles.deleteButton}
+					leftIcon={<DeleteIcon />}
+					disabled={form.formState.isLoading || !form.formState.isValid}
+					onClick={handleDelete}
+				><Trans>Delete</Trans></Button>}
+				<Button variant="secondary" disabled={form.formState.isLoading || !form.formState.isValid || !form.formState.isDirty} onClick={handleReset}>Reset</Button>
+				<Button variant="primary" disabled={form.formState.isLoading || !form.formState.isValid || !form.formState.isDirty} onClick={handleSave}>Save</Button>
+			</Modal.FormFooter>
+		</Modal.Root>;
+	});

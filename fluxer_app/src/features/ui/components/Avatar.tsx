@@ -171,7 +171,7 @@ const AvatarComponent = React.forwardRef<HTMLDivElement, AvatarProps>(
 			};
 		}, [hoverAvatarUrl, isAnimatedNeeded, rendersAnimatedInline]);
 		const shouldPlayAnimated = hasDistinctHoverAvatar && animationAllowed && isAnimatedLoaded;
-		const fallbackAvatarUrl = useMemo(() => AvatarUtils.getUserAvatarURL({id: userId, avatar: null}, false), [userId]);
+		const fallbackAvatarUrl = useMemo(() => AvatarUtils.getUserAvatarURL({id: personaId || userId, avatar: null}, false), [personaId, userId]);
 		const resolvedAvatarUrl = avatarUrl ?? fallbackAvatarUrl;
 		const safeHoverAvatarUrl = isAnimatedNeeded ? hoverAvatarUrl || undefined : undefined;
 		const normalizedStatusAttr = status != null ? normalizeStatus(status) : undefined;

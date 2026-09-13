@@ -89,7 +89,7 @@ const VERIFY_YOUR_EMAIL_BEFORE_EDITING_YOUR_PROFILE_YOU_DESCRIPTOR = msg({
 	message: 'Verify your email before editing your profile. You can still preview it here.',
 	comment: 'Description text in the my profile tab.',
 });
-const EDIT_YOUR_PROFILE_APPEARANCE_AND_SEE_A_LIVE_DESCRIPTOR = msg({
+export const EDIT_YOUR_PROFILE_APPEARANCE_AND_SEE_A_LIVE_DESCRIPTOR = msg({
 	message: 'Edit your profile appearance and see a live preview',
 	comment: 'Button or menu action label in the my profile tab. Keep it concise.',
 });
@@ -134,11 +134,11 @@ const YOU_DON_T_HAVE_PERMISSION_TO_CHANGE_YOUR_DESCRIPTOR = msg({
 	message: "You can't change your nickname here",
 	comment: 'Label in the my profile tab. Keep the tone plain and specific.',
 });
-const DISPLAY_NAME_DESCRIPTOR = msg({
+export const DISPLAY_NAME_DESCRIPTOR = msg({
 	message: 'Display name',
 	comment: 'Short label in the my profile tab. Keep it concise.',
 });
-const PRONOUNS_DESCRIPTOR = msg({
+export const PRONOUNS_DESCRIPTOR = msg({
 	message: 'Pronouns',
 	comment: 'Short label in the my profile tab. Keep it concise.',
 });

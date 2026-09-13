@@ -96,7 +96,7 @@ export function PersonaController(app: HonoApp) {
 			const data = ctx.req.valid('json');
 			const personaService = ctx.get('personaService');
 			const persona = await personaService.createPersona(user, data);
-			return ctx.json(await personaService.getPersona(user.id, persona));
+			return ctx.json(await personaService.getOwnPersona(user.id, persona));
 		}
 	);
 
@@ -110,7 +110,7 @@ export function PersonaController(app: HonoApp) {
 			operationId: 'update_persona',
 			summary: 'Update a persona.',
 			requestSchema: PersonaPatchRequest,
-			responseSchema: PersonaResponse,
+			responseSchema: OwnPersonaResponse,
 			statusCode: 200,
 			security: ['botToken', 'bearerToken', 'sessionToken'],
 			tags: ['Personas'],
@@ -128,7 +128,7 @@ export function PersonaController(app: HonoApp) {
 			if (!response) return ctx.notFound();
 			console.log(data);
 			await personaService.updatePersona(userId, personaId, data);
-			const finalResponse = await personaService.getPersona(userId, personaId);
+			const finalResponse = await personaService.getOwnPersona(userId, personaId);
 			return ctx.json(finalResponse);
 		}
 	);

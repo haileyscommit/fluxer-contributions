@@ -47,6 +47,7 @@ import {
 	TranslateIcon,
 	UserIcon,
 	UserListIcon,
+    UserSwitchIcon,
 } from '@phosphor-icons/react';
 import type React from 'react';
 
@@ -86,6 +87,10 @@ const DESKTOP_SETTINGS_FALLBACK_DESCRIPTOR = msg({
 const PROFILE_DESCRIPTOR = msg({
 	message: 'Profile',
 	comment: 'User settings tab for editing the current user profile.',
+});
+const PERSONAS_DESCRIPTOR = msg({
+	message: 'Personas',
+	comment: 'User settings tab for managing the list of available personas.',
 });
 const ACCOUNT_SECURITY_DESCRIPTOR = msg({
 	message: 'Account',
@@ -213,6 +218,12 @@ const ALL_TABS_DESCRIPTORS: Array<SettingsTabDescriptor> = [
 		category: 'user_settings',
 		label: PROFILE_DESCRIPTOR,
 		icon: UserIcon,
+	},
+	{
+		type: 'personas',
+		category: 'user_settings',
+		label: PERSONAS_DESCRIPTOR,
+		icon: UserSwitchIcon,
 	},
 	{
 		type: 'account_security',
