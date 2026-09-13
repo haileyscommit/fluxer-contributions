@@ -16,6 +16,7 @@ import {normalizeStatus} from '@fluxer/constants/src/StatusConstants';
 import {useLingui} from '@lingui/react/macro';
 import {observer} from 'mobx-react-lite';
 import React, {type CSSProperties, useCallback, useEffect, useMemo, useState} from 'react';
+import { message } from 'valibot';
 
 interface AvatarProps {
 	user: User;
@@ -33,6 +34,8 @@ interface AvatarProps {
 	avatarUrl?: string | null;
 	hoverAvatarUrl?: string | null;
 	guildId?: string | null;
+	personaId?: string | null;
+	personaAvatar?: string | null;
 	mediaSize?: MediaProxyImageSize;
 	animateStatusCutout?: boolean;
 	title?: never;
@@ -57,6 +60,8 @@ const AvatarComponent = React.forwardRef<HTMLDivElement, AvatarProps>(
 			guildId,
 			mediaSize,
 			animateStatusCutout = false,
+			personaId,
+			personaAvatar,
 			...props
 		},
 		ref,
@@ -70,6 +75,9 @@ const AvatarComponent = React.forwardRef<HTMLDivElement, AvatarProps>(
 		const memberAvatarUnset = guildMember?.isAvatarUnset() ?? false;
 		const avatarUrl = useMemo(() => {
 			if (customAvatarUrl !== undefined) return customAvatarUrl;
+			if (personaId || personaAvatar) {
+				return AvatarUtils.getUserAvatarURL({id: personaId ?? "0", avatar: personaAvatar || null}, false, mediaSize);
+			}
 			if (guildId && hasGuildMemberAvatarSource) {
 				return AvatarUtils.getGuildMemberDisplayAvatarURL({
 					guildId,
@@ -90,9 +98,14 @@ const AvatarComponent = React.forwardRef<HTMLDivElement, AvatarProps>(
 			mediaSize,
 			userAvatar,
 			userId,
+			personaId,
+			personaAvatar,
 		]);
 		const hoverAvatarUrl = useMemo(() => {
 			if (customHoverAvatarUrl !== undefined) return customHoverAvatarUrl;
+			if (personaId || personaAvatar) {
+				return AvatarUtils.getUserAvatarURL({id: personaId ?? "0", avatar: personaAvatar || null}, true, mediaSize);
+			}
 			if (guildId && hasGuildMemberAvatarSource) {
 				return AvatarUtils.getGuildMemberDisplayAvatarURL({
 					guildId,

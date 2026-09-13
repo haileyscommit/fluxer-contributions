@@ -9,6 +9,7 @@ import type {Guild} from '@app/features/guild/models/Guild';
 import type {GuildMember} from '@app/features/member/models/GuildMember';
 import type {Message} from '@app/features/messaging/models/MessagingMessage';
 import styles from '@app/features/theme/styles/Message.module.css';
+import { Avatar } from '@app/features/ui/components/Avatar';
 import type {User} from '@app/features/user/models/User';
 import * as DateUtils from '@app/features/user/utils/DateFormatting';
 import * as NicknameUtils from '@app/features/user/utils/NicknameUtils';
@@ -71,6 +72,18 @@ export const MessageAuthorInfo = observer((props: MessageAuthorInfoProps) => {
 		),
 		[author, message, guild, member, isPreview, previewOverrides?.usernameColor, previewOverrides?.displayName],
 	);
+	const personaTag = useMemo(
+		() => (
+			<Avatar
+				user={author}
+				size={16}
+				guildId={message.guildId}
+				className={styles.messageAvatar}
+				data-flx="channel.message-author-info.persona-account-tag"
+			/>
+		),
+		[author, message, member],
+	);
 	if (shouldAppearAuthorless) return null;
 	if (!shouldGroup) {
 		const displayName =
@@ -102,7 +115,7 @@ export const MessageAuthorInfo = observer((props: MessageAuthorInfoProps) => {
 					>
 						<span className={styles.messageAuthorPart} data-flx="channel.message-author-info.message-author-part">
 							{timeoutIndicator}
-							{username}
+							{username}{"tetse"}
 							{author.bot && (
 								<UserTag
 									className={styles.userTagOffset}
@@ -111,6 +124,7 @@ export const MessageAuthorInfo = observer((props: MessageAuthorInfoProps) => {
 								/>
 							)}
 						</span>
+						{message.persona && personaTag}
 						<TimestampWithTooltip
 							date={message.timestamp}
 							className={styles.messageTimestamp}

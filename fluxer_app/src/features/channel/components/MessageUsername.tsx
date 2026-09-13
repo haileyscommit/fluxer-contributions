@@ -39,6 +39,8 @@ export const MessageUsername = observer(
 		const usernameRef = useRef<HTMLSpanElement | null>(null);
 		const contextMenuOpen = useContextMenuHoverState(usernameRef);
 		const displayName = previewName || NicknameUtils.getNickname(user, guild?.id, message.channelId);
+		// TODO: use persona profile for name
+		const personaName = message.persona?.name;
 		const color = previewColor || member?.getColorString();
 		const onPopoutToggle = useMaybeMessageViewContext()?.onPopoutToggle;
 		const handlePopoutOpen = useCallback(() => onPopoutToggle?.(true), [onPopoutToggle]);
@@ -78,7 +80,7 @@ export const MessageUsername = observer(
 						onKeyDown={handleKeyDown}
 						data-flx="channel.message-username.context-menu-underline.key-down"
 					>
-						{displayName}
+						{personaName || displayName}
 					</span>
 				</FocusRing>
 			</PreloadableUserPopout>

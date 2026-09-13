@@ -49,8 +49,11 @@ export const MessageAvatar = observer(
 						className={className}
 						forceAnimate={isHovering}
 						guildId={guildId}
+						personaId={message.persona?.id}
+						personaAvatar={message.persona?.avatar}
 						data-user-id={user.id}
 						data-guild-id={guildId}
+						data-persona-id={message.persona?.id}
 						data-flx="channel.message-avatar.avatar"
 					/>
 				</FocusRing>

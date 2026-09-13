@@ -50,6 +50,7 @@ import {ArrowsClockwiseIcon, BellSlashIcon, EyeIcon, WarningCircleIcon} from '@p
 import {clsx} from 'clsx';
 import {observer} from 'mobx-react-lite';
 import {type MouseEvent, useCallback, useMemo} from 'react';
+import { Avatar } from '@app/features/ui/components/Avatar';
 
 const JUMP_TO_MESSAGE_FROM_SENT_DESCRIPTOR = msg({
 	message: 'Jump to message from {displayName}, sent {formattedDate}',
@@ -578,6 +579,13 @@ export const UserMessage = observer(() => {
 										/>
 									)}
 								</span>
+								{message.persona && <Tooltip maxWidth="xl" text={`Account: @${author.username}#${author.discriminator}`}><Avatar
+									user={author}
+									size={16}
+									guildId={message.guildId}
+									className={clsx(styles.messagePersonaTagBase, styles.messageAvatar, styles.messageAvatarEmbedded)}
+									data-flx="channel.message-author-info.persona-account-tag"
+								/></Tooltip>}
 								<TimestampWithTooltip
 									date={message.timestamp}
 									className={styles.messageTimestamp}
