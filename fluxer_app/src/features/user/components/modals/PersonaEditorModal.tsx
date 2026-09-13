@@ -5,10 +5,10 @@ import { msg } from '@lingui/core/macro';
 import { observer } from 'mobx-react-lite';
 import profileStyles from '@app/features/user/components/modals/tabs/MyProfileTab.module.css';
 import { Form } from '@app/features/ui/components/form/Form';
-import {useForm} from 'react-hook-form';
+import {useForm, useWatch} from 'react-hook-form';
 import { Input } from '@app/features/ui/components/form/FormInput';
 import { Trans, useLingui } from '@lingui/react/macro';
-import { DISPLAY_NAME_DESCRIPTOR, PRONOUNS_DESCRIPTOR } from './tabs/MyProfileTab';
+import { DISPLAY_NAME_DESCRIPTOR, DOC_I_M_FROM_THE_FUTURE_I_CAME_DESCRIPTOR, PRONOUNS_DESCRIPTOR } from './tabs/MyProfileTab';
 import { SettingsSection } from '@app/features/app/components/dialogs/shared/SettingsSection';
 import styles from '@app/features/user/components/modals/PersonaEditorModal.module.css';
 import { clsx } from 'clsx';
@@ -17,7 +17,7 @@ import { ProfilePreview } from '../profile/ProfilePreview';
 import { Button } from '@app/features/ui/button/Button';
 import { modal } from '@app/features/ui/commands/ModalCommands';
 import { Modals } from '@app/features/app/components/dialogs/Modals';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import * as ToastCommands from '@app/features/ui/commands/ToastCommands';
 import * as UnsavedChangesCommands from '@app/features/ui/commands/UnsavedChangesCommands';
 import * as PersonaCommands from '@app/features/personas/commands/Personas';
@@ -29,6 +29,11 @@ import Personas from '../../state/Personas';
 import * as ModalCommands from '@app/features/ui/commands/ModalCommands';
 import { DeleteIcon } from '@app/features/ui/action_menu/ContextMenuIcons';
 import { ConfirmModal } from '@app/features/app/components/dialogs/ConfirmModal';
+import { BioEditor } from './tabs/my_profile_tab/BioEditor';
+import type { MentionSegment } from '@app/features/messaging/utils/TextareaSegmentManager';
+import type { LexicalRichInputHandle } from '@app/features/lexical/composer/LexicalRichInput';
+import type { FlatEmoji } from '@app/features/emoji/types/EmojiTypes';
+import MobileLayout from '@app/features/ui/state/MobileLayout';
 
 const EDIT_PERSONA_DESCRIPTOR = msg({
 	message: 'Edit Persona',
@@ -77,6 +82,7 @@ export const PersonaEditorModal: React.FC<PersonaEditorModalProps> = observer(
 		const form = useForm<FormInputs>({
 			defaultValues: {...initialPersona, avatar: null, banner: null},
 		});
+		const [bioHydrationKey, setBioHydrationKey] = useState(0);
 		const onSubmit = useCallback(
 			async (data: FormInputs) => {
 				if (initialPersona) {
@@ -121,6 +127,10 @@ export const PersonaEditorModal: React.FC<PersonaEditorModalProps> = observer(
 		const handleReset = useCallback(() => {
 			// TODO: Get new default values, i.e. what was submitted last
 			form.reset();
+			setBioValue(form.formState.defaultValues?.bio ?? "");
+			setBioActualValue(form.formState.defaultValues?.bio ?? "");
+			setBioSegments([]);
+			setBioHydrationKey((key) => key + 1);
 		}, [initialPersona]);
 		const {handleSubmit: handleSave} = useFormSubmit({
 			form,
@@ -141,6 +151,52 @@ export const PersonaEditorModal: React.FC<PersonaEditorModalProps> = observer(
 				primaryText={<Trans>Delete</Trans>}
 			/>)
 		}, [initialPersona]);
+
+		const bioComposerRef = useRef<LexicalRichInputHandle | null>(null);
+		const [bioValue, setBioValue] = useState(form.formState.defaultValues?.bio ?? "");
+		const [bioActualValue, setBioActualValue] = useState(bioValue);
+		const [bioSegments, setBioSegments] = useState<Array<MentionSegment>>([]);
+		const [bioExpressionPickerOpen, setBioExpressionPickerOpen] = useState(false);
+		const handleBioChange = useCallback((display: string, segments: Array<MentionSegment>, wire: string) => {
+			const bio = form.getFieldState("bio");
+			const ogBio = form.formState.defaultValues?.bio;
+			console.log("og bio was:", ogBio);
+			console.log("bio was:", bioActualValue);
+			console.log("changed bio:", wire);
+			if (wire !== bioActualValue) form.setValue("bio", wire, {
+				shouldDirty: bio.isDirty || wire !== ogBio,
+				shouldTouch: true,
+				shouldValidate: true
+			});
+			setBioValue(display);
+			setBioSegments(segments);
+			setBioActualValue(wire);
+		}, []);
+		useWatch({
+			control: form.control,
+			name: ['bio'],
+			compute: ([wireValue]) => {
+				if (wireValue === bioActualValue) return;
+				//if (wireValue === null) return;
+				setBioValue(wireValue || "");
+				setBioSegments([]);
+				setBioActualValue(wireValue || "");
+			}
+		});
+		const handleBioEmojiSelect = useCallback((emoji: FlatEmoji, shiftKey?: boolean) => {
+			const composer = bioComposerRef.current;
+			if (composer == null) {
+				return false;
+			}
+			const didInsert = composer.insertEmoji(emoji);
+			if (didInsert && shiftKey !== true) {
+				setBioExpressionPickerOpen(false);
+			}
+			return didInsert;
+		}, []);
+		const actualBio = bioActualValue;
+		const maxBioActualLength = user?.maxBioLength ?? 0;
+
 		/* TODO: still need UnsavedChanges */
 		return <Modal.Root size={"large"}>
 			<Modal.Header title={initialPersona ? i18n._(EDIT_PERSONA_DESCRIPTOR) : i18n._(CREATE_PERSONA_DESCRIPTOR)} />
@@ -188,25 +244,25 @@ export const PersonaEditorModal: React.FC<PersonaEditorModalProps> = observer(
 									data-flx="user.persona-editor-modal.accent-color-picker.set-value"
 								/>
 							</div>
-							{/* <div
-								className={isPerGuildProfile && !hasPerGuildProfiles ? styles.opacityHalf : ''}
-								data-flx="user.my-profile-tab.my-profile-tab-component.opacity-half--2"
+							<div
+								//className={isPerGuildProfile && !hasPerGuildProfiles ? styles.opacityHalf : ''}
+								//data-flx="user.my-profile-tab.my-profile-tab-component.opacity-half--2"
 							>
 								<BioEditor
+									{...form.register('bio')}
 									initialValue={bioValue}
 									initialSegments={bioSegments}
 									hydrationKey={bioHydrationKey}
 									onChange={handleBioChange}
 									onEmojiSelect={handleBioEmojiSelect}
 									placeholder={
-										isPerGuildProfile && user?.bio
-											? convertMarkdownToSegments(user.bio, selectedGuildId).displayText
-											: i18n._(DOC_I_M_FROM_THE_FUTURE_I_CAME_DESCRIPTOR)
+										i18n._(DOC_I_M_FROM_THE_FUTURE_I_CAME_DESCRIPTOR)
 									}
 									actualLength={actualBio.length}
 									actualMaxLength={maxBioActualLength}
-									disabled={isProfileCustomizationLocked || isPerGuildProfileCustomizationDisabled}
-									isMobile={mobileLayout.enabled}
+									disabled={false}
+									// disabled={isProfileCustomizationLocked || isPerGuildProfileCustomizationDisabled}
+									isMobile={MobileLayout.enabled}
 									errorMessage={
 										form.formState.errors.bio != null && form.formState.errors.bio.message != null
 											? form.formState.errors.bio.message
@@ -215,13 +271,13 @@ export const PersonaEditorModal: React.FC<PersonaEditorModalProps> = observer(
 									composerRef={bioComposerRef}
 									emojiPickerOpen={bioExpressionPickerOpen}
 									onEmojiPickerOpenChange={setBioExpressionPickerOpen}
-									data-flx="user.my-profile-tab.my-profile-tab-component.bio-editor.bio-change"
+									data-flx="user.persona-editor-modal.bio-editor.bio-change"
 								/>
-							</div> */}
+							</div>
 						</div>
 						<div
 							className={profileStyles.previewColumn}
-							data-flx="user.my-profile-tab.my-profile-tab-component.preview-column"
+							data-flx="user.persona-editor-modal.preview-column"
 						>
 							<ProfilePreview
 								user={user}

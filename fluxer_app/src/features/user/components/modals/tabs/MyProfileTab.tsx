@@ -142,7 +142,7 @@ export const PRONOUNS_DESCRIPTOR = msg({
 	message: 'Pronouns',
 	comment: 'Short label in the my profile tab. Keep it concise.',
 });
-const DOC_I_M_FROM_THE_FUTURE_I_CAME_DESCRIPTOR = msg({
+export const DOC_I_M_FROM_THE_FUTURE_I_CAME_DESCRIPTOR = msg({
 	message:
 		"Doc, I'm from the future. I came here in a time machine that you invented. Now, I need your help to get back to the year 1985.",
 	comment: 'Label in the my profile tab.',
