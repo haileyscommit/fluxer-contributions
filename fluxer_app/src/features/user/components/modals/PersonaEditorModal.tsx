@@ -89,12 +89,14 @@ export const PersonaEditorModal: React.FC<PersonaEditorModalProps> = observer(
 			defaultValues: {...initialPersona, avatar: undefined, banner: undefined},
 		});
 		const [bioHydrationKey, setBioHydrationKey] = useState(0);
+		const [hasChangedAvatar, setHasChangedAvatar] = useState(false);
+		const [hasChangedBanner, setHasChangedBanner] = useState(false);
 		const onSubmit = useCallback(
 			async (data: FormInputs) => {
 				if (savedPersona) {
 					const updateData: PersonaPatchRequest = {
-						avatar: data.avatar,
-						banner: data.banner,
+						avatar: hasChangedAvatar ? data.avatar || null : undefined,
+						banner: hasChangedBanner ? data.banner || null : undefined,
 						bio: data.bio,
 						internal_name: data.internal_name || undefined,
 						display_name: data.display_name || undefined,
@@ -119,6 +121,8 @@ export const PersonaEditorModal: React.FC<PersonaEditorModalProps> = observer(
 					ToastCommands.createToast({type: 'success', children: i18n._(PERSONA_CREATED_DESCRIPTOR)});
 					setSavedPersona(new Persona(newPersona));
 				}
+				setHasChangedAvatar(false);
+				setHasChangedBanner(false);
 			},
 			[
 				// commitProfileFormValues,
@@ -141,6 +145,8 @@ export const PersonaEditorModal: React.FC<PersonaEditorModalProps> = observer(
 			setBioActualValue(form.formState.defaultValues?.bio ?? "");
 			setBioSegments([]);
 			setBioHydrationKey((key) => key + 1);
+			setHasChangedAvatar(false);
+			setHasChangedBanner(false);
 		}, [savedPersona]);
 		const {handleSubmit: handleSave} = useFormSubmit({
 			form,
@@ -212,12 +218,14 @@ export const PersonaEditorModal: React.FC<PersonaEditorModalProps> = observer(
 				shouldDirty: true,
 				shouldTouch: true
 			});
+			setHasChangedAvatar(true);
 		}, [savedPersona]);
 		const clearAvatarHandler = useCallback(() => {
 			form.setValue("avatar", null, {
 				shouldDirty: true,
 				shouldTouch: true
 			});
+			setHasChangedAvatar(true);
 		}, [savedPersona]);
 		const hasAvatar = !!savedPersona?.avatar || !!form.watch("avatar");
 
@@ -226,12 +234,14 @@ export const PersonaEditorModal: React.FC<PersonaEditorModalProps> = observer(
 				shouldDirty: true,
 				shouldTouch: true
 			});
+			setHasChangedBanner(true);
 		}, [savedPersona]);
 		const clearBannerHandler = useCallback(() => {
 			form.setValue("banner", null, {
 				shouldDirty: true,
 				shouldTouch: true
 			});
+			setHasChangedBanner(true);
 		}, [savedPersona]);
 		const hasBanner = !!savedPersona?.banner || !!form.watch("banner");
 
