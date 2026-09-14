@@ -94,6 +94,7 @@ export const PersonaEditorModal: React.FC<PersonaEditorModalProps> = observer(
 				if (savedPersona) {
 					const updateData: PersonaPatchRequest = {
 						avatar: data.avatar,
+						banner: data.banner,
 						bio: data.bio,
 						internal_name: data.internal_name || undefined,
 						display_name: data.display_name || undefined,
@@ -288,8 +289,7 @@ export const PersonaEditorModal: React.FC<PersonaEditorModalProps> = observer(
 									hasBanner={hasBanner}
 									onBannerChange={setBannerHandler}
 									onBannerClear={clearBannerHandler}
-									//disabled={isProfileCustomizationLocked || isPerGuildProfileCustomizationDisabled}
-									//disableModeSelection={isProfileCustomizationLocked}
+									requireBannerEntitlement={true}
 									hideUploadWhenMissingEntitlement={true}
 									isPerGuildProfile={false}
 									errorMessage={form.formState.errors.banner?.message}
