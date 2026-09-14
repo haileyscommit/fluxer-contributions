@@ -109,8 +109,9 @@ function getDateAtOffset(now: Date, offsetMinutes: number): Date {
 export const UserProfileBio: React.FC<{
 	profile: Profile;
 	profileData?: Readonly<UserProfile> | null;
+	shouldScroll?: boolean;
 	onShowMore?: () => void;
-}> = observer(({profile, profileData, onShowMore}) => {
+}> = observer(({profile, profileData, onShowMore, shouldScroll}) => {
 	const {i18n} = useLingui();
 	const resolvedProfile = profileData ?? profile?.getEffectiveProfile() ?? null;
 	const bioContent = resolvedProfile?.bio ?? '';
@@ -172,7 +173,7 @@ export const UserProfileBio: React.FC<{
 		>
 			<div
 				ref={bioRef}
-				className={clsx(markupStyles.markup, markupStyles.bio, markupStyles.mutedSpoilerContext, {
+				className={clsx(markupStyles.markup, markupStyles.bio, markupStyles.mutedSpoilerContext, shouldScroll && styles.scrollableBio, {
 					[styles.bioClamped]: shouldTruncate,
 				})}
 				data-flx="user.user-profile-shared.user-profile-bio.bio-clamped"

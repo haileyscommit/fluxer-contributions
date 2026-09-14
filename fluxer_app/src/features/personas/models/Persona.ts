@@ -90,3 +90,15 @@ export class Persona {
 		})
 	}
 }
+
+export const emptyOwnPersona = new Persona({
+	id: "0",
+	internal_name: "",
+	display_name: "",
+	bio: null,
+	avatar_color: null,
+	banner_color: null,
+	pronouns: null,
+	tags: [],
+	triggers: [],
+} as WireOwnPersona)

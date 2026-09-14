@@ -11,6 +11,7 @@ import { Trans, useLingui } from '@lingui/react/macro';
 import { DISPLAY_NAME_DESCRIPTOR, DOC_I_M_FROM_THE_FUTURE_I_CAME_DESCRIPTOR, PRONOUNS_DESCRIPTOR } from './tabs/MyProfileTab';
 import { SettingsSection } from '@app/features/app/components/dialogs/shared/SettingsSection';
 import styles from '@app/features/user/components/modals/PersonaEditorModal.module.css';
+import previewStyles from '@app/features/user/components/profile/ProfilePreview.module.css';
 import { clsx } from 'clsx';
 import Users from '../../state/Users';
 import { ProfilePreview } from '../profile/ProfilePreview';
@@ -36,6 +37,8 @@ import type { FlatEmoji } from '@app/features/emoji/types/EmojiTypes';
 import MobileLayout from '@app/features/ui/state/MobileLayout';
 import { AvatarUploader } from './tabs/my_profile_tab/AvatarUploader';
 import { BannerUploader } from './tabs/my_profile_tab/BannerUploader';
+import { PersonaProfileCard } from '../profile/PersonaProfile';
+import FocusRing from '@app/features/ui/focus_ring/FocusRing';
 
 const EDIT_PERSONA_DESCRIPTOR = msg({
 	message: 'Edit Persona',
@@ -342,9 +345,24 @@ export const PersonaEditorModal: React.FC<PersonaEditorModalProps> = observer(
 							className={profileStyles.previewColumn}
 							data-flx="user.persona-editor-modal.preview-column"
 						>
-							<ProfilePreview
+							{/* <ProfilePreview
 								user={user}
-							/>
+							/> */}
+							<FocusRing offset={-2} data-flx="user.profile.profile-preview.focus-ring">
+								<div
+									className={previewStyles.previewInteractive}
+									role="group"
+									//aria-label={i18n._(PROFILE_PREVIEW_PRESS_ENTER_TO_OPEN_FULL_PREVIEW_DESCRIPTOR)}
+									onKeyDown={/*handlePreviewKeyDown*/() => {}}
+									data-flx="user.profile.profile-preview.preview-interactive.preview-key-down"
+								>
+									{savedPersona && <PersonaProfileCard
+										user={user}
+										persona={savedPersona!}
+										showPreviewLabel
+									/>}
+								</div>
+							</FocusRing>
 						</div>
 					</div>
 				</Form>
