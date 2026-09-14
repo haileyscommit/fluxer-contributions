@@ -239,4 +239,5 @@ export const Endpoints = {
 	CONNECTIONS_REORDER: '/users/@me/connections/reorder',
 	USER_PERSONAS: '/users/@me/personas',
 	USER_PERSONA: (personaId: string) => `/users/@me/personas/${personaId}`,
+	USER_PERSONA_OTHER: (userId: string, personaId: string) => `/users/${userId}/personas/${personaId}`,
 } as const;

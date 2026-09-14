@@ -1,7 +1,7 @@
 import { Endpoints } from "@app/features/app/constants/Endpoints";
 import { http } from "@app/features/platform/transport/RestTransport";
 import { Logger } from "@app/features/platform/utils/AppLogger";
-import type {OwnPersonaResponse, PersonaCreateRequest, PersonaPatchRequest, OwnPersonaResponse as WireOwnPersona} from "@fluxer/schema/src/domains/persona/PersonaSchemas";
+import type {OwnPersonaResponse, PersonaCreateRequest, PersonaPatchRequest, PersonaResponse, OwnPersonaResponse as WireOwnPersona} from "@fluxer/schema/src/domains/persona/PersonaSchemas";
 
 const logger = new Logger('Personas');
 
@@ -25,4 +25,9 @@ export async function create(persona: PersonaCreateRequest): Promise<OwnPersonaR
 export async function deletePersona(personaId: string): Promise<boolean> {
 	const response = await http.delete(Endpoints.USER_PERSONA(personaId));
 	return response.ok;
+}
+
+export async function getPersona(userId: string, personaId: string): Promise<PersonaResponse> {
+	const response = await http.get<PersonaResponse>(Endpoints.USER_PERSONA_OTHER(userId, personaId));
+	return response.body;
 }

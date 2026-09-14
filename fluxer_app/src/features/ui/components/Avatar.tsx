@@ -126,6 +126,8 @@ const AvatarComponent = React.forwardRef<HTMLDivElement, AvatarProps>(
 			mediaSize,
 			userAvatar,
 			userId,
+			personaId,
+			personaAvatar,
 		]);
 		const statusLabel = status != null ? getStatusTypeLabel(i18n, status) : null;
 		const hasDistinctHoverAvatar = Boolean(hoverAvatarUrl && hoverAvatarUrl !== avatarUrl);

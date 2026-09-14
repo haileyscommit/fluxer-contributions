@@ -6,6 +6,7 @@ import {GuildMemberActionsSheet} from '@app/features/guild/components/modals/gui
 import type {GuildMember} from '@app/features/member/models/GuildMember';
 import GuildMembers from '@app/features/member/state/GuildMembers';
 import type {Message} from '@app/features/messaging/models/MessagingMessage';
+import type { Persona } from '@app/features/personas/models/Persona';
 import {ComponentBus} from '@app/features/platform/utils/ComponentBus';
 import {GuildMemberContextMenu} from '@app/features/ui/action_menu/GuildMemberContextMenu';
 import {UserContextMenu} from '@app/features/ui/action_menu/UserContextMenu';
@@ -27,6 +28,7 @@ export const PreloadableUserPopout = React.forwardRef<
 	HTMLElement,
 	{
 		user: User;
+		persona?: Persona;
 		isWebhook: boolean;
 		webhookId?: string;
 		guildId?: string;
@@ -48,6 +50,7 @@ export const PreloadableUserPopout = React.forwardRef<
 	(
 		{
 			user,
+			persona,
 			isWebhook,
 			webhookId,
 			guildId,
@@ -246,6 +249,7 @@ export const PreloadableUserPopout = React.forwardRef<
 						key={`${user.id}:${guildId ?? 'global'}:${isWebhook ? 'webhook' : 'user'}`}
 						popoutKey={popoutKey}
 						user={user}
+						persona={persona}
 						isWebhook={isWebhook}
 						guildId={guildId}
 						guildMember={member}

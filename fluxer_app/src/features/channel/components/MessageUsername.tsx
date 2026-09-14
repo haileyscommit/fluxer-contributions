@@ -7,10 +7,12 @@ import type {Guild} from '@app/features/guild/models/Guild';
 import {isKeyboardActivationKey} from '@app/features/input/utils/KeyboardUtils';
 import type {GuildMember} from '@app/features/member/models/GuildMember';
 import type {Message} from '@app/features/messaging/models/MessagingMessage';
+import { makeFallbackPersona } from '@app/features/personas/models/Persona';
 import styles from '@app/features/theme/styles/Message.module.css';
 import FocusRing from '@app/features/ui/focus_ring/FocusRing';
 import KeyboardMode from '@app/features/ui/state/KeyboardMode';
 import type {User} from '@app/features/user/models/User';
+import Personas from '@app/features/user/state/Personas';
 import * as NicknameUtils from '@app/features/user/utils/NicknameUtils';
 import {clsx} from 'clsx';
 import {observer} from 'mobx-react-lite';
@@ -39,8 +41,8 @@ export const MessageUsername = observer(
 		const usernameRef = useRef<HTMLSpanElement | null>(null);
 		const contextMenuOpen = useContextMenuHoverState(usernameRef);
 		const displayName = previewName || NicknameUtils.getNickname(user, guild?.id, message.channelId);
-		// TODO: use persona profile for name
-		const personaName = message.persona?.name;
+		const storedPersona = message.persona?.id ? Personas.getPersona(message.persona.id) : null;
+		const personaName = storedPersona?.display_name || message.persona?.name;
 		const color = previewColor || member?.getColorString();
 		const onPopoutToggle = useMaybeMessageViewContext()?.onPopoutToggle;
 		const handlePopoutOpen = useCallback(() => onPopoutToggle?.(true), [onPopoutToggle]);
@@ -55,6 +57,7 @@ export const MessageUsername = observer(
 		return (
 			<PreloadableUserPopout
 				user={user}
+				persona={message.persona ? makeFallbackPersona(message.persona) : undefined}
 				isWebhook={message.webhookId != null}
 				webhookId={message.webhookId ?? undefined}
 				guildId={guild?.id}

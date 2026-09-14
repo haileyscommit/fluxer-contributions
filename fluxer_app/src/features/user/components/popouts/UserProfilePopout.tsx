@@ -68,7 +68,11 @@ import {Trans, useLingui} from '@lingui/react/macro';
 import {ChatTeardropIcon, PencilIcon} from '@phosphor-icons/react';
 import {observer} from 'mobx-react-lite';
 import type React from 'react';
-import {useCallback, useEffect, useMemo, useRef} from 'react';
+import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import type { Persona } from '@app/features/personas/models/Persona';
+import { PersonaProfileCard } from '../profile/PersonaProfile';
+import Personas from '../../state/Personas';
+import * as PersonaCommands from '@app/features/personas/commands/Personas';
 
 const YOU_CAN_T_MESSAGE_YOURSELF_DESCRIPTOR = msg({
 	message: "You can't message yourself",
@@ -79,6 +83,7 @@ const logger = new Logger('UserProfilePopout');
 interface UserProfilePopoutProps {
 	popoutKey: string | number;
 	user: User;
+	persona?: Persona;
 	isWebhook: boolean;
 	guildId?: string;
 	guildMember?: GuildMember | null;
@@ -87,12 +92,21 @@ interface UserProfilePopoutProps {
 }
 
 export const UserProfilePopout: React.FC<UserProfilePopoutProps> = observer(
-	({popoutKey, user, isWebhook, guildId, guildMember: providedGuildMember, isPreview, onClose}) => {
+	({popoutKey, user, persona, isWebhook, guildId, guildMember: providedGuildMember, isPreview, onClose}) => {
 		const {i18n} = useLingui();
 		const [hoverRef, isHovering] = useHover();
 		const storedGuildMember = guildId ? GuildMembers.getMember(guildId, user.id) : null;
 		const profileGuildId = isWebhook ? undefined : guildId;
 		const fallbackProfile = useMemo(() => createMockProfile(user), [user]);
+		const [storedPersona, setStoredPersona] = useState(persona?.id ? Personas.getPersona(persona.id) : null);
+		useEffect(() => {
+			if (persona && !storedPersona) {
+				PersonaCommands.getPersona(user.id, persona!.id).then((wirePersona) => {
+					Personas.cachePersonas([wirePersona]);
+					setStoredPersona(Personas.getPersona(persona.id))
+				});
+			}
+		}, []);
 		const handleProfileLoadError = useCallback((error: unknown) => {
 			logger.error('Failed to fetch profile for user popout', error);
 		}, []);
@@ -275,7 +289,11 @@ export const UserProfilePopout: React.FC<UserProfilePopoutProps> = observer(
 		return (
 			<FocusRingScope containerRef={popoutContainerRef} data-flx="user.user-profile-popout.focus-ring-scope">
 				<div ref={popoutContainerRef} data-flx="user.user-profile-popout.div">
-					<ProfileCardLayout
+					{persona?.id ? <PersonaProfileCard
+					  user={user}
+						persona={storedPersona || persona}
+						openFullMainProfile={openFullProfile}
+					/> : <ProfileCardLayout
 						borderColor={borderColor}
 						hoverRef={hoverRef}
 						className={styles.profilePopoutCard}
@@ -450,7 +468,7 @@ export const UserProfilePopout: React.FC<UserProfilePopoutProps> = observer(
 								)}
 							</ProfileCardFooter>
 						)}
-					</ProfileCardLayout>
+					</ProfileCardLayout>}
 				</div>
 			</FocusRingScope>
 		);

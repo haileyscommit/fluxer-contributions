@@ -49,9 +49,11 @@ import {Trans, useLingui} from '@lingui/react/macro';
 import {ArrowsClockwiseIcon, BellSlashIcon, EyeIcon, WarningCircleIcon} from '@phosphor-icons/react';
 import {clsx} from 'clsx';
 import {observer} from 'mobx-react-lite';
-import {type MouseEvent, useCallback, useMemo} from 'react';
+import {type MouseEvent, useCallback, useEffect, useMemo, useState} from 'react';
 import { Avatar } from '@app/features/ui/components/Avatar';
 import { PersonaTag } from './MessagePersonaTag';
+import Personas from '@app/features/user/state/Personas';
+import * as PersonaCommands from '@app/features/personas/commands/Personas';
 
 const JUMP_TO_MESSAGE_FROM_SENT_DESCRIPTOR = msg({
 	message: 'Jump to message from {displayName}, sent {formattedDate}',
@@ -538,6 +540,16 @@ export const UserMessage = observer(() => {
 			</SpoilerSyncProvider>
 		);
 	}
+	const persona = message.persona;
+	const [storedPersona, setStoredPersona] = useState(persona?.id ? Personas.getPersona(persona.id) : null);
+		useEffect(() => {
+			if (persona?.id && !storedPersona) {
+				PersonaCommands.getPersona(message.author.id, persona!.id).then((wirePersona) => {
+					Personas.cachePersonas([wirePersona]);
+					setStoredPersona(Personas.getPersona(persona.id!))
+				});
+			}
+		}, []);
 	return (
 		<SpoilerSyncProvider data-flx="channel.user-message.spoiler-sync-provider--3">
 			{message.messageReference && message.messageReference.type === 0 && (

@@ -22,7 +22,7 @@ import { isKeyboardActivationKey } from "@app/features/input/utils/KeyboardUtils
 interface PersonaProfileCardProps {
 	user: User;
 	persona: Persona;
-	showPreviewLabel: boolean;
+	showPreviewLabel?: boolean;
 	openFullMainProfile?: () => void;
 }
 

@@ -46,7 +46,7 @@ export function PersonaController(app: HonoApp) {
 		OpenAPI({
 			operationId: 'get_persona',
 			summary: 'Get the profile for a persona.',
-			responseSchema: z.array(PersonaResponse),
+			responseSchema: PersonaResponse,
 			statusCode: 200,
 			security: ['botToken', 'bearerToken', 'sessionToken'],
 			tags: ['Personas'],

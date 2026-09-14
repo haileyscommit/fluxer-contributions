@@ -1,3 +1,4 @@
+import type { Message } from "@app/features/messaging/models/MessagingMessage";
 import Users from "@app/features/user/state/Users";
 import type {OwnPersonaResponse as WireOwnPersona, PersonaResponse as WirePersona} from "@fluxer/schema/src/domains/persona/PersonaSchemas";
 import { PresentationChart } from "@phosphor-icons/react";
@@ -60,7 +61,7 @@ export class Persona {
 	}
 
 	withUpdates(other: Partial<WirePersona | WireOwnPersona>): Persona {
-		if (other.id !== this.id || ('user' in other && (other.user?.id !== this.userId))) return this;
+		if ((other.id !== this.id && this.id !== "0") || ('user' in other && (other.user?.id !== this.userId))) return this;
 		return new Persona({
 			id: other.id || this.id,
 			avatar: this.override(other.avatar, this.avatar),
@@ -102,3 +103,13 @@ export const emptyOwnPersona = new Persona({
 	tags: [],
 	triggers: [],
 } as WireOwnPersona)
+
+export function makeFallbackPersona(other: any): Persona {
+	if (!other) return emptyOwnPersona;
+	return emptyOwnPersona.withUpdates({
+		id: other.id!,
+		display_name: other.name,
+		avatar: other.avatar,
+		pronouns: other.pronouns
+	})
+}
