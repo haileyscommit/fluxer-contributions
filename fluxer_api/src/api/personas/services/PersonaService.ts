@@ -229,10 +229,10 @@ export class PersonaService {
 			bio: data.bio,
 			pronouns: data.pronouns,
 			tags: data.tags,
-			avatar_hash: preparedAvatar === undefined ? undefined : avatarHash,
-			banner_hash: preparedBanner === undefined ? undefined : bannerHash,
-			avatar_color: preparedAvatar === undefined ? undefined : preparedAvatar?.imageBuffer ? await deriveDominantAvatarColor(preparedAvatar?.imageBuffer) : null,
-			banner_color: preparedBanner === undefined ? undefined : preparedBanner?.imageBuffer ? await deriveDominantAvatarColor(preparedBanner?.imageBuffer) : null,
+			avatar_hash: preparedAvatar === undefined ? data.avatar === null ? null : undefined : avatarHash,
+			banner_hash: preparedBanner === undefined ? data.avatar === null ? null : undefined : bannerHash,
+			avatar_color: preparedAvatar === undefined ? data.banner === null ? null : undefined : preparedAvatar?.imageBuffer ? await deriveDominantAvatarColor(preparedAvatar?.imageBuffer) : null,
+			banner_color: preparedBanner === undefined ? data.banner === null ? null : undefined : preparedBanner?.imageBuffer ? await deriveDominantAvatarColor(preparedBanner?.imageBuffer) : null,
 		});
 		if (data.triggers) await this.personaRepository.setPersonaTriggers(userId, personaId, data.triggers.map((v) => new PersonaTrigger(v.prefix || null, v.suffix || null)));
 		if (data.triggers === null) await this.personaRepository.setPersonaTriggers(userId, personaId, []);

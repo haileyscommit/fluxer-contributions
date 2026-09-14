@@ -1,5 +1,5 @@
 import * as Modal from '@app/features/app/components/dialogs/Modal';
-import type { Persona } from '@app/features/personas/models/Persona';
+import { Persona } from '@app/features/personas/models/Persona';
 import { i18n } from "@lingui/core";
 import { msg } from '@lingui/core/macro';
 import { observer } from 'mobx-react-lite';
@@ -34,6 +34,7 @@ import type { MentionSegment } from '@app/features/messaging/utils/TextareaSegme
 import type { LexicalRichInputHandle } from '@app/features/lexical/composer/LexicalRichInput';
 import type { FlatEmoji } from '@app/features/emoji/types/EmojiTypes';
 import MobileLayout from '@app/features/ui/state/MobileLayout';
+import { AvatarUploader } from './tabs/my_profile_tab/AvatarUploader';
 
 const EDIT_PERSONA_DESCRIPTOR = msg({
 	message: 'Edit Persona',
@@ -77,16 +78,18 @@ interface FormInputs {
 export const PersonaEditorModal: React.FC<PersonaEditorModalProps> = observer(
 	({initialPersona}) => {
 		console.log("Using persona", initialPersona, Personas.allPersonasList);
+		const [savedPersona, setSavedPersona] = useState(initialPersona);
 		const {i18n} = useLingui();
 		const user = useMemo(() => Users.currentUser!, []);
 		const form = useForm<FormInputs>({
-			defaultValues: {...initialPersona, avatar: null, banner: null},
+			defaultValues: {...initialPersona, avatar: undefined, banner: undefined},
 		});
 		const [bioHydrationKey, setBioHydrationKey] = useState(0);
 		const onSubmit = useCallback(
 			async (data: FormInputs) => {
-				if (initialPersona) {
+				if (savedPersona) {
 					const updateData: PersonaPatchRequest = {
+						avatar: data.avatar,
 						bio: data.bio,
 						internal_name: data.internal_name || undefined,
 						display_name: data.display_name || undefined,
@@ -97,6 +100,7 @@ export const PersonaEditorModal: React.FC<PersonaEditorModalProps> = observer(
 					form.reset({...newPersona, avatar: null, banner: null});
 					Personas.cachePersonas([newPersona]);
 					ToastCommands.createToast({type: 'success', children: i18n._(PERSONA_UPDATED_DESCRIPTOR)});
+					setSavedPersona(new Persona(newPersona));
 				} else {
 					// Create a persona
 					const newPersona = await PersonaCommands.create({
@@ -108,6 +112,7 @@ export const PersonaEditorModal: React.FC<PersonaEditorModalProps> = observer(
 					Personas.cachePersonas([newPersona]);
 					ModalCommands.pop();
 					ToastCommands.createToast({type: 'success', children: i18n._(PERSONA_CREATED_DESCRIPTOR)});
+					setSavedPersona(new Persona(newPersona));
 				}
 			},
 			[
@@ -131,26 +136,26 @@ export const PersonaEditorModal: React.FC<PersonaEditorModalProps> = observer(
 			setBioActualValue(form.formState.defaultValues?.bio ?? "");
 			setBioSegments([]);
 			setBioHydrationKey((key) => key + 1);
-		}, [initialPersona]);
+		}, [savedPersona]);
 		const {handleSubmit: handleSave} = useFormSubmit({
 			form,
 			onSubmit,
 			defaultErrorField: 'internal_name',
 		});
 		const handleDelete = useCallback(async () => {
-			if (!initialPersona) return;
+			if (!savedPersona) return;
 			ModalCommands.push(() => <ConfirmModal
 				title="Delete this persona?"
-				description={`You are about to delete ${initialPersona.internal_name}. Are you sure this is what you want to do?`}
+				description={`You are about to delete ${savedPersona.internal_name}. Are you sure this is what you want to do?`}
 				onPrimary={async () => {
-					await PersonaCommands.deletePersona(initialPersona.id);
-					Personas.removePersona(initialPersona.id);
+					await PersonaCommands.deletePersona(savedPersona.id);
+					Personas.removePersona(savedPersona.id);
 					ToastCommands.createToast({type: 'success', children: i18n._(PERSONA_DELETED_DESCRIPTOR)});
 					ModalCommands.popAllByType(PersonaEditorModal);
 				}}
 				primaryText={<Trans>Delete</Trans>}
 			/>)
-		}, [initialPersona]);
+		}, [savedPersona]);
 
 		const bioComposerRef = useRef<LexicalRichInputHandle | null>(null);
 		const [bioValue, setBioValue] = useState(form.formState.defaultValues?.bio ?? "");
@@ -197,6 +202,22 @@ export const PersonaEditorModal: React.FC<PersonaEditorModalProps> = observer(
 		const actualBio = bioActualValue;
 		const maxBioActualLength = user?.maxBioLength ?? 0;
 
+		// const [avatarData, setAvatarData] = useState<string | null>(null);
+		// const [bannerData, setBannerData] = useState<string | null>(null);
+		const setAvatarHandler = useCallback((b64val: string) => {
+			form.setValue("avatar", b64val, {
+				shouldDirty: true,
+				shouldTouch: true
+			});
+		}, [savedPersona]);
+		const clearAvatarHandler = useCallback(() => {
+			form.setValue("avatar", null, {
+				shouldDirty: true,
+				shouldTouch: true
+			});
+		}, [savedPersona]);
+		const hasAvatar = !!savedPersona?.avatar || !!form.watch("avatar");
+
 		/* TODO: still need UnsavedChanges */
 		return <Modal.Root size={"large"}>
 			<Modal.Header title={initialPersona ? i18n._(EDIT_PERSONA_DESCRIPTOR) : i18n._(CREATE_PERSONA_DESCRIPTOR)} />
@@ -231,6 +252,21 @@ export const PersonaEditorModal: React.FC<PersonaEditorModalProps> = observer(
 								{...form.register('pronouns')}
 								value={form.watch('pronouns') || ''}
 							/>
+							<div data-flx="user.persona-editor-modal.avatar-uploader-outer">
+								<AvatarUploader
+									hasAvatar={hasAvatar}
+									requireAnimatedAvatarEntitlement={true}
+									onAvatarChange={setAvatarHandler}
+									onAvatarClear={clearAvatarHandler}
+									//disabled={isProfileCustomizationLocked || isPerGuildProfileCustomizationDisabled}
+									//disableModeSelection={isProfileCustomizationLocked}
+									isPerGuildProfile={false}
+									errorMessage={form.formState.errors.avatar?.message}
+									avatarMode={hasAvatar ? "custom" : "unset"}
+									//onAvatarModeChange={handleAvatarModeChange}
+									data-flx="user.persona-editor-modal.avatar-uploader"
+								/>
+							</div>
 							{/* TODO: avatar and banner */}
 							<div
 								// className={isPerGuildProfile && !hasPerGuildProfiles ? styles.opacityHalf : ''}
