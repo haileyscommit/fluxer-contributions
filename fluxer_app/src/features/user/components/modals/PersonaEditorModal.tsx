@@ -35,6 +35,7 @@ import type { LexicalRichInputHandle } from '@app/features/lexical/composer/Lexi
 import type { FlatEmoji } from '@app/features/emoji/types/EmojiTypes';
 import MobileLayout from '@app/features/ui/state/MobileLayout';
 import { AvatarUploader } from './tabs/my_profile_tab/AvatarUploader';
+import { BannerUploader } from './tabs/my_profile_tab/BannerUploader';
 
 const EDIT_PERSONA_DESCRIPTOR = msg({
 	message: 'Edit Persona',
@@ -202,8 +203,6 @@ export const PersonaEditorModal: React.FC<PersonaEditorModalProps> = observer(
 		const actualBio = bioActualValue;
 		const maxBioActualLength = user?.maxBioLength ?? 0;
 
-		// const [avatarData, setAvatarData] = useState<string | null>(null);
-		// const [bannerData, setBannerData] = useState<string | null>(null);
 		const setAvatarHandler = useCallback((b64val: string) => {
 			form.setValue("avatar", b64val, {
 				shouldDirty: true,
@@ -217,6 +216,20 @@ export const PersonaEditorModal: React.FC<PersonaEditorModalProps> = observer(
 			});
 		}, [savedPersona]);
 		const hasAvatar = !!savedPersona?.avatar || !!form.watch("avatar");
+
+		const setBannerHandler = useCallback((b64val: string) => {
+			form.setValue("banner", b64val, {
+				shouldDirty: true,
+				shouldTouch: true
+			});
+		}, [savedPersona]);
+		const clearBannerHandler = useCallback(() => {
+			form.setValue("banner", null, {
+				shouldDirty: true,
+				shouldTouch: true
+			});
+		}, [savedPersona]);
+		const hasBanner = !!savedPersona?.banner || !!form.watch("banner");
 
 		/* TODO: still need UnsavedChanges */
 		return <Modal.Root size={"large"}>
@@ -267,7 +280,21 @@ export const PersonaEditorModal: React.FC<PersonaEditorModalProps> = observer(
 									data-flx="user.persona-editor-modal.avatar-uploader"
 								/>
 							</div>
-							{/* TODO: avatar and banner */}
+							<div data-flx="user.persona-editor-modal.banner-upload-outer">
+								<BannerUploader
+									hasBanner={hasBanner}
+									onBannerChange={setBannerHandler}
+									onBannerClear={clearBannerHandler}
+									//disabled={isProfileCustomizationLocked || isPerGuildProfileCustomizationDisabled}
+									//disableModeSelection={isProfileCustomizationLocked}
+									hideUploadWhenMissingEntitlement={true}
+									isPerGuildProfile={false}
+									errorMessage={form.formState.errors.banner?.message}
+									bannerMode={hasBanner ? "custom" : "unset"}
+									//onBannerModeChange={handleBannerModeChange}
+									data-flx="user.persona-editor-modal.banner-uploader"
+								/>
+							</div>
 							<div
 								// className={isPerGuildProfile && !hasPerGuildProfiles ? styles.opacityHalf : ''}
 								// data-flx="user.persona-editor-modal.opacity-half"
