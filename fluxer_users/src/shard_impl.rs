@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-use crate::types::{ApiUserPartial, User, UserPartial, UserRequest, UserResponse};
+use crate::types::{ApiUserPartial, PersonaPartial, User, UserPartial, UserRequest, UserResponse};
+use anyhow::Error;
 #[cfg(feature = "scylla")]
 use chrono::{DateTime, NaiveDate, Utc};
 use fluxer_svc::shard::ShardService;
@@ -17,6 +18,7 @@ use scylla::statement::prepared::PreparedStatement;
 #[cfg(feature = "scylla")]
 use scylla::value::MaybeEmpty;
 use serde::Deserialize;
+use std::any::Any;
 use std::future::Future;
 use std::sync::Arc;
 use std::time::Duration;
@@ -58,6 +60,10 @@ const PARTIAL_USER_COLUMNS: &str = "\
     avatar_hash, bot, system, flags, \
     banner_hash, banner_color, accent_color, avatar_color, \
     mention_flags";
+#[cfg(feature = "scylla")]
+const PARTIAL_PERSONA_COLUMNS: &str = "\
+    persona_id, owner_id, internal_name, display_name, \
+		avatar_hash, banner_hash, pronouns, accent_color";
 const USER_BATCH_SIZE: usize = 128;
 const USER_BATCH_CONCURRENCY: usize = 8;
 const FLUXER_SYSTEM_USER_ID: i64 = 0;
@@ -74,6 +80,7 @@ pub struct UsersShard {
 struct UserCaches {
     full: Cache<i64, Option<User>>,
     partial: Cache<i64, Option<UserPartial>>,
+		persona: Cache<i64, Option<PersonaPartial>>
 }
 
 #[derive(Clone)]
@@ -94,6 +101,8 @@ struct ScyllaUsersStorage {
     stmt_full: PreparedStatement,
     stmt_partial: PreparedStatement,
     stmt_partial_batch: PreparedStatement,
+		stmt_partial_persona: PreparedStatement,
+		stmt_partial_persona_batch: PreparedStatement,
 }
 
 #[cfg(feature = "scylla")]
@@ -195,6 +204,18 @@ struct PartialUserKvRow {
 }
 
 #[derive(Debug, Deserialize)]
+struct PartialPersonaKvRow {
+    persona_id: i64,
+		owner_id: i64,
+		internal_name: String,
+		display_name: Option<String>,
+		avatar_hash: Option<String>,
+		banner_hash: Option<String>,
+		pronouns: Option<String>,
+		accent_color: Option<i32>
+}
+
+#[derive(Debug, Deserialize)]
 struct FullUserKvRow {
     user_id: i64,
     username: String,
@@ -267,6 +288,10 @@ impl UserCaches {
                 .max_capacity(max_entries)
                 .time_to_live(ttl)
                 .build(),
+						persona: Cache::builder()
+                .max_capacity(max_entries)
+                .time_to_live(ttl)
+                .build(),
         }
     }
 
@@ -294,6 +319,20 @@ impl UserCaches {
         F: Future<Output = anyhow::Result<Option<UserPartial>>>,
     {
         self.partial
+            .try_get_with(user_id, fetch)
+            .await
+            .map_err(|e: Arc<anyhow::Error>| anyhow::anyhow!("{e}"))
+    }
+
+		async fn get_or_fetch_partial_persona<F>(
+        &self,
+        user_id: i64,
+        fetch: F,
+    ) -> anyhow::Result<Option<PersonaPartial>>
+    where
+        F: Future<Output = anyhow::Result<Option<PersonaPartial>>>,
+    {
+        self.persona
             .try_get_with(user_id, fetch)
             .await
             .map_err(|e: Arc<anyhow::Error>| anyhow::anyhow!("{e}"))
@@ -349,6 +388,16 @@ impl UsersShard {
                 "SELECT {PARTIAL_USER_COLUMNS} FROM users WHERE user_id IN ?"
             ))
             .await?;
+				let stmt_partial_persona = db
+            .prepare(format!(
+                "SELECT {PARTIAL_PERSONA_COLUMNS} FROM personas WHERE persona_id = ? LIMIT 1"
+            ))
+            .await?;
+        let stmt_partial_persona_batch = db
+            .prepare(format!(
+                "SELECT {PARTIAL_PERSONA_COLUMNS} FROM personas WHERE persona_id IN ?"
+            ))
+            .await?;
 
         Ok(Self {
             storage: UsersStorage::Scylla(Arc::new(ScyllaUsersStorage {
@@ -356,6 +405,8 @@ impl UsersShard {
                 stmt_full,
                 stmt_partial,
                 stmt_partial_batch,
+								stmt_partial_persona,
+								stmt_partial_persona_batch
             })),
             caches: UserCaches::new(max_entries, ttl),
             transport,
@@ -386,6 +437,26 @@ impl UsersShard {
                 async move { storage.fetch_partial_user(user_id).await },
             )
             .await
+    }
+
+		async fn get_partial_persona(&self, persona_id: i64) -> anyhow::Result<Option<PersonaPartial>> {
+        let storage = self.storage.clone();
+        match self.caches
+            .get_or_fetch_partial_persona(
+                persona_id,
+                async move {
+									storage.fetch_partial_persona(persona_id).await
+								},
+            )
+            .await {
+							Ok(val) => {
+								return Ok(val);
+							}
+							Err(err) => {
+								eprintln!("Error while getting persona: {:#?}", err);
+								return Err(err);
+							}
+						}
     }
 
     async fn get_partial_users(&self, user_ids: Vec<i64>) -> anyhow::Result<Vec<UserPartial>> {
@@ -526,6 +597,14 @@ impl UsersStorage {
         }
     }
 
+		async fn fetch_partial_persona(&self, persona_id: i64) -> anyhow::Result<Option<PersonaPartial>> {
+        match self {
+            UsersStorage::Postgres(storage) => storage.fetch_partial_persona(persona_id).await,
+            #[cfg(feature = "scylla")]
+            UsersStorage::Scylla(storage) => todo!("Persona fetch has not been implemented for Scylla yet"),
+        }
+    }
+
     async fn fetch_partial_batch(&self, user_ids: Vec<i64>) -> anyhow::Result<Vec<UserPartial>> {
         match self {
             UsersStorage::Postgres(storage) => storage.fetch_partial_batch(user_ids).await,
@@ -562,6 +641,18 @@ impl PostgresUsersStorage {
             .map(|(_, row)| decode_postgres_user_partial(row))
             .collect()
     }
+
+		async fn fetch_partial_persona(&self, persona_id: i64) -> anyhow::Result<Option<PersonaPartial>> {
+				let rows = self.kv.query(r#"SELECT row_data FROM fluxer_kv WHERE table_name = 'personas' AND row_key LIKE format('%%"%s"%%', cast($1 as TEXT));"#, &[(&persona_id.to_string(), postgres_types::Type::TEXT)]).await?;
+				if rows.len() > 1 {
+					eprintln!("Persona ID collision detected");
+					return Ok(None);
+				}
+        let Some(row) = rows.first() else {
+            return Ok(None);
+        };
+        decode_postgres_persona(row.get("row_data")).map(Some)
+    }
 }
 
 #[cfg(feature = "scylla")]
@@ -593,6 +684,16 @@ impl ScyllaUsersStorage {
             rows.rows::<PartialUserDbRow>()?.collect::<Result<_, _>>()?;
         Ok(rows.into_iter().map(UserPartial::from).collect::<Vec<_>>())
     }
+
+		async fn fetch_partial_persona(&self, user_id: i64) -> anyhow::Result<Option<UserPartial>> {
+        let result = self
+            .db
+            .execute_unpaged(&self.stmt_partial, (user_id,))
+            .await?;
+        let rows = result.into_rows_result()?;
+        let partial = rows.maybe_first_row::<PartialUserDbRow>()?.map(Into::into);
+        Ok(partial)
+    }
 }
 
 fn decode_postgres_user(row: serde_json::Value) -> anyhow::Result<User> {
@@ -604,6 +705,12 @@ fn decode_postgres_user(row: serde_json::Value) -> anyhow::Result<User> {
 fn decode_postgres_user_partial(row: serde_json::Value) -> anyhow::Result<UserPartial> {
     let row = postgres::decode_row_dates_as_millis(row)?;
     let row: PartialUserKvRow = serde_json::from_value(row)?;
+    Ok(row.into())
+}
+
+fn decode_postgres_persona(row: serde_json::Value) -> anyhow::Result<PersonaPartial> {
+    let row = postgres::decode_row_dates_as_millis(row)?;
+    let row: PersonaPartial = serde_json::from_value(row)?;
     Ok(row.into())
 }
 
@@ -708,6 +815,17 @@ impl ShardService for UsersShard {
                 self.transport.publish(&subject, &[]).await?;
                 Ok(UserResponse::Invalidated)
             }
+						UserRequest::GetPersonaPartialById { persona_id } => {
+							match self.get_partial_persona(persona_id).await? {
+									Some(partial) => Ok(UserResponse::FoundPersonaPartial(partial)),
+									None => Ok(UserResponse::NotFound),
+							}
+						},
+						UserRequest::GetPersonaPartialsByIds { persona_ids } => {
+							let pdfs = persona_ids.iter().map(|v| self.get_partial_persona(*v));
+							let personas = Vec::from_iter(futures::future::try_join_all(pdfs).await?.iter().filter_map(|v| v.clone()));
+							Ok(UserResponse::FoundPersonaPartials(personas))
+						},
         }
     }
 }

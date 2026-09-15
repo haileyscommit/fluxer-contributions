@@ -1942,6 +1942,7 @@ dependencies = [
  "fluxer-svc",
  "futures",
  "moka",
+ "postgres-types",
  "rmp-serde",
  "scylla",
  "serde",

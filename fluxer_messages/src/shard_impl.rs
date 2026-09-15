@@ -4,7 +4,7 @@ use crate::mention_extractor::{
     MessageMentions, extend_mentions_from_markdown, extract_mentions_from_markdown,
 };
 use crate::types::{
-    ApiChannelMentionResponse, ApiEmbedAuthorResponse, ApiEmbedFieldResponse, ApiEmbedFooterResponse, ApiEmbedMediaResponse, ApiEmbedProviderResponse, ApiMessageAttachmentResponse, ApiMessageCallResponse, ApiMessageEmbedChildResponse, ApiMessageEmbedResponse, ApiMessagePersonaSnapshotResponse, ApiMessageReactionResponse, ApiMessageReferenceResponse, ApiMessageResponse, ApiMessageSnapshotResponse, ApiMessageStickerResponse, ApiReactionEmojiResponse, ApiUserPartialResponse, Message, MessageAttachment, MessageCall, MessageEmbed, MessageEmbedAuthor, MessageEmbedChild, MessageEmbedField, MessageEmbedFooter, MessageEmbedMedia, MessageEmbedProvider, MessagePersonaSnapshot, MessageReference, MessageRequest, MessageResponse, MessageSnapshot, MessageStickerItem,
+    ApiChannelMentionResponse, ApiEmbedAuthorResponse, ApiEmbedFieldResponse, ApiEmbedFooterResponse, ApiEmbedMediaResponse, ApiEmbedProviderResponse, ApiMessageAttachmentResponse, ApiMessageCallResponse, ApiMessageEmbedChildResponse, ApiMessageEmbedResponse, ApiMessagePersonaSnapshotResponse, ApiMessageReactionResponse, ApiMessageReferenceResponse, ApiMessageResponse, ApiMessageSnapshotResponse, ApiMessageStickerResponse, ApiPersonaResponse, ApiReactionEmojiResponse, ApiUserPartialResponse, Message, MessageAttachment, MessageCall, MessageEmbed, MessageEmbedAuthor, MessageEmbedChild, MessageEmbedField, MessageEmbedFooter, MessageEmbedMedia, MessageEmbedProvider, MessagePersonaSnapshot, MessageReference, MessageRequest, MessageResponse, MessageSnapshot, MessageStickerItem,
 };
 use crate::udt;
 use chrono::{DateTime, Utc};
@@ -215,11 +215,24 @@ struct UserPartialServiceResponse {
 enum UserServiceResponse {
     FoundPartials(Vec<UserPartialServiceResponse>),
     FoundPartial(UserPartialServiceResponse),
+		FoundPersonaPartials(Vec<PartialPersonaUserServiceResponse>),
+    FoundPersonaPartial(PartialPersonaUserServiceResponse),
     NotFound,
     #[allow(dead_code)]
     Found(serde_json::Value),
     #[allow(dead_code)]
     Invalidated,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+struct PartialPersonaUserServiceResponse {
+		persona_id: i64,
+		owner_id: i64,
+		internal_name: String,
+		display_name: Option<String>,
+		avatar_hash: Option<String>,
+		pronouns: Option<String>,
+		accent_color: Option<i32>
 }
 
 #[derive(Debug, Deserialize)]
@@ -262,6 +275,7 @@ struct ResponseContext {
     attachment_decay: HashMap<i64, DateTime<Utc>>,
     channel_mentions: HashMap<String, ApiChannelMentionResponse>,
     mention_context: HashMap<i64, MessageMentionContext>,
+		personas: HashMap<i64, ApiPersonaResponse>,
 }
 
 #[derive(Debug, Default)]
@@ -751,19 +765,23 @@ impl<T: Transport> MessagesShard<T> {
         let attachment_ids = collect_attachment_ids(&all_messages);
         let channel_ids = collect_channel_mention_ids(&all_messages, &mention_context);
         let user_ids = collect_user_ids(&all_messages, &mention_context);
+				let persona_ids = collect_persona_ids(&all_messages);
         let reactions_future = self.fetch_reactions_for_messages(messages, options);
         let attachment_decay_future = self.fetch_attachment_decay(attachment_ids);
         let channel_mentions_future = self.resolve_channel_mentions(channel_ids, options);
         let users_future = self.fetch_user_partials(user_ids);
-        let (reactions, attachment_decay, channel_mentions, users) = tokio::join!(
+				let personas_future = self.fetch_personas(persona_ids);
+        let (reactions, attachment_decay, channel_mentions, users, personas) = tokio::join!(
             reactions_future,
             attachment_decay_future,
             channel_mentions_future,
-            users_future
+            users_future,
+						personas_future
         );
         let attachment_decay = attachment_decay?;
         Ok(ResponseContext {
             users,
+						personas,
             reactions,
             referenced_messages,
             attachment_decay,
@@ -948,6 +966,52 @@ impl<T: Transport> MessagesShard<T> {
             .collect()
     }
 
+		async fn fetch_personas(
+        &self,
+        persona_ids: HashSet<i64>,
+    ) -> HashMap<i64, ApiPersonaResponse> {
+        if persona_ids.is_empty() {
+            return HashMap::new();
+        }
+        let mut persona_ids: Vec<i64> = persona_ids.into_iter().collect();
+        persona_ids.sort_unstable();
+        persona_ids.dedup();
+        let payload = serde_json::json!({
+            "op": "GetPersonaPartialsByIds",
+            "persona_ids": persona_ids,
+        });
+        let payload_bytes = serde_json::to_vec(&payload).unwrap_or_default();
+        let response = self
+            .transport
+            .request(
+                "svc.users",
+                payload_bytes.as_slice(),
+                SERVICE_REQUEST_TIMEOUT,
+            )
+            .await
+            .ok()
+            .and_then(|bytes| serde_json::from_slice::<UserServiceResponse>(&bytes).ok());
+        let partials = match response {
+            Some(UserServiceResponse::FoundPersonaPartials(partials)) => partials,
+            Some(UserServiceResponse::FoundPersonaPartial(partial)) => vec![partial],
+            _ => Vec::new(),
+        };
+        partials
+            .into_iter()
+            .map(|partial| {
+                //let id = parse_i64(&, "persona_id").expect("Cannot find persona ID from response");
+                (partial.persona_id, ApiPersonaResponse {
+									id: partial.persona_id.to_string(),
+									owner_id: Some(partial.owner_id.to_string()),
+									display_name: partial.display_name.or(Some(partial.internal_name)),
+									avatar: partial.avatar_hash,
+									pronouns: partial.pronouns,
+									..Default::default()
+								})
+            })
+            .collect()
+    }
+
     async fn resolve_channel_mentions(
         &self,
         channel_ids: HashSet<i64>,
@@ -1011,6 +1075,7 @@ impl<T: Transport> MessagesShard<T> {
         include_referenced_message: bool,
     ) -> ApiMessageResponse {
         let author = self.resolve_author(message, context);
+				let persona = self.resolve_persona(message, context);
         let attachments = message
             .attachments
             .as_deref()
@@ -1151,12 +1216,13 @@ impl<T: Transport> MessagesShard<T> {
             nonce: options.nonce.clone(),
             call: message.call.as_ref().map(map_call),
             referenced_message,
-						persona: message.persona.as_ref().map(|v| ApiMessagePersonaSnapshotResponse {
+						persona: persona.or(message.persona.as_ref().map(|v| ApiMessagePersonaSnapshotResponse {
 							id: v.id.clone(),
+							owner_id: None, // won't be returned from the API
 							name: v.name.clone(),
 							avatar: v.avatar.clone(),
 							pronouns: v.pronouns.clone(),
-						}),
+						})),
         }
     }
 
@@ -1460,6 +1526,35 @@ impl<T: Transport> MessagesShard<T> {
             flags: snapshot.flags.unwrap_or_default(),
         }
     }
+
+		fn resolve_persona(&self, message: &Message, context: &ResponseContext) -> Option<ApiMessagePersonaSnapshotResponse> {
+				if let Some(Some(persona_id)) = message.persona.as_ref().map(|v| &v.id) {
+						let id = parse_i64(&persona_id, "persona_id").expect("Could not parse persona ID");
+						let persona = context
+								.personas
+								.get(&id)
+								.cloned()
+								.map(|f| Into::<ApiMessagePersonaSnapshotResponse>::into(f));
+						if let Some(persona) = persona && persona.owner_id.as_ref().is_some_and(|v| v.clone() == message.author_id.unwrap_or_default().to_string()) {
+								return Some(persona)
+						}
+				}
+				None
+		}
+}
+
+fn collect_persona_ids(all_messages: &[&Message]) -> HashSet<i64> {
+		let mut ids = HashSet::new();
+		all_messages.iter().for_each(|f| {
+			if let Some(persona) = &f.persona {
+					if let Some(id) = &persona.id {
+							if let Some(num) = parse_i64(&id, "persona_id").ok() {
+								ids.insert(num);
+							}
+					}
+			}
+		});
+		ids
 }
 
 impl MessagesStorage {
@@ -2325,6 +2420,18 @@ impl<T: Transport> ShardService for MessagesShard<T> {
     }
 }
 
+impl From<ApiPersonaResponse> for ApiMessagePersonaSnapshotResponse {
+		fn from(value: ApiPersonaResponse) -> Self {
+				Self {
+						id: Some(value.id),
+						owner_id: value.owner_id,
+						name: value.display_name.or(value.internal_name).unwrap_or_default(),
+						avatar: value.avatar,
+						pronouns: value.pronouns
+				}
+		}
+}
+
 fn now_epoch_millis() -> i64 {
     SystemTime::now()
         .duration_since(UNIX_EPOCH)
@@ -2722,6 +2829,22 @@ fn deleted_user(user_id: i64) -> ApiUserPartialResponse {
         system: None,
         flags: 0,
         mention_flags: None,
+    }
+}
+
+fn empty_persona(persona_id: i64) -> ApiPersonaResponse {
+    ApiPersonaResponse {
+        id: persona_id.to_string(),
+        owner_id: None,
+        avatar: None,
+        avatar_color: None,
+        banner: None,
+        banner_color: None,
+        accent_color: None,
+        internal_name: None,
+        display_name: None,
+        bio: None,
+        pronouns: None,
     }
 }
 

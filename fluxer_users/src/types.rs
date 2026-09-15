@@ -20,6 +20,12 @@ pub enum UserRequest {
     GetApiPartialsByIds {
         user_ids: Vec<String>,
     },
+		GetPersonaPartialById {
+        persona_id: i64,
+    },
+    GetPersonaPartialsByIds {
+        persona_ids: Vec<i64>,
+    },
     Invalidate {
         #[serde(deserialize_with = "deserialize_i64_from_number_or_string")]
         user_id: i64,
@@ -34,6 +40,8 @@ pub enum UserResponse {
     FoundPartials(Vec<UserPartial>),
     FoundApiPartial(ApiUserPartial),
     FoundApiPartials(Vec<ApiUserPartial>),
+		FoundPersonaPartial(PersonaPartial),
+    FoundPersonaPartials(Vec<PersonaPartial>),
     NotFound,
     Invalidated,
 }
@@ -115,6 +123,17 @@ pub struct UserPartial {
     pub accent_color: Option<i32>,
     pub avatar_color: Option<i32>,
     pub mention_flags: Option<i32>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct PersonaPartial {
+    pub persona_id: i64,
+		pub owner_id: i64,
+		pub internal_name: String,
+		pub display_name: Option<String>,
+		pub avatar_hash: Option<String>,
+		pub pronouns: Option<String>,
+		pub accent_color: Option<i32>
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

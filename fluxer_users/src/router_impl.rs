@@ -7,12 +7,17 @@ use std::time::Duration;
 
 pub struct UsersRouter {
     l1: Cache<String, UserResponse>,
+		l1_personas: Cache<String, UserResponse>,
 }
 
 impl UsersRouter {
     pub fn new(max_entries: u64, ttl: Duration) -> Self {
         Self {
             l1: Cache::builder()
+                .max_capacity(max_entries)
+                .time_to_live(ttl)
+                .build(),
+						l1_personas: Cache::builder()
                 .max_capacity(max_entries)
                 .time_to_live(ttl)
                 .build(),
@@ -43,6 +48,11 @@ impl RouterService for UsersRouter {
                 .min()
                 .cloned()
                 .unwrap_or_else(|| "0".to_owned()),
+						UserRequest::GetPersonaPartialById { persona_id } => persona_id.to_string(),
+						UserRequest::GetPersonaPartialsByIds { persona_ids } => persona_ids.iter()
+                .min()
+                .map(ToString::to_string)
+                .unwrap_or_else(|| "0".to_owned()),
             UserRequest::Invalidate { user_id } => user_id.to_string(),
         }
     }
@@ -69,6 +79,19 @@ impl RouterService for UsersRouter {
                 ids.sort_unstable();
                 ids.dedup();
                 Some(format!("api_partials:{}", ids.join(",")))
+            }
+						UserRequest::GetPersonaPartialById { persona_id } => Some(format!("persona_partial:{persona_id}")),
+            UserRequest::GetPersonaPartialsByIds { persona_ids } => {
+                let mut ids = persona_ids.clone();
+                ids.sort_unstable();
+                ids.dedup();
+                Some(format!(
+                    "persona_partials:{}",
+                    ids.iter()
+                        .map(ToString::to_string)
+                        .collect::<Vec<_>>()
+                        .join(",")
+                ))
             }
             UserRequest::Invalidate { .. } => None,
         }
@@ -133,6 +156,30 @@ impl RouterService for UsersRouter {
                 }
                 Some(UserResponse::FoundApiPartials(partials))
             }
+						UserRequest::GetPersonaPartialById { persona_id } => {
+                let cached = self.l1_personas.get(&persona_id.to_string())?;
+                match cached {
+                    // UserResponse::Found(ref user) => {
+                    //     Some(UserResponse::FoundPersonaPartial(user.to_partial()))
+                    // }
+                    UserResponse::FoundPersonaPartial(_) => Some(cached),
+                    UserResponse::NotFound => Some(UserResponse::NotFound),
+                    _ => None,
+                }
+            }
+            UserRequest::GetPersonaPartialsByIds { persona_ids } => {
+                let mut partials = Vec::with_capacity(persona_ids.len());
+                for persona_id in persona_ids {
+                    let cached = self.l1_personas.get(&persona_id.to_string())?;
+                    match cached {
+                        //UserResponse::Found(ref user) => partials.push(user.to_partial()),
+                        UserResponse::FoundPersonaPartial(partial) => partials.push(partial),
+                        UserResponse::NotFound => {}
+                        _ => return None,
+                    }
+                }
+                Some(UserResponse::FoundPersonaPartials(partials))
+            }
             UserRequest::Invalidate { .. } => None,
         }
     }
@@ -176,6 +223,25 @@ impl RouterService for UsersRouter {
                             partial.id.clone(),
                             UserResponse::FoundApiPartial(partial.clone()),
                         );
+                    }
+                }
+            }
+						UserRequest::GetPersonaPartialById { persona_id } => {
+                if !matches!(
+                    self.l1_personas.get(&persona_id.to_string()),
+                    Some(UserResponse::Found(_))
+                ) {
+                    self.l1_personas.insert(persona_id.to_string(), resp.clone());
+                }
+            }
+            UserRequest::GetPersonaPartialsByIds { .. } => {
+                if let UserResponse::FoundPersonaPartials(partials) = resp {
+                    for partial in partials {
+                        let key = partial.persona_id.to_string();
+                        if !matches!(self.l1_personas.get(&key), Some(UserResponse::Found(_))) {
+                            self.l1_personas
+                                .insert(key, UserResponse::FoundPersonaPartial(partial.clone()));
+                        }
                     }
                 }
             }

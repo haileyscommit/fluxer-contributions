@@ -540,16 +540,6 @@ export const UserMessage = observer(() => {
 			</SpoilerSyncProvider>
 		);
 	}
-	const persona = message.persona;
-	const [storedPersona, setStoredPersona] = useState(persona?.id ? Personas.getPersona(persona.id) : null);
-		useEffect(() => {
-			if (persona?.id && !storedPersona) {
-				PersonaCommands.getPersona(message.author.id, persona!.id).then((wirePersona) => {
-					Personas.cachePersonas([wirePersona]);
-					setStoredPersona(Personas.getPersona(persona.id!))
-				});
-			}
-		}, []);
 	return (
 		<SpoilerSyncProvider data-flx="channel.user-message.spoiler-sync-provider--3">
 			{message.messageReference && message.messageReference.type === 0 && (
