@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 use crate::types::{ApiUserPartial, PersonaPartial, User, UserPartial, UserRequest, UserResponse};
-use anyhow::Error;
 #[cfg(feature = "scylla")]
 use chrono::{DateTime, NaiveDate, Utc};
 use fluxer_svc::shard::ShardService;
@@ -18,7 +17,6 @@ use scylla::statement::prepared::PreparedStatement;
 #[cfg(feature = "scylla")]
 use scylla::value::MaybeEmpty;
 use serde::Deserialize;
-use std::any::Any;
 use std::future::Future;
 use std::sync::Arc;
 use std::time::Duration;
@@ -201,18 +199,6 @@ struct PartialUserKvRow {
     accent_color: Option<i32>,
     avatar_color: Option<i32>,
     mention_flags: Option<i32>,
-}
-
-#[derive(Debug, Deserialize)]
-struct PartialPersonaKvRow {
-    persona_id: i64,
-		owner_id: i64,
-		internal_name: String,
-		display_name: Option<String>,
-		avatar_hash: Option<String>,
-		banner_hash: Option<String>,
-		pronouns: Option<String>,
-		accent_color: Option<i32>
 }
 
 #[derive(Debug, Deserialize)]
