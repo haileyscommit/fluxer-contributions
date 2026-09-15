@@ -10,6 +10,7 @@ import type {
 	MessageReference,
 	MessageStickerItem,
 } from '@fluxer/schema/src/domains/message/MessageResponseSchemas';
+import type { PersonaSnapshot } from '@fluxer/schema/src/domains/persona/PersonaSchemas.js';
 
 const DEFAULT_ALLOWED_MENTIONS: AllowedMentions = {replied_user: true};
 
@@ -48,6 +49,7 @@ export interface MessageCreateRequest {
 	favorite_meme_id?: string;
 	sticker_ids?: Array<string>;
 	tts?: true;
+	persona?: PersonaSnapshot;
 }
 
 export interface MessageEditRequest {
@@ -74,6 +76,7 @@ export interface MessageCreatePayload {
 	favoriteMemeId?: string;
 	stickers?: Array<MessageStickerItem>;
 	tts?: boolean;
+	persona?: PersonaSnapshot;
 }
 
 export interface NormalizedMessageContent {
@@ -95,7 +98,7 @@ export function normalizeMessageEditContent(content: string): string {
 }
 
 export function buildMessageCreateRequest(payload: MessageCreatePayload): MessageCreateRequest {
-	const {content, nonce, attachments, allowedMentions, messageReference, flags, favoriteMemeId, stickers, tts} =
+	const {content, nonce, attachments, allowedMentions, messageReference, flags, favoriteMemeId, stickers, tts, persona} =
 		payload;
 	const requestBody: MessageCreateRequest = {};
 	if (content != null && hasVisibleMessageContent(content)) {
@@ -124,6 +127,9 @@ export function buildMessageCreateRequest(payload: MessageCreatePayload): Messag
 	}
 	if (tts) {
 		requestBody.tts = true;
+	}
+	if (persona) {
+		requestBody.persona = persona;
 	}
 	return requestBody;
 }

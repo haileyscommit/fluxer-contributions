@@ -150,6 +150,27 @@
 	z-index: calc(var(--z-index-contextmenu) + 1);
 }
 
+.personaAvatar {
+	color: var(--text-primary-muted);
+	transition: color var(--transition-normal);
+	background-color: transparent;
+
+	&:hover:not(:disabled),
+	&.contextMenuHover:not(:disabled) {
+	/* &.selected:not(:disabled) */
+		color: var(--text-primary);
+		&.buttonMarker {
+			background: var(--background-modifier-hover);
+		}
+	}
+}
+
+.personaAvatar svg[data-flx="ui.base-avatar.overlay"] {
+	width: 1.75rem;
+  height: 1.75rem;
+  margin: auto;
+}
+
 .contentAreaDense {
 	grid-column: 2;
 	display: flex;

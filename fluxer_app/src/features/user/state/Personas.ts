@@ -1,18 +1,16 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-import Authentication from '@app/features/auth/state/Authentication';
 import { Persona } from '@app/features/personas/models/Persona';
 //import type {UserPrivate, User as WireUser} from '@fluxer/schema/src/domains/user/UserResponseSchemas';
 import type {PersonaResponse as WireOtherPersona, OwnPersonaResponse as WireOwnPersona} from "@fluxer/schema/src/domains/persona/PersonaSchemas";
-import { User } from '@phosphor-icons/react';
 import {action, makeAutoObservable, reaction, runInAction} from 'mobx';
 import Users from './Users';
 
 type WirePersona = WireOtherPersona | WireOwnPersona;
 
-const CURRENT_PERSONA_PRIVATE_WIRE_KEYS = [
-	'internal_name',
-] as const;
+// const CURRENT_PERSONA_PRIVATE_WIRE_KEYS = [
+// 	'internal_name',
+// ] as const;
 
 // function isPublicOnlyCurrentUserPayload(user: WireUser): boolean {
 // 	if (typeof user.mention_flags === 'number') {
@@ -23,6 +21,9 @@ const CURRENT_PERSONA_PRIVATE_WIRE_KEYS = [
 
 class Personas {
 	personas: Record<string, Persona> = {};
+	globalActivePersonaId: string = "";
+	guildActivePersonaIds: Record<string, string> = {};
+	dmActivePersonaIds: Record<string, string> = {};
 	ownPersonas: Set<string> = new Set();
 	personaCount = 0;
 
@@ -30,22 +31,58 @@ class Personas {
 		makeAutoObservable(this, {}, {autoBind: true});
 	}
 
-	// get currentUser(): User | null {
-	// 	const currentUserId = Authentication.userId;
-	// 	if (!currentUserId) {
-	// 		return null;
-	// 	}
-	// 	return this.users[currentUserId] ?? null;
-	// }
-
-	// get currentUserId(): string | null {
-	// 	return Authentication.userId;
-	// }
+	getGlobalActivePersonaId(): Persona | null {
+		if (!this.globalActivePersonaId) return null;
+		if (!this.ownPersonas.has(this.globalActivePersonaId)) return null;
+		return this.personas[this.globalActivePersonaId] || null;
+	}
+	setGlobalActivePersona(personaId: string) {
+		if (!personaId) {
+			this.globalActivePersonaId = "";
+			return;
+		}
+		console.log("ERDSFsdfds", personaId);
+		if (!this.ownPersonas.has(personaId)) return;
+		this.globalActivePersonaId = personaId;
+		this.personaCount++;
+	}
+	getGuildActivePersonaId(guildId: string): Persona | null {
+		if (!guildId) return null;
+		if (!this.guildActivePersonaIds[guildId]) return null;
+		if (!this.ownPersonas.has(guildId)) return null;
+		return this.personas[this.guildActivePersonaIds[guildId]] || null;
+	}
+	setGuildActivePersona(guildId: string, personaId: string) {
+		if (!guildId) {
+			delete this.guildActivePersonaIds[guildId];
+			return;
+		}
+		if (!this.ownPersonas.has(this.guildActivePersonaIds[guildId])) return;
+		this.guildActivePersonaIds[guildId] = personaId;
+		this.personaCount++;
+	}
+	getDmActivePersonaId(channelId: string): Persona | null {
+		if (!channelId) return null;
+		if (!this.dmActivePersonaIds[channelId]) return null;
+		if (!this.ownPersonas.has(channelId)) return null;
+		return this.personas[this.dmActivePersonaIds[channelId]] || null;
+	}
+	setDmActivePersona(channelId: string, personaId: string) {
+		if (!channelId) {
+			delete this.dmActivePersonaIds[channelId];
+			return;
+		}
+		if (!this.ownPersonas.has(this.dmActivePersonaIds[channelId])) return;
+		this.dmActivePersonaIds[channelId] = personaId;
+		this.personaCount++;
+	}
 
 	getOwnPersonas(): ReadonlyArray<Persona> {
 		const userId = Users.currentUserId;
 		if (!userId) return [];
-		return Object.values(this.personas).filter((p) => p.userId === userId);
+		const personas = Object.values(this.personas).filter((p) => p.userId === userId);
+		this.ownPersonas = new Set(personas.map((v) => v.id));
+		return personas;
 	}
 
 	get allPersonasList(): ReadonlyArray<Persona> {
