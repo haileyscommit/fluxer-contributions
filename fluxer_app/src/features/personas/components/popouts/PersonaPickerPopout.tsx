@@ -8,7 +8,7 @@ import { Persona } from "../../models/Persona";
 import Users from "@app/features/user/state/Users";
 import { Avatar } from "@app/features/ui/components/Avatar";
 import { id } from "react-day-picker/locale";
-import { CrownIcon } from "@phosphor-icons/react";
+import { CrownIcon, PencilIcon } from "@phosphor-icons/react";
 import { isKeyboardActivationKey } from "@app/features/input/utils/KeyboardUtils";
 import FocusRing from "@app/features/ui/focus_ring/FocusRing";
 import GuildMembers from "@app/features/member/state/GuildMembers";
@@ -17,10 +17,18 @@ import { fetchUserPersonas } from "../../commands/Personas";
 import { Tooltip } from "@app/features/ui/tooltip/Tooltip";
 import { useLingui } from "@lingui/react";
 import { msg } from "@lingui/core/macro";
+import { Button } from "@app/features/ui/button/Button";
+import { handleDeepLinkUrl } from "@app/features/navigation/utils/DeepLinkUtils";
+import { Input } from "@app/features/ui/components/form/FormInput";
+import { Trans } from "@lingui/react/macro";
 
 const MAIN_ACCOUNT_DESCRIPTOR = msg({
 	message: "This is your account.",
 	comment: "Tooltip on the crown icon on the persona entry that represents your main account."
+});
+const PERSONA_FILTER_PLACEHOLDER_DESCRIPTOR = msg({
+	message: "Names or pronouns",
+	comment: "Placeholder text to hint at what can be used to filter personas in the list."
 });
 
 interface PersonaPickerPopoutProps {
@@ -61,11 +69,11 @@ export const PersonaPickerPopout = observer<PersonaPickerPopoutProps>(({ channel
 		const sourceValues = [...sources.values()];
 		const termedSources = new Map(sourceValues.map((v) => [
 			v.id,
-			[v.internal_name, v.display_name, v.pronouns, ...v.triggers.map((t) => `${t.prefix||""} ${t.suffix||""}`), ...v.tags].join(" ")
+			[v.internal_name, v.display_name, v.pronouns, ...v.triggers.map((t) => `${t.prefix||""} ${t.suffix||""}`), ...v.tags].join(" ").toLowerCase()
 		]));
 		const results: Array<Persona> = [];
 		for (const [id, value] of termedSources.entries()) {
-			if (value.includes(filter)) {
+			if (value.includes(filter.toLowerCase())) {
 				results.push(sources.get(id)!);
 			}
 		}
@@ -119,12 +127,29 @@ export const PersonaPickerPopout = observer<PersonaPickerPopoutProps>(({ channel
 
 	return <div className={styles.root}>
 		<div className={styles.scrollingArea}>
+			<div className={styles.header}>
+				<Input
+					label={<Trans>Filter personas</Trans>}
+					placeholder={i18n._(PERSONA_FILTER_PLACEHOLDER_DESCRIPTOR)}
+					value={filter}
+					type="text"
+					onChange={(e) => setFilter(e.target.value)}
+				/>
+			</div>
 			{filteredPersonas.map((v) => <Item
 				key={v.id}
 				persona={v}
 				selected={selectedPersonaId === v.id}
 				onSelect={() => onSelect(v.id)}
 			/>)}
+		</div>
+		<div className={styles.footer}>
+			<Button
+				compact
+				variant="ghost"
+				onClick={() => {handleDeepLinkUrl("fluxer://settings/user?tab=personas")}}
+				leftIcon={<PencilIcon />}
+			>Manage Personas</Button>
 		</div>
 	</div>
 });

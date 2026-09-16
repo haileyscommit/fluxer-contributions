@@ -18,6 +18,7 @@ export const USER_SETTINGS_DEEP_LINK_PATH = '/settings/user';
 
 const USER_SETTINGS_TAB_TYPES = new Set<UserSettingsTabType>([
 	'my_profile',
+	'personas',
 	'account_security',
 	'plutonium',
 	'gift_inventory',

@@ -7,6 +7,10 @@ const PROFILE_CUSTOMIZATION_DESCRIPTOR = msg({
 	message: 'Profile customization',
 	comment: 'Settings section label for editing profile appearance and identity.',
 });
+const PERSONAS_DESCRIPTOR = msg({
+	message: 'Personas',
+	comment: 'Settings section label for editing personas.',
+});
 const REDEEM_A_GIFT_DESCRIPTOR = msg({
 	message: 'Redeem a gift',
 	comment: 'Settings section label for redeeming a gift code.',
@@ -73,6 +77,13 @@ export const generalSettingsSections = [
 		id: 'profile-customization',
 		tabType: 'my_profile',
 		label: PROFILE_CUSTOMIZATION_DESCRIPTOR,
+		keywords: [],
+		isAdvanced: false,
+	},
+	{
+		id: 'personas',
+		tabType: 'personas',
+		label: PERSONAS_DESCRIPTOR,
 		keywords: [],
 		isAdvanced: false,
 	},
