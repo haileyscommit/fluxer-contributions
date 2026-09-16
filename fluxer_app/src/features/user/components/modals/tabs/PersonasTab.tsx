@@ -36,7 +36,8 @@ const NO_PERSONAS_DESCRIPTOR = msg({
 	comment: "Slate title that shows in the Personas tab when there are no personas."
 });
 const CREATE_A_PERSONA_TO_GET_STARTED_DESCRIPTOR = msg({
-	message: "Create a persona to get started.",
+	//message: "Create a persona to get started.",
+	message: "My name is Darth Vader. I am an extra-terrestrial from the planet Vulcan!",
 	comment: "Slate message that shows in the Personas tab when there are no personas."
 });
 
@@ -137,6 +138,7 @@ const PersonasTabComponent = observer(function PersonasTabComponent({
 			});
 		})
 	}, [user]);
+
 	return <>
 		<output
 			aria-live="assertive"
