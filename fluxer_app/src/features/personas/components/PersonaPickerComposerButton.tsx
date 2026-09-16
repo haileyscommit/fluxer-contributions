@@ -2,7 +2,7 @@ import { Button, type ButtonProps } from "@app/features/ui/button/Button";
 import { openPopout } from "@app/features/ui/popover/PopoverPopout";
 import { observer } from "mobx-react-lite";
 import { PersonaPickerPopout } from "./popouts/PersonaPickerPopout";
-import { useCallback, useEffect, useRef, useState, type RefAttributes } from "react";
+import { useActionState, useCallback, useEffect, useRef, useState, type RefAttributes } from "react";
 import type { Channel } from "@app/features/channel/models/Channel";
 import Personas from "@app/features/user/state/Personas";
 import { clsx } from "clsx";
@@ -32,6 +32,7 @@ export const PersonaPickerComposerButton = observer<PersonaPickerComposerButtonP
 	const personaPickerRef = useRef<HTMLButtonElement | null>(null);
 	const [personaPickerOpen, setPersonaPickerOpen] = useState(false);
 	const getActivePersona = useCallback(() => Personas.getGlobalActivePersona(), []);
+	const [hasPersonas, setHasPersonas] = useState(() => !!Personas.getOwnPersonas().length);
 	const [selectedPersona, setSelectedPersona] = useState(getActivePersona);
 
 	useEffect(() => {
@@ -39,14 +40,16 @@ export const PersonaPickerComposerButton = observer<PersonaPickerComposerButtonP
 			runInAction(() => {
 				Personas.cachePersonas(personas);
 			});
+			setHasPersonas(!!Personas.getOwnPersonas().length);
 		});
 
 		return Personas.subscribe(() => {
 			setSelectedPersona(getActivePersona);
+			setHasPersonas(!!Personas.getOwnPersonas().length);
 		})
 	}, []);
 
-	return <Tooltip text={i18n._(SELECT_PERSONA_DESCRIPTOR)}>
+	return hasPersonas && <Tooltip text={i18n._(SELECT_PERSONA_DESCRIPTOR)}>
 		<Button
 			ref={personaPickerRef}
 			aria-label="Select persona"
@@ -60,6 +63,7 @@ export const PersonaPickerComposerButton = observer<PersonaPickerComposerButtonP
 						channel={props.channel}
 						onSelect={(p) => Personas.setGlobalActivePersona(p || "")}
 					/>,
+					shouldAutoUpdate: false,
 					onOpen: () => setPersonaPickerOpen(true),
 					onClose: () => setPersonaPickerOpen(false),
 				}, 0);
