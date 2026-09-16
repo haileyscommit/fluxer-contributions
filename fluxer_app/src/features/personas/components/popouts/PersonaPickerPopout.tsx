@@ -62,7 +62,7 @@ export const PersonaPickerPopout = observer<PersonaPickerPopoutProps>(({ channel
 	}), [user]);
 	const [globalPersonas, setGlobalPersonas] = useState(() => Personas.getOwnPersonas());
 	const [filter, setFilter] = useState("");
-	const selectedPersonaId = props.selectedId || Personas.globalActivePersonaId;
+	const selectedPersonaId = props.selectedId || Personas.getGlobalActivePersona();
 	const filteredPersonas = useMemo(() => {
 		const sources = new Map([rootPersona, ...globalPersonas].map((v) => [v.id, v]));
 		if (filter === "") return [...sources.values()];
@@ -81,8 +81,8 @@ export const PersonaPickerPopout = observer<PersonaPickerPopoutProps>(({ channel
 	}, [filter, globalPersonas]);
 
 	useEffect(() => {
-		runInAction(() => {
-			fetchUserPersonas().then((personas) => {
+		fetchUserPersonas().then((personas) => {
+			runInAction(() => {
 				Personas.cachePersonas(personas);
 				setGlobalPersonas(Personas.getOwnPersonas());
 			});

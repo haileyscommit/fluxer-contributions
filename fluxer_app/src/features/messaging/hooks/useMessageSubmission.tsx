@@ -79,7 +79,7 @@ export const useMessageSubmission = ({channel, referencedMessage, replyingMessag
 			favoriteMemeIdOrStickers?: string | Array<MessageStickerItem>,
 			maybeFavoriteMemeId?: string,
 		) => {
-			const persona = Personas.globalActivePersonaId && Personas.getPersona(Personas.globalActivePersonaId);
+			const persona = Personas.getGlobalActivePersona();
 			const personaSnapshot = persona ? {
 				id: persona.id,
 				name: persona.display_name || persona.internal_name!,

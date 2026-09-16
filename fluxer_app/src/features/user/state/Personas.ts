@@ -5,6 +5,9 @@ import { Persona } from '@app/features/personas/models/Persona';
 import type {PersonaResponse as WireOtherPersona, OwnPersonaResponse as WireOwnPersona} from "@fluxer/schema/src/domains/persona/PersonaSchemas";
 import {action, makeAutoObservable, reaction, runInAction} from 'mobx';
 import Users from './Users';
+import UserSettings from './UserSettings';
+import { PersonaSettingsSchema, type PersonaSettings } from '@fluxer/schema/src/gen/fluxer/user/preferences/v1/preferences_pb.js';
+import { create } from '@bufbuild/protobuf';
 
 type WirePersona = WireOtherPersona | WireOwnPersona;
 
@@ -31,20 +34,31 @@ class Personas {
 		makeAutoObservable(this, {}, {autoBind: true});
 	}
 
-	getGlobalActivePersonaId(): Persona | null {
-		if (!this.globalActivePersonaId) return null;
-		if (!this.ownPersonas.has(this.globalActivePersonaId)) return null;
-		return this.personas[this.globalActivePersonaId] || null;
+	private async updatedSyncedPref(func: (settings: PersonaSettings) => PersonaSettings) {
+		const pref = UserSettings.getSubPreference("personaSettings");
+		const out = func(pref || create(PersonaSettingsSchema));
+		return await UserSettings.setSubPreference("personaSettings", out);
+	}
+
+	getGlobalActivePersona(): Persona | null {
+		const remote_persona = UserSettings.getSubPreference("personaSettings")?.activePersonaGlobal?.toString();
+		const persona_id = this.globalActivePersonaId || remote_persona;
+		if (!this.globalActivePersonaId && !persona_id) return null;
+		if (!persona_id || !this.ownPersonas.has(persona_id)) return null;
+		return this.personas[this.globalActivePersonaId] || (remote_persona && this.personas[remote_persona]) || null;
 	}
 	setGlobalActivePersona(personaId: string) {
-		if (!personaId) {
-			this.globalActivePersonaId = "";
-			return;
-		}
-		console.log("ERDSFsdfds", personaId);
-		if (!this.ownPersonas.has(personaId)) return;
+		// if (!personaId) {
+		// 	this.globalActivePersonaId = "";
+		// 	return;
+		// }
+		if (personaId && !this.ownPersonas.has(personaId)) return;
 		this.globalActivePersonaId = personaId;
 		this.personaCount++;
+		void this.updatedSyncedPref((pref) => {
+			pref.activePersonaGlobal = BigInt(personaId);
+			return pref;
+		});
 	}
 	getGuildActivePersonaId(guildId: string): Persona | null {
 		if (!guildId) return null;
@@ -81,7 +95,9 @@ class Personas {
 		const userId = Users.currentUserId;
 		if (!userId) return [];
 		const personas = Object.values(this.personas).filter((p) => p.userId === userId);
-		this.ownPersonas = new Set(personas.map((v) => v.id));
+		runInAction(() => {
+			this.ownPersonas = new Set(personas.map((v) => v.id));
+		});
 		return personas;
 	}
 
@@ -149,6 +165,7 @@ class Personas {
 			this.personaCount += 1;
 		}
 		this.personas[nextPersona.id] = nextPersona;
+		if (nextPersona.userId && nextPersona.userId === Users.currentUserId) this.ownPersonas.add(nextPersona.id);
 	}
 
 	cachePersonas(

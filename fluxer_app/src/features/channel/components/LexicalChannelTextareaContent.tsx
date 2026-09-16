@@ -119,14 +119,8 @@ import {PlusIcon, UserSwitchIcon} from '@phosphor-icons/react';
 import {observer} from 'mobx-react-lite';
 import type React from 'react';
 import {useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef, useState} from 'react';
-import { PersonaPickerPopout } from '@app/features/personas/components/popouts/PersonaPickerPopout';
-import Personas from '@app/features/user/state/Personas';
-import { Avatar } from '@app/features/ui/components/Avatar';
 import { Tooltip } from '@app/features/ui/tooltip/Tooltip';
-import { Button } from '@app/features/ui/button/Button';
-import buttonStyles from '@app/features/channel/components/textarea/TextareaButton.module.css';
-import { usePopout } from '@app/features/ui/hooks/usePopout';
-import { clsx } from 'clsx';
+import { PersonaPickerComposerButton } from '@app/features/personas/components/PersonaPickerComposerButton';
 
 const PLUS_MENU_DOUBLE_CLICK_MS = 500;
 const MESSAGE_SCROLLER_SELECTOR = '[data-flx="channel.messages.scroller"][data-fluxer-scroll-container="true"]';
@@ -195,14 +189,12 @@ export const LexicalChannelTextareaContent = observer(
 		const containerRef = useRef<HTMLDivElement>(null);
 		const contentAreaRef = useRef<HTMLElement | null>(null);
 		const plusButtonRef = useRef<HTMLButtonElement | null>(null);
-		const personaPickerRef = useRef<HTMLButtonElement | null>(null);
 		const plusMenuOpenedAtRef = useRef(0);
 		const plusBackdropPressHandledAtRef = useRef(0);
 		const plusPressRef = useRef<{wasOpen: boolean; openedAt: number}>({wasOpen: false, openedAt: 0});
 		const textareaInputDisabled = disabled || inputSuppressed || messageSafetyGateActive;
 		useMarkdownKeybinds(isFocused && !textareaInputDisabled, {preserveEditableFocusActions: true});
 		const plusContextMenuOpen = useContextMenuHoverState(plusButtonRef);
-		const [personaPickerOpen, setPersonaPickerOpen] = useState(false);
 		useEffect(() => {
 			editableRef.current = containerRef.current
 				? containerRef.current.querySelector<HTMLDivElement>('[data-channel-textarea]')
@@ -1335,37 +1327,9 @@ export const LexicalChannelTextareaContent = observer(
 									ref={plusButtonRef}
 									data-flx="channel.lexical-channel-textarea-content.plus-button-above-backdrop.clear-slash-command"
 								/>
-								<Tooltip
-									text="Select persona"
-									>
-									<Button
-										ref={personaPickerRef}
-										aria-label="Select persona"
-										square
-										compact
-										variant="ghost"
-										onClick={(_: React.MouseEvent) => {
-											openPopout(personaPickerRef.current!, {
-												position: "top-start",
-												render: () => <PersonaPickerPopout
-													channel={channel}
-													onSelect={(p) => Personas.setGlobalActivePersona(p || "")}
-												/>,
-												onOpen: () => setPersonaPickerOpen(true),
-												onClose: () => setPersonaPickerOpen(false),
-											}, 0);
-										}}
-										className={clsx(buttonStyles.button, buttonStyles.buttonCompact, styles.personaAvatar, styles.buttonMarker, personaPickerOpen && styles.contextMenuHover)}
-										icon={<div className={clsx(styles.personaAvatar, personaPickerOpen && styles.contextMenuHover)}>{
-											Personas.globalActivePersonaId ? <Avatar
-												size={36}
-												user={Users.currentUser!}
-												personaId={Personas.globalActivePersonaId}
-												personaAvatar={Personas.getPersona(Personas.globalActivePersonaId)?.avatar || undefined}
-											/> : <UserSwitchIcon className={buttonStyles.icon} />
-										}</div>}
-									/>
-								</Tooltip>
+								<PersonaPickerComposerButton
+									channel={channel}
+								/>
 							</flx-channel-textarea-upload-column>
 							<flx-channel-textarea-content
 								ref={contentAreaRef}

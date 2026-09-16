@@ -50,6 +50,7 @@ message SyncedPreferences {
   ChatInputSettings chat_input = 112;
   optional bool save_camera_uploads_to_device = 113;
 
+	PersonaSettings persona_settings = 114;
 }
 
 message SpellcheckSettings {
@@ -259,4 +260,21 @@ enum MfaMethod {
 
 message ChatInputSettings {
   optional bool convert_emoticons = 1;
+}
+
+message PersonaSettings {
+	message ActivePersonaItem {
+		int64 context_id = 1;
+		optional int64 persona_id = 2;
+	}
+	message FrecencyEntry {
+		int64 persona_id = 1;
+		uint32 count = 2;
+		int64 last_used_ms = 3;
+	}
+
+	optional int64 active_persona_global = 1;
+	repeated ActivePersonaItem active_personas = 2;
+	repeated int64 locked_contexts = 3;
+	repeated FrecencyEntry recent_personas = 4;
 }
