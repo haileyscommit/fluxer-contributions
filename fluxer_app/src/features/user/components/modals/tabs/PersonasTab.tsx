@@ -3,7 +3,7 @@ import Users from "@app/features/user/state/Users";
 import { Trans, useLingui } from "@lingui/react/macro";
 import { observer } from "mobx-react-lite";
 import styles from "./PersonasTab.module.css";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { runInAction } from "mobx";
 import { fetchUserPersonas } from "@app/features/personas/commands/Personas";
 import { Persona } from "@app/features/personas/models/Persona";
@@ -11,7 +11,7 @@ import Personas from "@app/features/user/state/Personas";
 import { Avatar } from "@app/features/ui/components/Avatar";
 import { ChevronRightIcon } from "@app/features/ui/action_menu/ContextMenuIcons";
 import { Button } from "@app/features/ui/button/Button";
-import { BugIcon, CircleIcon, DownloadIcon, PlusIcon, RadioButtonIcon } from "@phosphor-icons/react";
+import { BugIcon, CircleIcon, DownloadIcon, PlusIcon, RadioButtonIcon, UserCirclePlusIcon, UserSwitchIcon } from "@phosphor-icons/react";
 import { Tooltip } from "@app/features/ui/tooltip/Tooltip";
 import * as ModalCommands from '@app/features/ui/commands/ModalCommands';
 import type { User } from "@app/features/user/models/User";
@@ -20,6 +20,8 @@ import { isKeyboardActivationKey } from "@app/features/input/utils/KeyboardUtils
 import { i18n } from "@lingui/core";
 import { msg } from "@lingui/core/macro";
 import { PersonaEditorModal } from "../PersonaEditorModal";
+import { Slate } from "@app/features/app/components/dialogs/components/Slate";
+import { StatusSlate } from "@app/features/app/components/dialogs/shared/StatusSlate";
 
 const ACTIVATE_PERSONA_DESCRIPTOR = msg({
 	message: "Make persona active",
@@ -28,6 +30,14 @@ const ACTIVATE_PERSONA_DESCRIPTOR = msg({
 const DEACTIVATE_PERSONA_DESCRIPTOR = msg({
 	message: "Make persona not active",
 	comment: "A tooltip for the button that deactivates a persona."
+});
+const NO_PERSONAS_DESCRIPTOR = msg({
+	message: "No personas yet",
+	comment: "Slate title that shows in the Personas tab when there are no personas."
+});
+const CREATE_A_PERSONA_TO_GET_STARTED_DESCRIPTOR = msg({
+	message: "Create a persona to get started.",
+	comment: "Slate message that shows in the Personas tab when there are no personas."
 });
 
 interface PersonaTileProps {
@@ -83,11 +93,14 @@ const PersonaTile = observer(({persona, user, selected, onSelect} : PersonaTileP
 		</div>
 		<Tooltip text={selected ? i18n._(DEACTIVATE_PERSONA_DESCRIPTOR) : i18n._(ACTIVATE_PERSONA_DESCRIPTOR)}>
 			<Button
-				variant="inverted"
+				variant="secondary"
 				square
 				disabled={!onSelect}
 				aria-label={selected ? i18n._(DEACTIVATE_PERSONA_DESCRIPTOR) : i18n._(ACTIVATE_PERSONA_DESCRIPTOR)}
-				onClick={onSelect}
+				onClick={(e: React.MouseEvent) => {
+					e.stopPropagation();
+					onSelect?.();
+				}}
 				icon={selected ? <RadioButtonIcon /> : <CircleIcon weight="regular" />}
 			/>
 		</Tooltip>
@@ -102,14 +115,16 @@ const PersonasTabComponent = observer(function PersonasTabComponent({
 	//initialGuildId?: string;
 } = {}) {
 	const {i18n} = useLingui();
-	const {current: user} = useRef(() => Users.currentUser);
+	const user = useMemo(() => Users.currentUser, []);
 	const [ariaAnnouncement, setAriaAnnouncement] = useState('');
 	const [personas, setPersonas] = useState<Array<Persona>>([...Personas.getOwnPersonas()]);
-	const [selectedDummy, setSelectedDummy] = useState<string | null>(personas[0]?.id ?? null);
+	const [selected, updateSelected] = useState(() => Personas.getGlobalActivePersona());
+
 	const personaUpdateCallback = useCallback(() => {
 		const newPersonas = Personas.getOwnPersonas();
 		if (newPersonas !== personas) {
 			setPersonas([...newPersonas]);
+			updateSelected(Personas.getGlobalActivePersona());
 		}
 	}, [user]);
 	useEffect(() => {
@@ -117,7 +132,7 @@ const PersonasTabComponent = observer(function PersonasTabComponent({
 			fetchUserPersonas().then((personas) => {
 				Personas.cachePersonas(personas);
 				setPersonas(personas.map((v) => new Persona(v)));
-				setSelectedDummy(personas[0]?.id);
+				updateSelected(Personas.getGlobalActivePersona());
 				return Personas.subscribe(personaUpdateCallback);
 			});
 		})
@@ -137,6 +152,7 @@ const PersonasTabComponent = observer(function PersonasTabComponent({
 			{/* <Button onClick={() => Personas.personas = {}} leftIcon={<BugIcon />}>Reset</Button> */}
 			<div className={styles.buttonRow}>
 				<Button
+					disabled
 					variant="secondary"
 					leftIcon={<DownloadIcon />}
 					onClick={() => {}}
@@ -151,7 +167,24 @@ const PersonasTabComponent = observer(function PersonasTabComponent({
 					data-flx="user.personas-tab.personas-tab-component.create-personas-button"
 				><Trans>Create Persona</Trans></Button>
 			</div>
-			{personas.map((v) => (<div key={v.id}><PersonaTile persona={v} user={user!} selected={selectedDummy === v.id} /></div>))}
+			{personas.map((v) => (<div key={v.id}><PersonaTile
+				persona={v}
+				user={user!}
+				selected={selected?.id === v.id}
+				onSelect={() => runInAction(() => {
+					if (selected?.id === v.id) {
+						Personas.setGlobalActivePersona("");
+					} else {
+						Personas.setGlobalActivePersona(v.id);
+					}
+					updateSelected(Personas.getGlobalActivePersona());
+				})}
+			/></div>))}
+			{personas.length === 0 && <StatusSlate
+				Icon={UserCirclePlusIcon}
+				title={i18n._(NO_PERSONAS_DESCRIPTOR)}
+				description={i18n._(CREATE_A_PERSONA_TO_GET_STARTED_DESCRIPTOR)}
+			/>}
 		</SettingsTabContainer>
 	</>;
 });
