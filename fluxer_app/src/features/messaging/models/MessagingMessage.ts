@@ -339,7 +339,7 @@ export class Message {
 				state: updates.state ?? this.state,
 				nonce: updates.nonce ?? this.nonce,
 				blocked: updates.blocked ?? this.blocked,
-				persona: updates.persona ?? this.persona,
+				persona: updates.persona === undefined ? this.persona : updates.persona,
 				_allowedMentions: updates._allowedMentions ?? this._allowedMentions,
 				_favoriteMemeId: updates._favoriteMemeId ?? this._favoriteMemeId,
 			},

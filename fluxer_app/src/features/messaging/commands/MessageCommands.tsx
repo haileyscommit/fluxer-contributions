@@ -727,11 +727,12 @@ export async function edit(
 	flags?: number,
 	allowedMentions?: AllowedMentions,
 	attachments?: Array<ApiMessageEditAttachmentMetadata>,
+	persona?: PersonaSnapshot | null,
 ): Promise<WireMessage | null> {
 	logger.debug(`Editing message ${messageId} in channel ${channelId}`);
 	try {
 		const response = await http.patch<WireMessage>(Endpoints.CHANNEL_MESSAGE(channelId, messageId), {
-			body: buildMessageEditRequest({content, flags, allowedMentions, attachments}),
+			body: buildMessageEditRequest({content, flags, allowedMentions, attachments, persona}),
 			mode: 'auto-retry',
 			retries: MESSAGE_EDIT_MAX_RETRIES,
 			timeoutMs: MESSAGE_EDIT_TIMEOUT_MS,

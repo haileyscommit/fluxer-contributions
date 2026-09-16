@@ -57,6 +57,7 @@ export interface MessageEditRequest {
 	attachments?: Array<ApiMessageEditAttachmentMetadata>;
 	allowed_mentions?: AllowedMentions;
 	flags?: number;
+	persona?: PersonaSnapshot | null;
 }
 
 export interface MessageEditPayload {
@@ -64,6 +65,7 @@ export interface MessageEditPayload {
 	attachments?: Array<ApiMessageEditAttachmentMetadata>;
 	allowedMentions?: AllowedMentions;
 	flags?: number;
+	persona?: PersonaSnapshot | null;
 }
 
 export interface MessageCreatePayload {
@@ -135,7 +137,7 @@ export function buildMessageCreateRequest(payload: MessageCreatePayload): Messag
 }
 
 export function buildMessageEditRequest(payload: MessageEditPayload): MessageEditRequest {
-	const {content, attachments, allowedMentions, flags} = payload;
+	const {content, attachments, allowedMentions, flags, persona} = payload;
 	const requestBody: MessageEditRequest = {};
 	if (content !== undefined) {
 		requestBody.content = normalizeMessageEditContent(content);
@@ -148,6 +150,9 @@ export function buildMessageEditRequest(payload: MessageEditPayload): MessageEdi
 	}
 	if (flags !== undefined) {
 		requestBody.flags = flags;
+	}
+	if (persona !== undefined) {
+		requestBody.persona = persona;
 	}
 	return requestBody;
 }

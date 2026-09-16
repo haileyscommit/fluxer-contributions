@@ -39,6 +39,13 @@ import {clsx} from 'clsx';
 import {observer} from 'mobx-react-lite';
 import type React from 'react';
 import {useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState} from 'react';
+import PersonaChange from '@app/features/messaging/state/PersonaChange';
+import * as PopoutCommands from '@app/features/ui/commands/PopoutCommands';
+import { openPopout } from '@app/features/ui/popover/PopoverPopout';
+import { PersonaPickerPopout } from '@app/features/personas/components/popouts/PersonaPickerPopout';
+import { buildExistingAttachmentEditReferences } from '@app/features/messaging/utils/MessageEditContentUtils';
+import * as MessageCommands from '@app/features/messaging/commands/MessageCommands';
+import Personas from '@app/features/user/state/Personas';
 
 const ATTACHMENT_DESCRIPTOR = msg({
 	message: 'attachment',
@@ -312,6 +319,7 @@ export type MessageBehaviorOverrides = Partial<{
 	messageGroupSpacing: number;
 	messageDisplayCompact: boolean;
 	isEditing: boolean;
+	isChangingPersona: boolean;
 	isReplying: boolean;
 	isHighlight: boolean;
 	forceUnknownMessageType: boolean;
@@ -380,6 +388,7 @@ export const Message: React.FC<MessageProps> = observer((props) => {
 		compact ?? behaviorOverrides?.messageDisplayCompact ?? UserSettings.getMessageDisplayCompact();
 	const prefersReducedMotion = Accessibility.useReducedMotion;
 	const isEditing = behaviorOverrides?.isEditing ?? MessageEdit.isEditing(message.channelId, message.id);
+	const isChangingPersona = PersonaChange.isEditing(message.channelId, message.id);
 	const isReplying = behaviorOverrides?.isReplying ?? MessageReply.isReplying(message.channelId, message.id);
 	const isHighlight = behaviorOverrides?.isHighlight ?? MessageReply.isHighlight(message.id);
 	const forceUnknownMessageType =
@@ -396,6 +405,43 @@ export const Message: React.FC<MessageProps> = observer((props) => {
 			}),
 		[message.content],
 	);
+	useEffect(() => {
+		if (!isChangingPersona) return;
+		if (!messageRef.current) return;
+		const popoutKey = `message-change-persona::${message.id}`;
+		openPopout(messageRef.current, {
+			position: "bottom-start",
+			offsetCrossAxis: 8,
+			offsetMainAxis: 4,
+			render: () => <PersonaPickerPopout
+				channel={channel}
+				selectedId={message.persona?.id || ""}
+				onSelect={(p) => {
+					void MessageCommands.edit(
+						channel.id,
+						message.id,
+						message.content,
+						undefined,
+						undefined,
+						buildExistingAttachmentEditReferences(message),
+						p === null || p === "" ? null : (() => {
+							const persona = Personas.getPersona(p);
+							if (!persona) return null;
+							return {
+								id: persona.id,
+								name: persona.display_name || persona.internal_name || "",
+								avatar: persona.avatar,
+								pronouns: persona.pronouns
+							}
+						})()
+					);
+					PopoutCommands.close(popoutKey);
+				}}
+			/>,
+			shouldAutoUpdate: false,
+			onClose: () => PersonaChange.stopEditing(channel.id),
+		}, popoutKey);
+	}, [isChangingPersona]);
 	const messageAriaLabel = useMemo(() => {
 		const timeLabel = DateUtils.getFormattedDateTime(message.timestamp);
 		const systemText = message.isSystemMessage() ? SystemMessageUtils.stringify(message, i18n) : null;
