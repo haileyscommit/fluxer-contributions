@@ -3,7 +3,7 @@
 import {ChannelTypes, Permissions} from '@fluxer/constants/src/ChannelConstants';
 import type {ChannelPinResponse} from '@fluxer/schema/src/domains/message/MessageResponseSchemas';
 import type {UserPartialResponse} from '@fluxer/schema/src/domains/user/UserResponseSchemas';
-import type {ChannelID, MessageID, UserID} from '../../BrandedTypes';
+import type {ChannelID, MessageID, PersonaID, UserID} from '../../BrandedTypes';
 import type {GuildAuditLogService} from '../../guild/GuildAuditLogService';
 import type {IGuildRepositoryAggregate} from '../../guild/repositories/IGuildRepositoryAggregate';
 import type {IGatewayService} from '../../infrastructure/IGatewayService';
@@ -65,11 +65,11 @@ export class MessageInteractionService {
 		);
 	}
 
-	async startTyping({userId, channelId}: {userId: UserID; channelId: ChannelID}): Promise<void> {
+	async startTyping({userId, channelId, personaId}: {userId: UserID; channelId: ChannelID; personaId?: PersonaID}): Promise<void> {
 		const authChannel = await this.authService.getChannelAuthenticated({userId, channelId});
 		await authChannel.checkPermission(Permissions.SEND_MESSAGES);
 		assertGuildMemberCanCommunicate(authChannel.member);
-		await this.readStateService.startTyping({authChannel, userId});
+		await this.readStateService.startTyping({authChannel, userId, personaId});
 	}
 
 	async getChannelPins({

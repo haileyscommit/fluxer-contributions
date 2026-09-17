@@ -24,7 +24,7 @@ class TypingManager {
 	private remoteSendTimerGeneration = 0;
 	private localIdleTimerGeneration = 0;
 
-	typing(channelId: string): void {
+	typing(channelId: string, personaId?: string): void {
 		const currentUserId = Authentication.currentUserId;
 		if (!currentUserId) {
 			return;
@@ -33,6 +33,7 @@ class TypingManager {
 			{
 				type: 'localTyping.started',
 				channelId,
+				personaId,
 				now: Date.now(),
 			},
 			currentUserId,
@@ -81,7 +82,7 @@ class TypingManager {
 			return;
 		}
 		if (event.type === 'localTyping.started' && nextModel.localTyping && nextModel.channelId) {
-			TypingCommands.startLocalTyping(nextModel.channelId, userId);
+			TypingCommands.startLocalTyping(nextModel.channelId, userId, nextModel.personaId || undefined);
 		}
 	}
 
@@ -101,11 +102,12 @@ class TypingManager {
 		const pendingVersion = nextModel.remotePendingVersion;
 		const remoteSendAt = nextModel.remoteSendAt;
 		const timerGeneration = this.remoteSendTimerGeneration;
+		const personaId = nextModel.personaId || undefined;
 		this.scheduledRemoteSendAt = remoteSendAt;
 		this.scheduledRemoteChannelId = channelId;
 		this.scheduledRemotePendingVersion = pendingVersion;
 		this.remoteSendTimerId = setTimeout(
-			() => this.sendTyping(channelId, pendingVersion, timerGeneration),
+			() => this.sendTyping(channelId, pendingVersion, timerGeneration, personaId),
 			Math.max(0, remoteSendAt - Date.now()),
 		);
 	}
@@ -132,7 +134,7 @@ class TypingManager {
 		);
 	}
 
-	private sendTyping(channelId: string, pendingVersion: number, timerGeneration: number): void {
+	private sendTyping(channelId: string, pendingVersion: number, timerGeneration: number, personaId?: string,): void {
 		if (timerGeneration !== this.remoteSendTimerGeneration) {
 			return;
 		}
@@ -145,8 +147,8 @@ class TypingManager {
 			this.clear(channelId);
 			return;
 		}
-		TypingCommands.sendTyping(channelId);
-		TypingCommands.startLocalTyping(channelId, currentUserId);
+		TypingCommands.sendTyping(channelId, personaId);
+		TypingCommands.startLocalTyping(channelId, currentUserId, personaId);
 		this.transition(
 			{
 				type: 'localTyping.remoteSent',

@@ -121,6 +121,7 @@ import type React from 'react';
 import {useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef, useState} from 'react';
 import { Tooltip } from '@app/features/ui/tooltip/Tooltip';
 import { PersonaPickerComposerButton } from '@app/features/personas/components/PersonaPickerComposerButton';
+import Personas from '@app/features/user/state/Personas';
 
 const PLUS_MENU_DOUBLE_CLICK_MS = 500;
 const MESSAGE_SCROLLER_SELECTOR = '[data-flx="channel.messages.scroller"][data-fluxer-scroll-container="true"]';
@@ -885,6 +886,7 @@ export const LexicalChannelTextareaContent = observer(
 		}, [channel.id]);
 		useTextareaDraftAndTyping({
 			channelId: channel.id,
+			personaId: Personas.getGlobalActivePersona()?.id || undefined,
 			value,
 			setValue,
 			draft,

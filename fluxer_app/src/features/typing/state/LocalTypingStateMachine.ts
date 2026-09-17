@@ -8,6 +8,7 @@ export const LOCAL_TYPING_IDLE_RESET_MS = 10000;
 
 export interface LocalTypingMachineInput {
 	channelId?: string | null;
+	personaId?: string | null;
 	localTyping?: boolean;
 	remoteCooldownChannelId?: string | null;
 	remoteCooldownUntil?: number | null;
@@ -16,6 +17,7 @@ export interface LocalTypingMachineInput {
 
 export interface LocalTypingMachineContext {
 	channelId: string | null;
+	personaId: string | null;
 	localTyping: boolean;
 	lastChangeAt: number;
 	remoteCooldownChannelId: string | null;
@@ -29,6 +31,7 @@ export type LocalTypingMachineEvent =
 	| {
 			type: 'localTyping.started';
 			channelId: string;
+			personaId?: string;
 			now: number;
 	  }
 	| {
@@ -49,6 +52,7 @@ export type LocalTypingMachineEvent =
 
 export interface LocalTypingModel {
 	channelId: string | null;
+	personaId: string | null;
 	localTyping: boolean;
 	remotePending: boolean;
 	remotePendingVersion: number;
@@ -64,6 +68,7 @@ export type LocalTypingSnapshot = SnapshotFrom<typeof localTypingStateMachine>;
 function initialLocalTypingContext(input: LocalTypingMachineInput = {}): LocalTypingMachineContext {
 	return {
 		channelId: input.channelId == null ? null : input.channelId,
+		personaId: input.personaId == null ? null : input.personaId,
 		localTyping: input.localTyping == null ? false : input.localTyping,
 		lastChangeAt: 0,
 		remoteCooldownChannelId: input.remoteCooldownChannelId == null ? null : input.remoteCooldownChannelId,
@@ -77,6 +82,7 @@ function initialLocalTypingContext(input: LocalTypingMachineInput = {}): LocalTy
 function resetLocalTypingContext(context: LocalTypingMachineContext): LocalTypingMachineContext {
 	return {
 		channelId: null,
+		personaId: null,
 		localTyping: false,
 		lastChangeAt: 0,
 		remoteCooldownChannelId: context.remoteCooldownChannelId,
@@ -111,9 +117,10 @@ export const localTypingStateMachine = setup({
 				return {};
 			}
 			if (!context.localTyping || context.channelId !== event.channelId) {
-				const shouldScheduleRemote = !isRemoteCooldownActive(context, event.channelId, event.now);
+				const shouldScheduleRemote = (context.personaId !== event.personaId) || !isRemoteCooldownActive(context, event.channelId, event.now);
 				return {
 					channelId: event.channelId,
+					personaId: event.personaId,
 					localTyping: true,
 					lastChangeAt: event.now,
 					lastRemoteSentAt: null,
@@ -211,6 +218,7 @@ export function transitionLocalTypingSnapshot(
 export function selectLocalTypingModel(snapshot: LocalTypingSnapshot): LocalTypingModel {
 	return {
 		channelId: snapshot.context.channelId,
+		personaId: snapshot.context.personaId,
 		localTyping: snapshot.context.localTyping,
 		remotePending: snapshot.context.remoteSendAt != null,
 		remotePendingVersion: snapshot.context.remotePendingVersion,

@@ -8,6 +8,7 @@ import {
 	ChannelIdMessageIdAttachmentIdParam,
 	ChannelIdMessageIdParam,
 	ChannelIdParam,
+    PersonaIdParam,
 } from '@fluxer/schema/src/domains/common/CommonParamSchemas';
 import {
 	CompleteMultipartAttachmentUploadRequest,
@@ -29,7 +30,7 @@ import {
 } from '@fluxer/schema/src/domains/message/MessageResponseSchemas';
 import {z} from 'zod';
 import {requireSudoMode} from '../../auth/services/SudoVerificationService';
-import {createAttachmentID, createChannelID, createMessageID} from '../../BrandedTypes';
+import {createAttachmentID, createChannelID, createMessageID, createPersonaID} from '../../BrandedTypes';
 import {Config} from '../../Config';
 import {DefaultUserOnly, LoginRequired} from '../../middleware/AuthMiddleware';
 import {RateLimitMiddleware} from '../../middleware/RateLimitMiddleware';
@@ -482,6 +483,7 @@ export function MessageController(app: HonoApp) {
 		RateLimitMiddleware(RateLimitConfigs.CHANNEL_TYPING),
 		LoginRequired,
 		Validator('param', ChannelIdParam),
+		Validator('query', PersonaIdParam.partial()),
 		OpenAPI({
 			operationId: 'indicate_typing',
 			summary: 'Indicate typing activity',
@@ -495,7 +497,9 @@ export function MessageController(app: HonoApp) {
 		async (ctx) => {
 			const userId = ctx.get('user').id;
 			const channelId = createChannelID(ctx.req.valid('param').channel_id);
-			await ctx.get('channelService').interactions.startTyping({userId, channelId});
+			const personaIdParam = ctx.req.query("persona_id") || undefined;
+			const personaId = personaIdParam ? createPersonaID(BigInt(personaIdParam)) : undefined ;
+			await ctx.get('channelService').interactions.startTyping({userId, channelId, personaId});
 			return ctx.body(null, 204);
 		},
 	);

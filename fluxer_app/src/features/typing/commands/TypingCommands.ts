@@ -9,35 +9,35 @@ const logger = new Logger('Typing');
 
 type TypingMutation = 'start' | 'stop';
 
-async function postTypingIndicator(channelId: string): Promise<void> {
-	await http.post(Endpoints.CHANNEL_TYPING(channelId));
+async function postTypingIndicator(channelId: string, personaId?: string): Promise<void> {
+	await http.post(Endpoints.CHANNEL_TYPING(channelId), { query: personaId ? { persona_id: personaId } : {} });
 }
 
 function logTypingSendFailure(channelId: string, error: unknown): void {
 	logger.error(`Failed to send typing indicator to channel ${channelId}:`, error);
 }
 
-function updateTypingState(mutation: TypingMutation, channelId: string, userId: string): void {
+function updateTypingState(mutation: TypingMutation, channelId: string, userId: string, personaId?: string): void {
 	if (mutation === 'start') {
-		TypingIndicator.startRemoteTyping(channelId, userId);
+		TypingIndicator.startRemoteTyping(channelId, userId, personaId);
 		return;
 	}
 	TypingIndicator.stopTyping(channelId, userId);
 }
 
-export async function sendTyping(channelId: string): Promise<void> {
+export async function sendTyping(channelId: string, personaId?: string): Promise<void> {
 	try {
-		logger.debug(`Sending typing indicator to channel ${channelId}`);
-		await postTypingIndicator(channelId);
-		logger.debug(`Successfully sent typing indicator to channel ${channelId}`);
+		logger.debug(`Sending typing indicator to channel ${channelId}${personaId && ` with persona ${personaId}`}`);
+		await postTypingIndicator(channelId, personaId);
+		logger.debug(`Successfully sent typing indicator to channel ${channelId}${personaId && ` with persona ${personaId}`}`);
 	} catch (error) {
 		logTypingSendFailure(channelId, error);
 	}
 }
 
-export function startTyping(channelId: string, userId: string): void {
-	logger.debug(`Starting typing indicator for user ${userId} in channel ${channelId}`);
-	updateTypingState('start', channelId, userId);
+export function startTyping(channelId: string, userId: string, personaId?: string): void {
+	logger.debug(`Starting typing indicator for user ${userId} in channel ${channelId}${personaId && ` with persona ${personaId}`}`);
+	updateTypingState('start', channelId, userId, personaId);
 }
 
 export function stopTyping(channelId: string, userId: string): void {
@@ -45,9 +45,9 @@ export function stopTyping(channelId: string, userId: string): void {
 	updateTypingState('stop', channelId, userId);
 }
 
-export function startLocalTyping(channelId: string, userId: string): void {
-	logger.debug(`Starting local typing indicator for user ${userId} in channel ${channelId}`);
-	TypingIndicator.startLocalTyping(channelId, userId);
+export function startLocalTyping(channelId: string, userId: string, personaId?: string): void {
+	logger.debug(`Starting local typing indicator for user ${userId} in channel ${channelId}${personaId && ` with persona ${personaId}`}`);
+	TypingIndicator.startLocalTyping(channelId, userId, personaId);
 }
 
 export function stopLocalTyping(channelId: string, userId: string): void {

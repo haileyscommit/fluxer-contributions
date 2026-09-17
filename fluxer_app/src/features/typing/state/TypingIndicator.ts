@@ -5,6 +5,7 @@ import {action, makeAutoObservable, observable} from 'mobx';
 
 type TypingEntry = Readonly<{
 	expiresAt: number;
+	personaId?: bigint;
 }>;
 
 type TypingEntriesByChannel = Record<string, Record<string, TypingEntry>>;
@@ -67,6 +68,12 @@ class TypingIndicator {
 		return this.getTypingUsers(channelId).length;
 	}
 
+	getPersonaId(channelId: string, userId: string): string | null {
+		return this.localTypingUsersByChannel[channelId]?.[userId]?.personaId?.toString()
+		|| this.remoteTypingUsersByChannel[channelId]?.[userId]?.personaId?.toString()
+		|| null;
+	}
+
 	isTyping(channelId: string, userId: string): boolean {
 		return this.isRemoteTyping(channelId, userId) || this.isLocalTyping(channelId, userId);
 	}
@@ -118,7 +125,7 @@ class TypingIndicator {
 		return entry !== undefined && entry.expiresAt > now;
 	}
 
-	private upsertTypingEntry(entriesByChannel: TypingEntriesByChannel, channelId: string, userId: string): void {
+	private upsertTypingEntry(entriesByChannel: TypingEntriesByChannel, channelId: string, userId: string, personaId?: string): void {
 		const now = Date.now();
 		if (!entriesByChannel[channelId]) {
 			entriesByChannel[channelId] = {};
@@ -128,6 +135,7 @@ class TypingIndicator {
 		const wasVisible = existingEntry !== undefined && existingEntry.expiresAt > now;
 		channelUsers[userId] = {
 			expiresAt: now + TYPING_INDICATOR_TIMEOUT_MS,
+			personaId: personaId ? BigInt(personaId) : undefined,
 		};
 		if (!wasVisible) {
 			this.invalidateTypingUsers(channelId, now);
@@ -265,8 +273,8 @@ class TypingIndicator {
 	}
 
 	@action
-	startRemoteTyping(channelId: string, userId: string): void {
-		this.upsertTypingEntry(this.remoteTypingUsersByChannel, channelId, userId);
+	startRemoteTyping(channelId: string, userId: string, personaId?: string): void {
+		this.upsertTypingEntry(this.remoteTypingUsersByChannel, channelId, userId, personaId);
 	}
 
 	@action
@@ -276,8 +284,8 @@ class TypingIndicator {
 	}
 
 	@action
-	startLocalTyping(channelId: string, userId: string): void {
-		this.upsertTypingEntry(this.localTypingUsersByChannel, channelId, userId);
+	startLocalTyping(channelId: string, userId: string, personaId?: string): void {
+		this.upsertTypingEntry(this.localTypingUsersByChannel, channelId, userId, personaId);
 	}
 
 	@action

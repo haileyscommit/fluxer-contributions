@@ -8,6 +8,7 @@ import {useEffect, useRef} from 'react';
 
 interface UseTextareaDraftAndTypingOptions {
 	channelId: string;
+	personaId?: string;
 	value: string;
 	setValue: React.Dispatch<React.SetStateAction<string>>;
 	draft: string | null;
@@ -45,6 +46,7 @@ function segmentsEqual(a: ReadonlyArray<MentionSegment>, b: ReadonlyArray<Mentio
 
 export const useTextareaDraftAndTyping = ({
 	channelId,
+	personaId,
 	value,
 	setValue,
 	draft,
@@ -174,7 +176,7 @@ export const useTextareaDraftAndTyping = ({
 		const isInReplaceMode = ReplaceCommandUtils.isReplaceCommand(content);
 		const isSlashCommand = content.startsWith('/');
 		if (content && !isAutocompleteAttached && !isInReplaceMode && !isSlashCommand) {
-			TypingUtils.typing(channelId);
+			TypingUtils.typing(channelId, personaId);
 		} else {
 			TypingUtils.clear(channelId);
 		}

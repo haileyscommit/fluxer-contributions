@@ -10,7 +10,9 @@ import Relationships from '@app/features/relationship/state/Relationships';
 import messageStyles from '@app/features/theme/styles/Message.module.css';
 import TypingIndicator from '@app/features/typing/state/TypingIndicator';
 import {AvatarStack} from '@app/features/ui/avatars/AvatarStack';
+import { Avatar } from '@app/features/ui/components/Avatar';
 import type {User} from '@app/features/user/models/User';
+import Personas from '@app/features/user/state/Personas';
 import Users from '@app/features/user/state/Users';
 import * as NicknameUtils from '@app/features/user/utils/NicknameUtils';
 import type {I18n} from '@lingui/core';
@@ -47,6 +49,7 @@ const getDisplayName = (user: User, guildId?: string | null) => NicknameUtils.ge
 export const getTypingText = (i18n: I18n, typingUsers: ReadonlyArray<User>, channel: Channel) => {
 	const [a, b, c] = typingUsers.map((user) => {
 		const member = GuildMembers.getMember(channel.guildId ?? '', user.id);
+		const personaId = TypingIndicator.getPersonaId(channel.id, user.id);
 		return (
 			<span
 				key={user.id}
@@ -54,7 +57,8 @@ export const getTypingText = (i18n: I18n, typingUsers: ReadonlyArray<User>, chan
 				style={{color: member?.getColorString()}}
 				data-flx="channel.typing-users.get-typing-text.username"
 			>
-				{getDisplayName(user, channel.guildId)}
+				{(personaId && Personas.getPersona(personaId)?.display_name)
+				|| getDisplayName(user, channel.guildId)}
 			</span>
 		);
 	});
@@ -110,6 +114,7 @@ export const TypingUsers = observer(
 	({channel, withText = true, showAvatars = true}: {channel: Channel; withText?: boolean; showAvatars?: boolean}) => {
 		const {i18n} = useLingui();
 		const typingUsers = usePresentableTypingUsers(channel);
+
 		if (typingUsers.length === 0) {
 			return null;
 		}
@@ -140,6 +145,18 @@ export const TypingUsers = observer(
 									users={typingUsers}
 									guildId={channel.guildId}
 									channelId={channel.id}
+									renderAvatar={(user, size, _index) => {
+										const personaId = TypingIndicator.getPersonaId(channel.id, user.id);
+										const persona = channel.id && personaId ? Personas.getPersona(personaId) : undefined;
+										return <Avatar
+											user={user}
+											size={size}
+											guildId={channel.guildId}
+											personaId={personaId}
+											personaAvatar={persona?.avatar}
+											data-flx="ui.avatars.avatar-stack.avatar"
+										/>
+									}}
 									data-flx="channel.typing-users.avatar-stack"
 								/>
 							)}
