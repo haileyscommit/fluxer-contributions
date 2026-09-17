@@ -13,3 +13,61 @@
 .deleteButton {
 	margin-inline-end: auto;
 }
+
+.triggerRow {
+	display: flex;
+	flex-direction: row;
+	gap: 0;
+
+	.triggerPrefix {
+		border-start-end-radius: 0;
+		border-end-end-radius: 0;
+		text-align: end;
+		flex-grow: 1;
+	}
+	.triggerSuffix {
+		border-start-start-radius: 0;
+		border-end-start-radius: 0;
+		text-align: start;
+		flex-grow: 1;
+	}
+	.triggerMessagePlaceholder {
+		border-inline-start: none;
+		border-inline-end: none;
+		border-radius: 0;
+		background-color: var(--bg-code);
+		opacity: 60%;
+		text-align: center;
+		font-style: italic;
+		flex-shrink: 1;
+		min-width: none;
+	}
+	/* div[data-flx="ui.form.input.input-container"]:has(.triggerMessagePlaceholder) {
+		flex-shrink: 1;
+		min-width: 0;
+	} */
+	.triggerDelete {
+		height: 100%;
+		width: unset;
+		max-width: none;
+		max-height: none;
+		min-width: 2.7rem;
+		min-height: 0;
+		aspect-ratio: 1 / 1;
+		margin-inline-start: var(--spacing-2);
+	}
+}
+
+.triggerRowWrapper {
+	display: flex;
+	flex-direction: column;
+	gap: var(--spacing-1);
+}
+
+.error {
+	display: flex;
+	flex-direction: row;
+	gap: var(--spacing-2);
+	padding: var(--spacing-2) var(--spacing-1);
+	color: var(--accent-danger);
+}

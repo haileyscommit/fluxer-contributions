@@ -90,7 +90,7 @@ const PersonaTile = observer(({persona, user, selected, onSelect} : PersonaTileP
 		</div>
 		<div className={styles.personaTileDetailsContainer}>
 			<span className={styles.personaTileName}>{persona.internal_name || "<ERROR>"}</span>
-			<span className={styles.personaTileTriggerRow}><span className={styles.personaTileTriggerChip}>{"[text]"}</span>{persona.triggers.map((v) => <span className={styles.personaTileTriggerChip}>`${v.prefix}text${v.prefix}`</span>)}</span>
+			<span className={styles.personaTileTriggerRow}>{persona.triggers.map((v) => <span className={styles.personaTileTriggerChip}>{`${v.prefix||""}message${v.suffix||""}`}</span>)}</span>
 		</div>
 		<Tooltip text={selected ? i18n._(DEACTIVATE_PERSONA_DESCRIPTOR) : i18n._(ACTIVATE_PERSONA_DESCRIPTOR)}>
 			<Button

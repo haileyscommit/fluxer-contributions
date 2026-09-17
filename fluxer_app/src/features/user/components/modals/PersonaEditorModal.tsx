@@ -1,7 +1,7 @@
 import * as Modal from '@app/features/app/components/dialogs/Modal';
 import { Persona } from '@app/features/personas/models/Persona';
 import { i18n } from "@lingui/core";
-import { msg } from '@lingui/core/macro';
+import { msg, t } from '@lingui/core/macro';
 import { observer } from 'mobx-react-lite';
 import profileStyles from '@app/features/user/components/modals/tabs/MyProfileTab.module.css';
 import { Form } from '@app/features/ui/components/form/Form';
@@ -18,11 +18,11 @@ import { ProfilePreview } from '../profile/ProfilePreview';
 import { Button } from '@app/features/ui/button/Button';
 import { modal } from '@app/features/ui/commands/ModalCommands';
 import { Modals } from '@app/features/app/components/dialogs/Modals';
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useMemo, useRef, useState, type SetStateAction } from 'react';
 import * as ToastCommands from '@app/features/ui/commands/ToastCommands';
 import * as UnsavedChangesCommands from '@app/features/ui/commands/UnsavedChangesCommands';
 import * as PersonaCommands from '@app/features/personas/commands/Personas';
-import type { PersonaPatchRequest } from '@fluxer/schema/src/domains/persona/PersonaSchemas.js';
+import type { OwnPersonaResponse, PersonaPatchRequest } from '@fluxer/schema/src/domains/persona/PersonaSchemas.js';
 import { useFormSubmit } from '@app/features/app/hooks/useFormSubmit';
 import { AccentColorPicker } from './tabs/my_profile_tab/AccentColorPicker';
 import { useRemoteFormReset } from '@app/lib/forms/RemoteFormReset';
@@ -39,6 +39,10 @@ import { AvatarUploader } from './tabs/my_profile_tab/AvatarUploader';
 import { BannerUploader } from './tabs/my_profile_tab/BannerUploader';
 import { PersonaProfileCard } from '../profile/PersonaProfile';
 import FocusRing from '@app/features/ui/focus_ring/FocusRing';
+import { Accordion } from '@app/features/ui/accordion/Accordion';
+import { PlusIcon, WarningCircleIcon } from '@phosphor-icons/react';
+import { Tooltip } from '@app/features/ui/tooltip/Tooltip';
+import { body } from 'framer-motion/client';
 
 const EDIT_PERSONA_DESCRIPTOR = msg({
 	message: 'Edit Persona',
@@ -51,6 +55,22 @@ const CREATE_PERSONA_DESCRIPTOR = msg({
 const INTERNAL_NAME_DESCRIPTOR = msg({
 	message: 'Internal Name',
 	comment: "Label in the persona editor for a private name for a persona."
+});
+const TRIGGERS_DESCRIPTOR = msg({
+	message: 'Triggers',
+	comment: "Label in the persona editor for the message prefixes and suffixes that trigger a persona for a message."
+});
+const TRIGGER_PREFIX_DESCRIPTOR = msg({
+	message: 'Prefix',
+	comment: "Label in the persona editor for the message prefixes and suffixes that trigger a persona for a message."
+});
+const TRIGGER_SUFFIX_DESCRIPTOR = msg({
+	message: 'Suffix',
+	comment: "Label in the persona editor for the message prefixes and suffixes that trigger a persona for a message."
+});
+const TRIGGER_MESSAGE_DESCRIPTOR = msg({
+	message: 'Message',
+	comment: "Label in the persona editor for the message prefixes and suffixes that trigger a persona for a message."
 });
 const PERSONA_UPDATED_DESCRIPTOR = msg({
 	message: 'Persona updated',
@@ -69,6 +89,15 @@ interface PersonaEditorModalProps {
 	initialPersona: Persona | null;
 }
 
+interface TriggerRowProps {
+	prefix: string;
+	suffix: string;
+	error?: string;
+	onPrefixChange: (value: string) => void;
+	onSuffixChange: (value: string) => void;
+	onDelete: () => void;
+}
+
 interface FormInputs {
 	avatar?: string | null;
 	banner?: string | null;
@@ -77,6 +106,7 @@ interface FormInputs {
 	display_name: string | null;
 	pronouns: string | null;
 	accent_color: number | null;
+	triggers: Persona['triggers'];
 }
 
 export const PersonaEditorModal: React.FC<PersonaEditorModalProps> = observer(
@@ -87,10 +117,24 @@ export const PersonaEditorModal: React.FC<PersonaEditorModalProps> = observer(
 		const user = useMemo(() => Users.currentUser!, []);
 		const form = useForm<FormInputs>({
 			defaultValues: {...initialPersona, avatar: undefined, banner: undefined},
+			resetOptions: {
+				keepErrors: false,
+			}
 		});
 		const [bioHydrationKey, setBioHydrationKey] = useState(0);
+		const triggers = form.watch("triggers");
 		const [hasChangedAvatar, setHasChangedAvatar] = useState(false);
 		const [hasChangedBanner, setHasChangedBanner] = useState(false);
+
+		const setTriggers = useCallback((f: (oldValue: Persona['triggers']) => Persona['triggers']) => {
+			const newTriggers = f(triggers);
+			console.log("jidfusjis", triggers, newTriggers);
+			form.setValue("triggers", newTriggers, {
+				shouldDirty: true,
+				shouldTouch: true
+			});
+		}, [triggers]);
+
 		const onSubmit = useCallback(
 			async (data: FormInputs) => {
 				if (savedPersona) {
@@ -102,9 +146,35 @@ export const PersonaEditorModal: React.FC<PersonaEditorModalProps> = observer(
 						display_name: data.display_name || undefined,
 						pronouns: data.pronouns,
 						accent_color: data.accent_color,
+						triggers: data.triggers.map((t) => ({
+							prefix: t.prefix || null,
+							suffix: t.suffix || null
+						}))
 					};
-					const newPersona = await PersonaCommands.update(initialPersona!.id, updateData);
-					form.reset({...newPersona, avatar: null, banner: null});
+					let newPersona: OwnPersonaResponse;
+					try {
+						newPersona = await PersonaCommands.update(initialPersona!.id, updateData);
+					} catch(error: any) {
+						console.warn("Could not update persona", error);
+						if ('body' in error && 'errors' in error.body && 'path' in error.body.errors[0]) {
+							form.clearErrors();
+							for (const ferr of error.body.errors) {
+								form.setError(ferr.path, {message: ferr.message || "Invalid value"});
+							}
+						} else if ('body' in error && 'message' in error.body) {
+							form.setError("root", {message: error.body.message});
+						} else if ('message' in error) {
+							form.setError("root", {message: error.message});
+						} else {
+							form.setError("root", {message: "Something went wrong."});
+						}
+						return;
+					}
+					form.reset({...newPersona,
+					  triggers: newPersona.triggers.map((v) => ({prefix: v.prefix || undefined, suffix: v.suffix || undefined})),
+						avatar: null,
+						banner: null
+					});
 					Personas.cachePersonas([newPersona]);
 					ToastCommands.createToast({type: 'success', children: i18n._(PERSONA_UPDATED_DESCRIPTOR)});
 					setSavedPersona(new Persona(newPersona));
@@ -113,7 +183,6 @@ export const PersonaEditorModal: React.FC<PersonaEditorModalProps> = observer(
 					const newPersona = await PersonaCommands.create({
 						...form.getValues(),
 						internal_name: form.getValues().internal_name!,
-						triggers: [],
 					});
 					//form.reset({...newPersona, avatar: null, banner: null});
 					Personas.cachePersonas([newPersona]);
@@ -165,8 +234,8 @@ export const PersonaEditorModal: React.FC<PersonaEditorModalProps> = observer(
 					ModalCommands.popAllByType(PersonaEditorModal);
 				}}
 				primaryText={<Trans>Delete</Trans>}
-			/>)
-		}, [savedPersona]);
+				/>)
+			}, [savedPersona]);
 
 		const bioComposerRef = useRef<LexicalRichInputHandle | null>(null);
 		const [bioValue, setBioValue] = useState(form.formState.defaultValues?.bio ?? "");
@@ -245,6 +314,49 @@ export const PersonaEditorModal: React.FC<PersonaEditorModalProps> = observer(
 		}, [savedPersona]);
 		const hasBanner = !!savedPersona?.banner || !!form.watch("banner");
 
+		const TriggerRow = useCallback(({
+			onPrefixChange,
+			onSuffixChange,
+			onDelete,
+			error,
+			prefix,
+			suffix,
+			...props
+		}: React.ComponentPropsWithRef<'div'> & TriggerRowProps) => {
+			return <div className={styles.triggerRowWrapper}>
+				<div {...props} className={styles.triggerRow}>
+					<Input
+						className={styles.triggerPrefix}
+						placeholder={i18n._(TRIGGER_PREFIX_DESCRIPTOR)}
+						value={prefix}
+						onChange={(e) => onPrefixChange(e.target.value)}
+					/>
+					<Input
+						className={styles.triggerMessagePlaceholder}
+						disabled
+						value={i18n._(TRIGGER_MESSAGE_DESCRIPTOR)}
+					/>
+					<Input
+						className={styles.triggerSuffix}
+						placeholder={i18n._(TRIGGER_SUFFIX_DESCRIPTOR)}
+						value={suffix}
+						onChange={(e) => onSuffixChange(e.target.value)}
+					/>
+					<Tooltip text="Delete">
+						<Button
+							className={styles.triggerDelete}
+							variant="danger"
+							square
+							icon={<DeleteIcon />}
+							aria-label="Delete"
+							onClick={onDelete}
+						/>
+					</Tooltip>
+				</div>
+				{error && <div className={styles.error}><WarningCircleIcon size={24} /><span>{error}</span></div>}
+			</div>
+		}, []);
+
 		/* TODO: still need UnsavedChanges */
 		return <Modal.Root size={"large"}>
 			<Modal.Header title={initialPersona ? i18n._(EDIT_PERSONA_DESCRIPTOR) : i18n._(CREATE_PERSONA_DESCRIPTOR)} />
@@ -259,6 +371,7 @@ export const PersonaEditorModal: React.FC<PersonaEditorModalProps> = observer(
 						data-flx="user.persona-editor-modal.content-layout"
 					>
 						<div className={profileStyles.formColumn} data-flx="user.persona-editor-modal.form-column">
+							{form.formState.errors.root?.message && <div className={styles.error}><WarningCircleIcon size={24} /><span>{form.formState.errors.root?.message}</span></div>}
 							<Input
 								data-flx="user.persona-editor-modal.input--internal-name"
 								label={i18n._(INTERNAL_NAME_DESCRIPTOR)}
@@ -350,6 +463,49 @@ export const PersonaEditorModal: React.FC<PersonaEditorModalProps> = observer(
 									data-flx="user.persona-editor-modal.bio-editor.bio-change"
 								/>
 							</div>
+							<Accordion
+								id="persona-editor-triggers"
+								defaultExpanded
+								headerAction={<Button
+									variant="primary"
+									leftIcon={<PlusIcon />}
+									onClick={() => {
+										if (triggers.find((v) => v.prefix === undefined && v.suffix === undefined)) return;
+										setTriggers((t) => [{}, ...t])}
+									}
+								><Trans>Add trigger</Trans></Button>}
+								title={i18n._(TRIGGERS_DESCRIPTOR)}>
+									{form.getFieldState("triggers").error?.message && <div className={styles.error}><WarningCircleIcon size={24} /><span>{form.getFieldState("triggers").error?.message}</span></div>}
+									{/* <p><Trans>Set prefix-suffix pairs that you can put on messages to use this persona for that message. Each prefix and suffix in a pair must be used together. You cannot leave both prefix and suffix empty, but neither are required.</Trans></p> */}
+								{triggers.map((trigger, i) => <TriggerRow
+									key={i}
+									prefix={trigger.prefix || ""}
+									suffix={trigger.suffix || ""}
+									onDelete={() => {
+										setTriggers((t) => t.filter((_,ti) => ti !== i))
+										form.clearErrors();
+									}}
+									error={
+										form.getFieldState(`triggers.${i}.prefix`).error?.message
+										|| form.getFieldState(`triggers.${i}.suffix`).error?.message
+										|| form.getFieldState(`triggers.${i}`).error?.message
+									}
+									onPrefixChange={(value) => setTriggers((t) => t.map((v,ti) => {
+										if (ti !== i) return v;
+										return {
+											...v,
+											prefix: value
+										}
+									}))}
+									onSuffixChange={(value) => setTriggers((t) => t.map((v,ti) => {
+										if (ti !== i) return v;
+										return {
+											...v,
+											suffix: value
+										}
+									}))}
+								/>)}
+							</Accordion>
 						</div>
 						<div
 							className={profileStyles.previewColumn}
@@ -383,11 +539,11 @@ export const PersonaEditorModal: React.FC<PersonaEditorModalProps> = observer(
 					variant="danger"
 					className={styles.deleteButton}
 					leftIcon={<DeleteIcon />}
-					disabled={form.formState.isLoading || !form.formState.isValid}
+					disabled={form.formState.isLoading}
 					onClick={handleDelete}
 				><Trans>Delete</Trans></Button>}
-				<Button variant="secondary" disabled={form.formState.isLoading || !form.formState.isValid || !form.formState.isDirty} onClick={handleReset}>Reset</Button>
-				<Button variant="primary" disabled={form.formState.isLoading || !form.formState.isValid || !form.formState.isDirty} onClick={handleSave}>Save</Button>
+				<Button variant="secondary" disabled={form.formState.isLoading /* || !form.formState.isValid */ || !form.formState.isDirty} onClick={handleReset}>Reset</Button>
+				<Button variant="primary" disabled={form.formState.isLoading /* || !form.formState.isValid */ || !form.formState.isDirty} onClick={handleSave}>Save</Button>
 			</Modal.FormFooter>
 		</Modal.Root>;
 	});
