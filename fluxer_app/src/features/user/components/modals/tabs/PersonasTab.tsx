@@ -49,7 +49,7 @@ export const LATCH_OFF_DESCRIPTOR = msg({
 	comment: "A label for the latching modes (trigger behavior) setting."
 });
 const LATCH_OFF_DESCRIPTION_DESCRIPTOR = msg({
-	message: "Triggers don't activate personas at all.",
+	message: "Triggers don't do anything.",
 	comment: "A label for the latching modes (trigger behavior) setting."
 });
 export const LATCH_MANUAL_DESCRIPTOR = msg({
