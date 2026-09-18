@@ -180,5 +180,5 @@ export const useTextareaDraftAndTyping = ({
 		} else {
 			TypingUtils.clear(channelId);
 		}
-	}, [channelId, value, isAutocompleteAttached, enabled, typingEnabled]);
+	}, [channelId, personaId, value, isAutocompleteAttached, enabled, typingEnabled]);
 };

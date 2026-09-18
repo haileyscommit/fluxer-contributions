@@ -95,7 +95,8 @@ class Personas {
 		const userId = Users.currentUserId;
 		if (!userId) return [];
 		const personas = Object.values(this.personas).filter((p) => p.userId === userId);
-		runInAction(() => {
+		const newOwnPersonasSet = new Set(personas.map((v) => v.id));
+		if (personas.length !== newOwnPersonasSet.size) runInAction(() => {
 			this.ownPersonas = new Set(personas.map((v) => v.id));
 		});
 		return personas;

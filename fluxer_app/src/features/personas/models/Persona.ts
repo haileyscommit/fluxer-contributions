@@ -1,6 +1,6 @@
 import type { Message } from "@app/features/messaging/models/MessagingMessage";
 import Users from "@app/features/user/state/Users";
-import type {OwnPersonaResponse as WireOwnPersona, PersonaResponse as WirePersona} from "@fluxer/schema/src/domains/persona/PersonaSchemas";
+import type {PersonaSnapshot, OwnPersonaResponse as WireOwnPersona, PersonaResponse as WirePersona} from "@fluxer/schema/src/domains/persona/PersonaSchemas";
 import { PresentationChart } from "@phosphor-icons/react";
 
 export class Persona {
@@ -89,6 +89,15 @@ export class Persona {
 				}
 			})
 		})
+	}
+
+	toSnapshot(): PersonaSnapshot {
+		return {
+			id: this.id,
+			name: this.display_name || this.internal_name!,
+			avatar: this.avatar,
+			pronouns: this.pronouns
+		}
 	}
 }
 

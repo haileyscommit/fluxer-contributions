@@ -40,6 +40,7 @@ export type SendMessageFunction = (
 	stickersOrTts?: Array<MessageStickerItem> | boolean,
 	favoriteMemeIdOrStickers?: string | Array<MessageStickerItem>,
 	maybeFavoriteMemeId?: string,
+	persona?: PersonaSnapshot,
 ) => boolean;
 
 function isBlockedBySlowmode(channel: Channel): boolean {
@@ -78,14 +79,9 @@ export const useMessageSubmission = ({channel, referencedMessage, replyingMessag
 			stickersOrTts: Array<MessageStickerItem> | boolean = [],
 			favoriteMemeIdOrStickers?: string | Array<MessageStickerItem>,
 			maybeFavoriteMemeId?: string,
+			persona?: PersonaSnapshot
 		) => {
-			const persona = Personas.getGlobalActivePersona();
-			const personaSnapshot = persona ? {
-				id: persona.id,
-				name: persona.display_name || persona.internal_name!,
-				avatar: persona.avatar,
-				pronouns: persona.pronouns
-			} : undefined;
+			const personaSnapshot = persona || Personas.getGlobalActivePersona()?.toSnapshot();
 			const isTtsCall = typeof stickersOrTts === 'boolean';
 			const tts = isTtsCall ? stickersOrTts : undefined;
 			const stickers = isTtsCall
@@ -141,7 +137,7 @@ export const useMessageSubmission = ({channel, referencedMessage, replyingMessag
 			});
 			SlowmodeCommands.prepareMessageSend(channel.id);
 			const pendingSend = SlowmodeCommands.recordPendingMessageSend(channel.id);
-			console.log("Fdsfasdfsa", persona);
+			console.log("Fdsfasdfsa", persona, personaSnapshot);
 			void MessageCommands.send(channel.id, {
 				content: message.content,
 				nonce,

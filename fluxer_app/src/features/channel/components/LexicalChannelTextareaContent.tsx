@@ -122,6 +122,9 @@ import {useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef, useStat
 import { Tooltip } from '@app/features/ui/tooltip/Tooltip';
 import { PersonaPickerComposerButton } from '@app/features/personas/components/PersonaPickerComposerButton';
 import Personas from '@app/features/user/state/Personas';
+import type { Persona } from '@app/features/personas/models/Persona';
+import { PersonaBar } from './ChannelPersonaBar';
+import { value } from 'valibot';
 
 const PLUS_MENU_DOUBLE_CLICK_MS = 500;
 const MESSAGE_SCROLLER_SELECTOR = '[data-flx="channel.messages.scroller"][data-fluxer-scroll-container="true"]';
@@ -173,7 +176,10 @@ export const LexicalChannelTextareaContent = observer(
 			hasSlots: false,
 			activeSlot: null,
 		});
+		const personasWithTriggers = Personas.getOwnPersonas().filter((v) => v.triggers.length) //, [Personas.ownPersonas]
+		const [triggeredPersona, setTriggeredPersona] = useState<Persona | null>(null);
 		const [showAllButtons, setShowAllButtons] = useState(true);
+		const [useTriggeredPersona, setUseTriggeredPersona] = useState(true);
 		const [mentionConfirmationSnapshot, setMentionConfirmationSnapshot] = useState(createMentionConfirmationSnapshot);
 		const mentionConfirmationModel = selectMentionConfirmationModel(mentionConfirmationSnapshot);
 		const pendingMentionConfirmation = mentionConfirmationModel.pending;
@@ -201,6 +207,19 @@ export const LexicalChannelTextareaContent = observer(
 				? containerRef.current.querySelector<HTMLDivElement>('[data-channel-textarea]')
 				: null;
 		}, []);
+		useEffect(() => {
+			if (!personasWithTriggers) return;
+			// TODO: find longest match, use it
+			const matches = personasWithTriggers.filter((p) => p.triggers.find((t) => !t.suffix && t.prefix?.trim() && value.toLowerCase().startsWith(t.prefix.toLowerCase().trim())));
+			// Suffixes are matched when the message is sent
+			if (matches.length > 1) return;
+			if (matches.length < 1) {
+				setTriggeredPersona(null);
+				if (!value) setUseTriggeredPersona(true);
+				return;
+			}
+			setTriggeredPersona(matches[0]);
+		}, [setTriggeredPersona, setUseTriggeredPersona, personasWithTriggers, value]);
 		useChannelComposerDraftFocusRestore({
 			handleRef,
 			editableRef,
@@ -340,6 +359,45 @@ export const LexicalChannelTextareaContent = observer(
 		});
 		const handleSendMessage: SendMessageFunction = useCallback(
 			(...args) => {
+				let matchingPersona: Persona | null = null;
+				if (useTriggeredPersona && triggeredPersona === null && !args['5']) {
+					// Match by prefix AND suffix
+					const value = args['0'].toLowerCase();
+					const matches = personasWithTriggers.filter((v) => v.triggers.find((t) => {
+						const prefix = t.prefix?.toLowerCase().trim();
+						const suffix = t.suffix?.toLowerCase().trim();
+						if (!prefix && !suffix) return false;
+						if (prefix && !value.startsWith(prefix)) return false;
+						if (suffix && !value.endsWith(suffix)) return false;
+						return true;
+					}));
+					if (matches.length === 1) {
+						args['5'] = matches[0].toSnapshot();
+						matchingPersona = matches[0];
+					}
+				}
+				if (useTriggeredPersona && triggeredPersona && !args['5']) {
+					args['5'] = triggeredPersona?.toSnapshot();
+					matchingPersona = triggeredPersona;
+				}
+				// Strip prefix and suffix from applied persona
+				if (useTriggeredPersona && matchingPersona) {
+					const value = args['0'].toLowerCase();
+					const matchingTrigger = matchingPersona.triggers.find((t) => {
+						const prefix = t.prefix?.toLowerCase().trim();
+						const suffix = t.suffix?.toLowerCase().trim();
+						if (!prefix && !suffix) return false;
+						if (prefix && !value.startsWith(prefix)) return false;
+						if (suffix && !value.endsWith(suffix)) return false;
+						return true;
+					});
+					if (matchingTrigger) {
+						let ival = args['0'];
+						if (matchingTrigger?.prefix) ival = ival.substring(matchingTrigger.prefix?.length ?? 0);
+						if (matchingTrigger?.suffix) ival = ival.substring(0, ival.length - matchingTrigger.suffix.length);
+						args['0'] = ival;
+					}
+				}
 				if (!sendMessage(...args)) {
 					return false;
 				}
@@ -348,11 +406,14 @@ export const LexicalChannelTextareaContent = observer(
 				if (handle !== null) {
 					handle.clear();
 				}
+				// TODO: if latch mode is on, set this to latch for future messages
+				setTriggeredPersona(null);
+				setUseTriggeredPersona(true);
 				setValue('');
 				clearSegments();
 				return true;
 			},
-			[sendMessage, clearSegments, rememberSegmentsForValue, value],
+			[sendMessage, triggeredPersona, useTriggeredPersona, clearSegments, rememberSegmentsForValue, value],
 		);
 		const sendMentionConfirmationEvent = useCallback((event: MentionConfirmationEvent) => {
 			setMentionConfirmationSnapshot((snapshot) => transitionMentionConfirmationSnapshot(snapshot, event));
@@ -391,12 +452,13 @@ export const LexicalChannelTextareaContent = observer(
 			const pendingSticker = ChannelSticker.getPendingSticker(channel.id);
 			const stickerItems = pendingSticker ? [pendingSticker.toJSON()] : undefined;
 			let didSend = false;
+			const persona = useTriggeredPersona ? triggeredPersona?.toSnapshot() : undefined;
 			if (pending.tts) {
-				didSend = handleSendMessageRef.current(pending.content, false, true, stickerItems);
+				didSend = handleSendMessageRef.current(pending.content, false, true, stickerItems, undefined, persona);
 			} else if (stickerItems) {
-				didSend = handleSendMessageRef.current(pending.content, false, stickerItems);
+				didSend = handleSendMessageRef.current(pending.content, false, stickerItems, undefined, undefined, persona);
 			} else {
-				didSend = handleSendMessageRef.current(pending.content, false);
+				didSend = handleSendMessageRef.current(pending.content, false, undefined, undefined, undefined, persona);
 			}
 			if (!didSend) return;
 			sendMentionConfirmationEvent({type: 'mentionConfirmation.confirmed'});
@@ -733,6 +795,7 @@ export const LexicalChannelTextareaContent = observer(
 			handleSendMessage,
 			onMentionConfirmationNeeded: handleMentionConfirmationNeeded,
 			i18n: i18n,
+			persona: useTriggeredPersona ? triggeredPersona?.toSnapshot() : undefined,
 		});
 		const handleClearSlashCommand = useCallback(() => {
 			const handle = handleRef.current;
@@ -886,7 +949,7 @@ export const LexicalChannelTextareaContent = observer(
 		}, [channel.id]);
 		useTextareaDraftAndTyping({
 			channelId: channel.id,
-			personaId: Personas.getGlobalActivePersona()?.id || undefined,
+			personaId: (useTriggeredPersona ? triggeredPersona?.id : undefined) || Personas.getGlobalActivePersona()?.id || undefined,
 			value,
 			setValue,
 			draft,
@@ -1187,7 +1250,7 @@ export const LexicalChannelTextareaContent = observer(
 		const presentableTypingUsers = usePresentableTypingUsers(channel);
 		const isTypingStatusVisible = !isAutocompleteVisible && presentableTypingUsers.length > 0;
 		const isSlowmodeIndicatorVisible = isSlowmodeEnabled;
-		const hasLeadingStatusContent = isMobileEditBarVisible || isReplyBarVisible || isSlashParamBarVisible;
+		const hasLeadingStatusContent = (useTriggeredPersona && triggeredPersona) || isMobileEditBarVisible || isReplyBarVisible || isSlashParamBarVisible;
 		let shouldReplyMention = false;
 		if (replyingMessage !== null && replyingMessage !== undefined) {
 			shouldReplyMention = replyingMessage.mentioning;
@@ -1209,6 +1272,14 @@ export const LexicalChannelTextareaContent = observer(
 					setShouldReplyMention={(mentioning) => MessageCommands.setReplyMentioning(channel.id, mentioning)}
 					channel={channel}
 					data-flx="channel.lexical-channel-textarea-content.reply-bar"
+				/>
+			);
+		} else if (triggeredPersona !== null && triggeredPersona?.id !== null) {
+			topBarContent = (
+				<PersonaBar
+					persona={triggeredPersona}
+					onCancel={() => setUseTriggeredPersona(false)}
+					data-flx="channel.lexical-channel-textarea-content.persona-bar"
 				/>
 			);
 		}
