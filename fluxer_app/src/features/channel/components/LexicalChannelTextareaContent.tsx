@@ -125,6 +125,7 @@ import Personas from '@app/features/user/state/Personas';
 import type { Persona } from '@app/features/personas/models/Persona';
 import { PersonaBar } from './ChannelPersonaBar';
 import { value } from 'valibot';
+import { PersonaSettings_LatchMode } from '@fluxer/schema/src/gen/fluxer/user/preferences/v1/preferences_pb.js';
 
 const PLUS_MENU_DOUBLE_CLICK_MS = 500;
 const MESSAGE_SCROLLER_SELECTOR = '[data-flx="channel.messages.scroller"][data-fluxer-scroll-container="true"]';
@@ -209,6 +210,11 @@ export const LexicalChannelTextareaContent = observer(
 		}, []);
 		useEffect(() => {
 			if (!personasWithTriggers) return;
+			if (Personas.latchMode === PersonaSettings_LatchMode.OFF) {
+				setTriggeredPersona(null);
+				setUseTriggeredPersona(false);
+				return;
+			}
 			// TODO: find longest match, use it
 			const matches = personasWithTriggers.filter((p) => p.triggers.find((t) => !t.suffix && t.prefix?.trim() && value.toLowerCase().startsWith(t.prefix.toLowerCase().trim())));
 			// Suffixes are matched when the message is sent
@@ -360,6 +366,10 @@ export const LexicalChannelTextareaContent = observer(
 		const handleSendMessage: SendMessageFunction = useCallback(
 			(...args) => {
 				let matchingPersona: Persona | null = null;
+				if (Personas.latchMode === PersonaSettings_LatchMode.OFF) {
+					setUseTriggeredPersona(false);
+					setTriggeredPersona(null);
+				}
 				if (useTriggeredPersona && triggeredPersona === null && !args['5']) {
 					// Match by prefix AND suffix
 					const value = args['0'].toLowerCase();
@@ -406,7 +416,9 @@ export const LexicalChannelTextareaContent = observer(
 				if (handle !== null) {
 					handle.clear();
 				}
-				// TODO: if latch mode is on, set this to latch for future messages
+				if (matchingPersona && Personas.latchMode === PersonaSettings_LatchMode.TRIGGER_SWITCHING) {
+					Personas.setGlobalActivePersona(matchingPersona.id);
+				}
 				setTriggeredPersona(null);
 				setUseTriggeredPersona(true);
 				setValue('');

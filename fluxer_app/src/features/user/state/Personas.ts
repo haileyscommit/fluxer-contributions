@@ -6,7 +6,7 @@ import type {PersonaResponse as WireOtherPersona, OwnPersonaResponse as WireOwnP
 import {action, makeAutoObservable, reaction, runInAction} from 'mobx';
 import Users from './Users';
 import UserSettings from './UserSettings';
-import { PersonaSettingsSchema, type PersonaSettings } from '@fluxer/schema/src/gen/fluxer/user/preferences/v1/preferences_pb.js';
+import { PersonaSettings_LatchMode, PersonaSettingsSchema, type PersonaSettings } from '@fluxer/schema/src/gen/fluxer/user/preferences/v1/preferences_pb.js';
 import { create } from '@bufbuild/protobuf';
 
 type WirePersona = WireOtherPersona | WireOwnPersona;
@@ -39,6 +39,12 @@ class Personas {
 		const out = func(pref || create(PersonaSettingsSchema));
 		return await UserSettings.setSubPreference("personaSettings", out);
 	}
+
+	get latchMode(): PersonaSettings_LatchMode { return UserSettings.getSubPreference("personaSettings")?.latchModeGlobal ?? PersonaSettings_LatchMode.MANUAL; }
+	set latchMode(nv: PersonaSettings_LatchMode) { this.updatedSyncedPref((settings) => {
+		settings.latchModeGlobal = nv;
+		return settings;
+	}) }
 
 	getGlobalActivePersona(): Persona | null {
 		const remote_persona = UserSettings.getSubPreference("personaSettings")?.activePersonaGlobal?.toString();
