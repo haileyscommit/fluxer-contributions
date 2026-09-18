@@ -273,8 +273,8 @@ message PersonaSettings {
 		int64 last_used_ms = 3;
 	}
 	enum LatchMode {
-		OFF = 0;
-		MANUAL = 1;
+		MANUAL = 0;
+		OFF = 1;
 		TRIGGER_SWITCHING = 2;
 	}
 
