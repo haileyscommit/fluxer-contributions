@@ -20,7 +20,7 @@ msgstr "...tiivis tila käyttöön. Hienoa!"
 
 #. Button or menu action label in the channel and chat user message. Keep it concise.
 #: src/features/channel/components/MessageAttachments.tsx:358
-#: src/features/channel/components/UserMessage.tsx:59
+#: src/features/channel/components/UserMessage.tsx:63
 msgid "(edited)"
 msgstr "(muokattu)"
 
@@ -48,15 +48,15 @@ msgstr "(sinä)"
 msgid "{0, plural, one {# member} other {# members}}"
 msgstr "{0, plural, one {# jäsen} other {# jäsentä}}"
 
-#: src/features/channel/components/TypingUsers.tsx:66
+#: src/features/channel/components/TypingUsers.tsx:70
 msgid "{a} and {b} are typing..."
 msgstr "{a} ja {b} kirjoittavat..."
 
-#: src/features/channel/components/TypingUsers.tsx:62
+#: src/features/channel/components/TypingUsers.tsx:66
 msgid "{a} is typing..."
 msgstr "{a} kirjoittaa..."
 
-#: src/features/channel/components/TypingUsers.tsx:73
+#: src/features/channel/components/TypingUsers.tsx:77
 msgid "{a}, {b} and {c} are typing..."
 msgstr "{a}, {b} ja {c} kirjoittavat..."
 
@@ -808,7 +808,7 @@ msgid "{length} apps"
 msgstr "{length} sovellusta"
 
 #. Screen-reader fragment listing multiple attachments on a message. length is the count.
-#: src/features/channel/components/ChannelMessage.tsx:48
+#: src/features/channel/components/ChannelMessage.tsx:55
 msgid "{length} attachments"
 msgstr "{length} liitettä"
 
@@ -818,12 +818,12 @@ msgid "{length} channels"
 msgstr "{length} kanavaa"
 
 #. Screen-reader fragment listing multiple embeds on a message. length is the count.
-#: src/features/channel/components/ChannelMessage.tsx:66
+#: src/features/channel/components/ChannelMessage.tsx:73
 msgid "{length} embeds"
 msgstr "{length} upotusta"
 
 #. Screen-reader fragment listing multiple stickers on a message. length is the count.
-#: src/features/channel/components/ChannelMessage.tsx:57
+#: src/features/channel/components/ChannelMessage.tsx:64
 msgid "{length} stickers"
 msgstr "{length} tarraa"
 
@@ -866,7 +866,7 @@ msgid "{memberCount} {rawMemberCount, plural, one {member} other {members}}"
 msgstr "{memberCount} {rawMemberCount, plural, one {jäsen} other {jäsentä}}"
 
 #. Generic aria-label for an unread-mentions badge. Preserve {mentionCount}.
-#: src/features/i18n/utils/CommonMessageDescriptors.ts:795
+#: src/features/i18n/utils/CommonMessageDescriptors.ts:799
 msgid "{mentionCount} mentions"
 msgstr "{mentionCount} mainintaa"
 
@@ -1304,7 +1304,7 @@ msgid "{tokenGroupCount, plural, one {# group} other {# groups}}"
 msgstr "{tokenGroupCount, plural, one {# ryhmä} other {# ryhmää}}"
 
 #. Result count header in the channel search results panel. Plural cases describe the result count.
-#: src/features/channel/components/channel_search_results/ChannelSearchResultsShared.tsx:41
+#: src/features/channel/components/channel_search_results/ChannelSearchResultsShared.tsx:42
 msgid "{total, plural, one {# result} other {# results}}"
 msgstr "{total, plural, one {# tulos} other {# tulosta}}"
 
@@ -1865,7 +1865,7 @@ msgid "a forwarded message"
 msgstr "edelleenlähetetty viesti"
 
 #. Description text in the channel and chat typing users.
-#: src/features/channel/components/TypingUsers.tsx:25
+#: src/features/channel/components/TypingUsers.tsx:27
 msgid "A handful of keyboard warriors are assembling..."
 msgstr "Muutama kirjoittaja kokoontuu..."
 
@@ -1932,9 +1932,19 @@ msgid "a sticker"
 msgstr "tarra"
 
 #. Description text in the channel and chat typing users.
-#: src/features/channel/components/TypingUsers.tsx:29
+#: src/features/channel/components/TypingUsers.tsx:31
 msgid "A symphony of clacking keys is underway..."
 msgstr "Joku kirjoittaa..."
+
+#. A label for the latching modes (trigger behavior) setting.
+#: src/features/user/components/modals/tabs/PersonasTab.tsx:59
+msgid "A trigger sends a message with its persona, but the active persona doesn't change."
+msgstr "Trigger lähettää viestin, jossa näkyy Persona, mutta aktiivinen Persona ei muutu."
+
+#. A label for the latching modes (trigger behavior) setting.
+#: src/features/user/components/modals/tabs/PersonasTab.tsx:67
+msgid "A trigger sets its persona as active until the active persona is changed. This may also be called \"latching\"."
+msgstr "Trigger asettaa Persona-tilan aktiiviseksi, kunnes aktiivinen Persona vaihdetaan. Tätä voidaan kutsua myös \"latching\"."
 
 #. Description for has:link. Sentence case, no trailing punctuation.
 #: src/features/search/utils/SearchUtils.ts:29
@@ -2040,7 +2050,7 @@ msgstr "Käytä profiilisi perustietoja (käyttäjänimi, avatari jne.)"
 #. User settings tab for accessibility preferences (visual, motion, screen reader, etc.).
 #: src/features/user/components/modals/tabs/advanced_settings_tab/AdvancedSettingsCategories.ts:14
 #: src/features/user/components/settings_utils/section_registry/SharedDescriptors.ts:93
-#: src/features/user/components/settings_utils/SettingsConstants.tsx:61
+#: src/features/user/components/settings_utils/SettingsConstants.tsx:62
 msgid "Accessibility"
 msgstr "Saavutettavuus"
 
@@ -2054,7 +2064,7 @@ msgstr "Esteetön live-alue"
 #. User settings tab for account login, password, MFA, and security.
 #: src/features/user/components/modals/tabs/advanced_settings_tab/AdvancedSettingsCategories.ts:11
 #: src/features/user/components/settings_utils/section_registry/AccountSecuritySections.ts:129
-#: src/features/user/components/settings_utils/SettingsConstants.tsx:90
+#: src/features/user/components/settings_utils/SettingsConstants.tsx:95
 msgid "Account"
 msgstr "Tili"
 
@@ -2222,7 +2232,7 @@ msgstr "Aktiivinen kuukausitilaaja (irtisanominen ajoitettu)"
 #. Short label in the appearance tab. Keep it concise.
 #. Short label in the inline. Keep it concise.
 #. Status label indicating a user is currently active.
-#: src/features/i18n/utils/CommonMessageDescriptors.ts:739
+#: src/features/i18n/utils/CommonMessageDescriptors.ts:743
 #: src/features/user/components/modals/tabs/appearance_tab/AppearanceTabInline.tsx:43
 #: src/features/user/components/modals/tabs/AppearanceTab.tsx:51
 #: src/features/user/components/settings_utils/section_registry/AppearanceSections.ts:430
@@ -2621,6 +2631,10 @@ msgstr "Lisää käännöspalvelu"
 msgid "Add translator"
 msgstr "Lisää kääntäjä"
 
+#: src/features/user/components/modals/PersonaEditorModal.tsx:476
+msgid "Add trigger"
+msgstr "Lisää trigger"
+
 #: src/features/user/components/modals/tabs/chat_settings_tab/SearchEnginesTab.tsx:425
 msgid "Add your own reverse image search providers with a custom URL pattern. Use <0>{url}</0> as a placeholder for the image URL."
 msgstr "Lisää omia kuvahaun tarjoajia mukautetulla URL-mallilla. Käytä paikkamerkkinä kuvan URL-osoitteelle arvoa <0>{url}</0>."
@@ -2754,7 +2768,7 @@ msgstr "Ylläpitäjät keskeyttivät kutsut – et voi liittyä juuri nyt."
 #. User settings tab for power-user and experimental application preferences.
 #: src/features/channel/components/modals/channel_tabs/ChannelOverviewTab.tsx:337
 #: src/features/guild/components/modals/guild_tabs/guild_overview_tab/index.tsx:28
-#: src/features/user/components/settings_utils/SettingsConstants.tsx:140
+#: src/features/user/components/settings_utils/SettingsConstants.tsx:145
 #: src/features/voice/components/voice_connection_status/VoiceDetailsPopout.tsx:60
 msgid "Advanced"
 msgstr "Lisäasetukset"
@@ -3165,7 +3179,7 @@ msgid "Already set to cancel"
 msgstr "Peruutuksen ajoitus on jo tehty"
 
 #. Toggle-switch label in the moderator delete-message confirmation dialog. When enabled, the message is reported (category: other) before being deleted. {productName} is the product name (e.g., Fluxer).
-#: src/features/messaging/commands/MessageCommands.tsx:84
+#: src/features/messaging/commands/MessageCommands.tsx:85
 msgid "Also report this message to the {productName} Safety Team"
 msgstr "Ilmoita tämä viesti myös {productName}-turvatiimille"
 
@@ -3277,7 +3291,7 @@ msgid "An error occurred while searching"
 msgstr "Haussa tapahtui virhe"
 
 #. Fallback error message shown when the channel search request fails for an unknown reason.
-#: src/features/channel/components/channel_search_results/ChannelSearchResultsShared.tsx:57
+#: src/features/channel/components/channel_search_results/ChannelSearchResultsShared.tsx:58
 msgid "An error occurred while searching."
 msgstr "Haussa tapahtui virhe."
 
@@ -3649,7 +3663,7 @@ msgstr "Sovelluksen kuvakkeen ilmoituspiste"
 msgid "App language: {format}"
 msgstr "Sovelluksen kieli: {format}"
 
-#: src/features/user/components/settings_utils/SettingsConstants.tsx:204
+#: src/features/user/components/settings_utils/SettingsConstants.tsx:209
 msgid "App settings"
 msgstr "Sovelluksen asetukset"
 
@@ -3669,14 +3683,14 @@ msgid "App zoom"
 msgstr "Sovelluksen zoomaus"
 
 #. Setting label for the global UI zoom level.
-#: src/features/i18n/utils/CommonMessageDescriptors.ts:771
+#: src/features/i18n/utils/CommonMessageDescriptors.ts:775
 msgid "App zoom level"
 msgstr "Sovelluksen zoomaustaso"
 
 #. Advanced settings category tag.
 #. User settings tab for app appearance and layout options.
 #: src/features/user/components/modals/tabs/advanced_settings_tab/AdvancedSettingsCategories.ts:13
-#: src/features/user/components/settings_utils/SettingsConstants.tsx:111
+#: src/features/user/components/settings_utils/SettingsConstants.tsx:116
 msgid "Appearance"
 msgstr "Ulkoasu"
 
@@ -3750,8 +3764,8 @@ msgstr "Sovellus päivitetty"
 #: src/features/user/components/modals/tabs/applications_tab/index.tsx:90
 #: src/features/user/components/modals/tabs/applications_tab/index.tsx:129
 #: src/features/user/components/settings_utils/search_index/SharedDescriptors.ts:29
-#: src/features/user/components/settings_utils/section_registry/GeneralSettingsSections.ts:66
-#: src/features/user/components/settings_utils/SettingsConstants.tsx:65
+#: src/features/user/components/settings_utils/section_registry/GeneralSettingsSections.ts:70
+#: src/features/user/components/settings_utils/SettingsConstants.tsx:66
 #: src/features/voice/components/modals/ScreenSharePickerModal.tsx:183
 msgid "Applications"
 msgstr "Sovellukset"
@@ -3964,7 +3978,7 @@ msgid "Attach files"
 msgstr "Liitä tiedostoja"
 
 #. Screen-reader fragment listing one attachment on a message. Lowercase because it appears inside a longer sentence.
-#: src/features/channel/components/ChannelMessage.tsx:43
+#: src/features/channel/components/ChannelMessage.tsx:50
 msgid "attachment"
 msgstr "liite"
 
@@ -4279,7 +4293,7 @@ msgid "Authorized"
 msgstr "Valtuutettu"
 
 #. Settings search synonym. Used to match this term when the user types it in the settings search bar.
-#: src/features/user/components/settings_utils/section_registry/GeneralSettingsSections.ts:22
+#: src/features/user/components/settings_utils/section_registry/GeneralSettingsSections.ts:26
 msgid "Authorized applications"
 msgstr "Valtuutetut sovellukset"
 
@@ -4293,8 +4307,8 @@ msgstr "Valtuutetut sovellukset"
 #: src/features/user/components/modals/tabs/AuthorizedAppsTab.tsx:506
 #: src/features/user/components/settings_utils/search_index/AuthorizedAppsIndex.ts:10
 #: src/features/user/components/settings_utils/section_registry/AccountSecuritySections.ts:148
-#: src/features/user/components/settings_utils/section_registry/GeneralSettingsSections.ts:26
-#: src/features/user/components/settings_utils/SettingsConstants.tsx:102
+#: src/features/user/components/settings_utils/section_registry/GeneralSettingsSections.ts:30
+#: src/features/user/components/settings_utils/SettingsConstants.tsx:107
 msgid "Authorized apps"
 msgstr "Valtuutetut sovellukset"
 
@@ -4911,7 +4925,7 @@ msgstr "1–32 merkkiä pitkä"
 
 #. Settings search synonym. Used to match this term when the user types it in the settings search bar.
 #: src/features/user/components/settings_utils/search_index/PlutoniumIndex.ts:27
-#: src/features/user/components/settings_utils/SettingsConstants.tsx:202
+#: src/features/user/components/settings_utils/SettingsConstants.tsx:207
 msgid "Billing"
 msgstr "Laskutus"
 
@@ -5046,8 +5060,8 @@ msgstr "Estetyt"
 #: src/features/user/components/modals/tabs/BlockedUsersTab.tsx:210
 #: src/features/user/components/settings_utils/search_index/BlockedUsersIndex.ts:6
 #: src/features/user/components/settings_utils/section_registry/AccountSecuritySections.ts:152
-#: src/features/user/components/settings_utils/section_registry/GeneralSettingsSections.ts:18
-#: src/features/user/components/settings_utils/SettingsConstants.tsx:53
+#: src/features/user/components/settings_utils/section_registry/GeneralSettingsSections.ts:22
+#: src/features/user/components/settings_utils/SettingsConstants.tsx:54
 msgid "Blocked users"
 msgstr "Estetyt käyttäjät"
 
@@ -5532,7 +5546,7 @@ msgstr "Puhelut"
 #. Generic voice/video setting label for the active camera device.
 #. Settings search synonym. Used to match this term when the user types it in the settings search bar.
 #. Short label in the video tab. Keep it concise.
-#: src/features/i18n/utils/CommonMessageDescriptors.ts:715
+#: src/features/i18n/utils/CommonMessageDescriptors.ts:719
 #: src/features/user/components/modals/tabs/UserVideoTab.tsx:68
 #: src/features/user/components/settings_utils/section_registry/VoiceVideoSections.ts:157
 #: src/features/voice/utils/SettingsDeviceOptions.ts:23
@@ -5592,7 +5606,7 @@ msgstr "Kamera pois päältä"
 
 #. Generic action label that enables the local camera.
 #. Notification sound setting label. Sound played when the user turns their camera on in a call.
-#: src/features/i18n/utils/CommonMessageDescriptors.ts:719
+#: src/features/i18n/utils/CommonMessageDescriptors.ts:723
 #: src/features/notification/utils/SoundLabels.ts:52
 msgid "Camera on"
 msgstr "Kamera päällä"
@@ -6074,6 +6088,11 @@ msgstr "Vaihda salasana"
 msgid "Change password form"
 msgstr "Vaihda salasana -lomake"
 
+#. Generic action label that opens the persona picker.
+#: src/features/i18n/utils/CommonMessageDescriptors.ts:707
+msgid "Change persona"
+msgstr "Vaihda Persona"
+
 #. Subscription status badge meaning a future billing plan change is scheduled.
 #: src/features/app/components/dialogs/components/plutonium/SubscriptionCard.tsx:362
 msgid "Change scheduled"
@@ -6234,7 +6253,7 @@ msgid "Channel actions"
 msgstr "Kanavan toiminnot"
 
 #. Toast confirming a channel was added to the favorites list.
-#: src/features/i18n/utils/CommonMessageDescriptors.ts:787
+#: src/features/i18n/utils/CommonMessageDescriptors.ts:791
 msgid "Channel added to favorites"
 msgstr "Kanava lisätty suosikkeihin"
 
@@ -6262,7 +6281,7 @@ msgstr "Kanavan virheenkorjaus"
 #. Audit log entry label. Past-tense action describing that a channel was deleted.
 #. Toast confirming a channel was successfully deleted.
 #: src/features/app/config/AuditLogConstants.ts:20
-#: src/features/i18n/utils/CommonMessageDescriptors.ts:755
+#: src/features/i18n/utils/CommonMessageDescriptors.ts:759
 msgid "Channel deleted"
 msgstr "Kanava poistettu"
 
@@ -6367,7 +6386,7 @@ msgid "Channel record"
 msgstr "Kanavan tallenne"
 
 #. Toast confirming a channel was removed from the favorites list.
-#: src/features/i18n/utils/CommonMessageDescriptors.ts:783
+#: src/features/i18n/utils/CommonMessageDescriptors.ts:787
 msgid "Channel removed from favorites"
 msgstr "Kanava poistettu suosikeista"
 
@@ -6443,7 +6462,7 @@ msgstr "Merkkirajoitus ylittyy {remaining} merkillä"
 #: src/features/input/components/modals/KeyboardShortcutsCheatsheetModal.tsx:40
 #: src/features/user/components/modals/tabs/advanced_settings_tab/AdvancedSettingsCategories.ts:15
 #: src/features/user/components/modals/tabs/keybinds_tab/DefaultKeybindsList.tsx:39
-#: src/features/user/components/settings_utils/SettingsConstants.tsx:115
+#: src/features/user/components/settings_utils/SettingsConstants.tsx:120
 msgid "Chat"
 msgstr "Chat"
 
@@ -7025,7 +7044,7 @@ msgstr "Tyhjennä liitteiden mallit"
 
 #. Accessible label for the button that clears the slash command being composed in the message box.
 #. Accessible label for the composer button that clears the slash command currently being composed.
-#: src/features/channel/components/LexicalChannelTextareaContent.tsx:131
+#: src/features/channel/components/LexicalChannelTextareaContent.tsx:138
 #: src/features/channel/components/SlashCommandParamBar.tsx:16
 msgid "Clear command"
 msgstr "Tyhjennä komento"
@@ -7039,7 +7058,7 @@ msgid "Clear custom status"
 msgstr "Tyhjennä oma tila"
 
 #. Body of the confirmation alert shown when clearing every reaction on a message.
-#: src/features/channel/components/MessageActionUtils.tsx:72
+#: src/features/channel/components/MessageActionUtils.tsx:73
 msgid "Clear every reaction from this message?"
 msgstr "Poistetaanko kaikki reaktiot tästä viestistä?"
 
@@ -7695,7 +7714,7 @@ msgid "Community debug"
 msgstr "Yhteisön virheenkorjaus"
 
 #. Notification level option indicating the channel inherits the community default.
-#: src/features/i18n/utils/CommonMessageDescriptors.ts:759
+#: src/features/i18n/utils/CommonMessageDescriptors.ts:763
 msgid "Community default"
 msgstr "Yhteisön oletus"
 
@@ -8256,14 +8275,14 @@ msgstr "Yhteys: {connectionId}"
 #. Settings search entry label. Also used as a search synonym in the settings search bar.
 #. Settings section label for external accounts and verified domains.
 #: src/features/i18n/utils/CommonMessageDescriptors.ts:410
-#: src/features/user/components/popouts/UserProfileShared.tsx:610
+#: src/features/user/components/popouts/UserProfileShared.tsx:611
 #: src/features/user/components/settings_utils/search_index/LinkedAccountsIndex.ts:8
-#: src/features/user/components/settings_utils/section_registry/GeneralSettingsSections.ts:30
+#: src/features/user/components/settings_utils/section_registry/GeneralSettingsSections.ts:34
 msgid "Connections"
 msgstr "Yhteydet"
 
 #. User settings tab for linked external accounts.
-#: src/features/user/components/settings_utils/SettingsConstants.tsx:106
+#: src/features/user/components/settings_utils/SettingsConstants.tsx:111
 msgctxt "user-settings-tab"
 msgid "Connections"
 msgstr "Yhteydet"
@@ -8360,7 +8379,7 @@ msgstr "Pikavalikot voi avata vasemmalla napsautuksella (painikkeissa) tai oikea
 #: src/features/auth/components/pages/oauth_authorize_page/OAuthAccountStep.tsx:34
 #: src/features/auth/flow/HandoffApprovalFlow.tsx:109
 #: src/features/connection/components/modals/AddConnectionModal.tsx:384
-#: src/features/i18n/utils/CommonMessageDescriptors.ts:707
+#: src/features/i18n/utils/CommonMessageDescriptors.ts:711
 #: src/features/user/components/modals/FluxerTagChangeModal.tsx:397
 #: src/features/user/components/modals/tabs/AuthorizedAppsTab.tsx:181
 msgid "Continue"
@@ -8566,7 +8585,7 @@ msgid "Copy code"
 msgstr "Kopioi koodi"
 
 #. Developer-mode action that copies a community snowflake/ID to the clipboard.
-#: src/features/i18n/utils/CommonMessageDescriptors.ts:723
+#: src/features/i18n/utils/CommonMessageDescriptors.ts:727
 msgid "Copy community ID"
 msgstr "Kopioi yhteisön tunnus"
 
@@ -8664,7 +8683,7 @@ msgid "Copy invite URL"
 msgstr "Kopioi kutsulinkki"
 
 #. Generic action label that copies a URL to the clipboard.
-#: src/features/i18n/utils/CommonMessageDescriptors.ts:735
+#: src/features/i18n/utils/CommonMessageDescriptors.ts:739
 #: src/features/user/components/modals/tabs/component_gallery_tab/ComponentGalleryTabButtonsTab.tsx:330
 #: src/features/user/components/modals/tabs/component_gallery_tab/index.tsx:145
 msgid "Copy link"
@@ -8691,13 +8710,13 @@ msgid "Copy media to clipboard"
 msgstr "Kopioi media leikepöydälle"
 
 #. Message context menu item that copies the message text content to the clipboard.
-#: src/features/channel/components/MessageActionMenu.tsx:91
+#: src/features/channel/components/MessageActionMenu.tsx:94
 msgid "Copy message"
 msgstr "Kopioi viesti"
 
 #. Developer-mode action that copies a message snowflake/ID to the clipboard.
 #. Keyboard shortcut action label shown in the shortcuts list and keybind editor. Keep short, sentence case.
-#: src/features/i18n/utils/CommonMessageDescriptors.ts:727
+#: src/features/i18n/utils/CommonMessageDescriptors.ts:731
 #: src/features/input/state/input_keybind/shared.ts:277
 msgid "Copy message ID"
 msgstr "Kopioi viestin tunnus"
@@ -8773,7 +8792,7 @@ msgid "Copy user ID"
 msgstr "Kopioi käyttäjätunnus"
 
 #. Action that copies a user username (handle) to the clipboard.
-#: src/features/i18n/utils/CommonMessageDescriptors.ts:731
+#: src/features/i18n/utils/CommonMessageDescriptors.ts:735
 msgid "Copy username"
 msgstr "Kopioi käyttäjänimi"
 
@@ -9190,7 +9209,7 @@ msgid "Couldn't ring this person"
 msgstr "Henkilöön ei saatu yhteyttä"
 
 #. Error message in the use textarea submit hook. Preserve {detail}; it is inserted by code.
-#: src/features/messaging/hooks/useTextareaSubmit.ts:46
+#: src/features/messaging/hooks/useTextareaSubmit.ts:47
 msgid "Couldn't run that command: {detail}"
 msgstr "Komentoa ei voitu suorittaa: {detail}"
 
@@ -9528,6 +9547,10 @@ msgstr "Luo uusi linkki"
 #: src/features/input/state/input_keybind/shared.ts:121
 msgid "Create or join a community"
 msgstr "Luo yhteisö tai liity sellaiseen"
+
+#: src/features/user/components/modals/tabs/PersonasTab.tsx:230
+msgid "Create Persona"
+msgstr "Luo Persona"
 
 #: src/features/guild/components/modals/guild_tabs/guild_roles_tab/MobileRoleList.tsx:48
 #: src/features/guild/components/modals/guild_tabs/guild_roles_tab/RoleSidebar.tsx:215
@@ -9985,7 +10008,7 @@ msgid "Custom warning text"
 msgstr "Mukautettu varoitusteksti"
 
 #. Last "Custom…" option in dropdown menus that opens a custom-value picker.
-#: src/features/i18n/utils/CommonMessageDescriptors.ts:763
+#: src/features/i18n/utils/CommonMessageDescriptors.ts:767
 msgid "Custom…"
 msgstr "Mukautettu…"
 
@@ -10285,7 +10308,7 @@ msgstr "Jäsenen virheenkorjaus"
 #. Developer-mode item in the message action bar overflow menu. Opens the message debug modal.
 #. Developer-mode message context menu item that opens an internal debug view for the message.
 #: src/features/channel/components/MessageActionBar.tsx:82
-#: src/features/channel/components/MessageActionMenu.tsx:103
+#: src/features/channel/components/MessageActionMenu.tsx:106
 #: src/features/ui/action_menu/items/MessageMenuItems.tsx:66
 msgid "Debug message"
 msgstr "Virheenkorjausviesti"
@@ -10430,9 +10453,11 @@ msgstr "Oletuksena pois päältä mobiililaitteilla akun keston ja datan sääst
 #: src/features/emoji/components/emojis/EmojiListItem.tsx:204
 #: src/features/emoji/components/emojis/EmojiListItem.tsx:216
 #: src/features/emoji/components/stickers/StickerGridItem.tsx:35
-#: src/features/messaging/commands/MessageCommands.tsx:80
+#: src/features/messaging/commands/MessageCommands.tsx:81
 #: src/features/moderation/components/report_modal/IARModalCopy.ts:109
 #: src/features/theme_studio/sections/LibrarySection.tsx:514
+#: src/features/user/components/modals/PersonaEditorModal.tsx:236
+#: src/features/user/components/modals/PersonaEditorModal.tsx:544
 #: src/features/user/components/modals/tabs/account_security_tab/SecurityTab.tsx:399
 #: src/features/user/components/modals/tabs/component_gallery_tab/ComponentGalleryTabButtonsTab.tsx:117
 #: src/features/user/components/modals/tabs/component_gallery_tab/ComponentGalleryTabButtonsTab.tsx:290
@@ -10502,7 +10527,7 @@ msgid "Delete application"
 msgstr "Poista sovellus"
 
 #. Generic action label that removes an attachment from the upload tray / message.
-#: src/features/i18n/utils/CommonMessageDescriptors.ts:743
+#: src/features/i18n/utils/CommonMessageDescriptors.ts:747
 msgid "Delete attachment"
 msgstr "Poista liite"
 
@@ -10668,7 +10693,7 @@ msgid "Delete this message"
 msgstr "Poista tämä viesti"
 
 #. Error message in the messaging commands. Keep the tone plain and specific.
-#: src/features/messaging/commands/MessageCommands.tsx:76
+#: src/features/messaging/commands/MessageCommands.tsx:77
 msgid "Delete this message? Can't be undone."
 msgstr "Poistetaanko tämä viesti? Toimintoa ei voi kumota."
 
@@ -10816,7 +10841,7 @@ msgid "Description must be no more than {discoveryDescriptionMaxLength} characte
 msgstr "Kuvauksen enimmäispituus on {discoveryDescriptionMaxLength} merkkiä."
 
 #. Developer settings tab showing UI component examples.
-#: src/features/user/components/settings_utils/SettingsConstants.tsx:148
+#: src/features/user/components/settings_utils/SettingsConstants.tsx:153
 msgid "Design system"
 msgstr "Suunnittelujärjestelmä"
 
@@ -10830,8 +10855,8 @@ msgstr "Työpöytä"
 
 #. User settings tab for desktop app integration and platform settings.
 #. User settings tab label shown on desktop builds when the OS could not be identified (fallback for the per-OS labels).
-#: src/features/user/components/settings_utils/SettingsConstants.tsx:81
-#: src/features/user/components/settings_utils/SettingsConstants.tsx:136
+#: src/features/user/components/settings_utils/SettingsConstants.tsx:82
+#: src/features/user/components/settings_utils/SettingsConstants.tsx:141
 msgid "Desktop app"
 msgstr "Työpöytäsovellus"
 
@@ -10923,7 +10948,7 @@ msgstr "Työpöytäversio {version} on saatavilla. Lataa asennusohjelma ja suori
 #. Settings section label for desktop window behavior.
 #: src/features/user/components/modals/tabs/DesktopSettingsTab.tsx:151
 #: src/features/user/components/settings_utils/search_index/DesktopSettingsIndex.ts:94
-#: src/features/user/components/settings_utils/section_registry/GeneralSettingsSections.ts:54
+#: src/features/user/components/settings_utils/section_registry/GeneralSettingsSections.ts:58
 msgid "Desktop window"
 msgstr "Työpöytäikkuna"
 
@@ -10973,7 +10998,7 @@ msgstr "Tunnista kirjoittaessa"
 #. Settings search synonym. Used to match this term when the user types it in the settings search bar.
 #: src/features/user/components/modals/tabs/advanced_settings_tab/AdvancedSettingsCategories.ts:20
 #: src/features/user/components/settings_utils/search_index/SharedDescriptors.ts:25
-#: src/features/user/components/settings_utils/SettingsConstants.tsx:206
+#: src/features/user/components/settings_utils/SettingsConstants.tsx:211
 msgid "Developer"
 msgstr "Kehittäjä"
 
@@ -10981,7 +11006,7 @@ msgstr "Kehittäjä"
 #. Settings section label for client developer mode.
 #: src/features/user/components/modals/tabs/ClientDeveloperSettingsTab.tsx:17
 #: src/features/user/components/settings_utils/search_index/ClientDeveloperSettingsIndex.ts:7
-#: src/features/user/components/settings_utils/section_registry/GeneralSettingsSections.ts:58
+#: src/features/user/components/settings_utils/section_registry/GeneralSettingsSections.ts:62
 msgid "Developer mode"
 msgstr "Kehittäjätila"
 
@@ -11060,7 +11085,7 @@ msgstr "Laite:"
 #: src/features/user/components/modals/tabs/DevicesTab.tsx:530
 #: src/features/user/components/settings_utils/search_index/DevicesIndex.ts:11
 #: src/features/user/components/settings_utils/section_registry/AppearanceSections.ts:82
-#: src/features/user/components/settings_utils/SettingsConstants.tsx:57
+#: src/features/user/components/settings_utils/SettingsConstants.tsx:58
 #: src/features/voice/components/modals/ScreenSharePickerModal.tsx:191
 msgid "Devices"
 msgstr "Laitteet"
@@ -11716,7 +11741,7 @@ msgstr "Ei estä. Voit avata myöhemmin uudelleen."
 
 #. Generic form-field / table-column label for an internet domain.
 #. Settings search synonym. Used to match this term when the user types it in the settings search bar.
-#: src/features/i18n/utils/CommonMessageDescriptors.ts:767
+#: src/features/i18n/utils/CommonMessageDescriptors.ts:771
 #: src/features/user/components/settings_utils/search_index/LinkedAccountsIndex.ts:28
 msgid "Domain"
 msgstr "Verkkotunnus"
@@ -11775,6 +11800,11 @@ msgstr "Älä näytä kirjoitusilmaisimia kanavaluettelossa"
 #: src/features/auth/state/NewDeviceMonitoring.tsx:51
 msgid "Don't suggest {deviceName} again"
 msgstr "Älä ehdota laitetta {deviceName} uudelleen"
+
+#. Button or menu action label in the channel and chat persona bar. Keep it concise.
+#: src/features/channel/components/ChannelPersonaBar.tsx:17
+msgid "Don't use this persona"
+msgstr "Älä käytä tätä Persona"
 
 #. Footer button in the IAR modal on the final / success screen. Closes the modal.
 #. Primary button in the favorite GIF import modal after a completed import.
@@ -12256,11 +12286,16 @@ msgstr "Muokkaa tai poista muiden jäsenten luomia emojeita ja tarroja."
 msgid "Edit overwrites for roles and members in this channel."
 msgstr "Muokkaa roolien ja jäsenten ohituksia tällä kanavalla."
 
+#. The title of the persona editor modal.
+#: src/features/user/components/modals/PersonaEditorModal.tsx:47
+msgid "Edit Persona"
+msgstr "Muokkaa Persona"
+
 #: src/features/app/components/floating/UserAreaPopout.tsx:743
 #: src/features/app/components/pages/YouPage.tsx:157
 #: src/features/user/components/modals/UserProfileMobileSheet.tsx:682
 #: src/features/user/components/modals/UserProfileModal.tsx:587
-#: src/features/user/components/popouts/UserProfilePopout.tsx:432
+#: src/features/user/components/popouts/UserProfilePopout.tsx:450
 msgid "Edit profile"
 msgstr "Muokkaa profiilia"
 
@@ -12451,7 +12486,7 @@ msgstr "Sähköposti vahvistettu"
 
 #. Screen-reader fragment listing one embed on a message. Lowercase because it appears inside a longer sentence.
 #. has:embed chip label. Always lowercase; matches the typed query value 1:1.
-#: src/features/channel/components/ChannelMessage.tsx:61
+#: src/features/channel/components/ChannelMessage.tsx:68
 #: src/features/search/utils/SearchUtils.ts:33
 msgid "embed"
 msgstr "upotettu"
@@ -12464,7 +12499,7 @@ msgstr "Upotus"
 #. Developer settings tab for testing URL unfurls and rendered embeds.
 #. Settings search entry label for the developer embed debugger.
 #: src/features/user/components/settings_utils/search_index/EmbedDebuggerIndex.ts:7
-#: src/features/user/components/settings_utils/SettingsConstants.tsx:144
+#: src/features/user/components/settings_utils/SettingsConstants.tsx:149
 msgid "Embed debugger"
 msgstr "Upotusten virheenkorjaus"
 
@@ -12504,12 +12539,12 @@ msgid "Embeds"
 msgstr "Upotukset"
 
 #. Toast confirmation after hiding link previews and embeds on a message.
-#: src/features/channel/components/MessageActionUtils.tsx:84
+#: src/features/channel/components/MessageActionUtils.tsx:85
 msgid "Embeds suppressed"
 msgstr "Upotukset estetty"
 
 #. Toast confirmation after re-enabling link previews and embeds on a message.
-#: src/features/channel/components/MessageActionUtils.tsx:80
+#: src/features/channel/components/MessageActionUtils.tsx:81
 msgid "Embeds unsuppressed"
 msgstr "Upotukset näkyvissä"
 
@@ -12781,7 +12816,7 @@ msgstr "Ota mobiili-ilmoitukset käyttöön"
 
 #. Generic action label / toggle that turns on push or desktop notifications.
 #. Settings search synonym. Used to match this term when the user types it in the settings search bar.
-#: src/features/i18n/utils/CommonMessageDescriptors.ts:775
+#: src/features/i18n/utils/CommonMessageDescriptors.ts:779
 #: src/features/user/components/settings_utils/section_registry/NotificationsSections.ts:127
 msgid "Enable notifications"
 msgstr "Ota ilmoitukset käyttöön"
@@ -13012,7 +13047,7 @@ msgstr "englanti (Yhdysvallat)"
 #. Generic radio / dropdown option label for an "enhanced" tier.
 #. Noise suppression option label in the voice tab (neural filter). Keep it concise.
 #. Noise suppression option using the enhanced neural filter (DeepFilterNet3). Keep it concise.
-#: src/features/i18n/utils/CommonMessageDescriptors.ts:779
+#: src/features/i18n/utils/CommonMessageDescriptors.ts:783
 #: src/features/user/components/modals/tabs/UserVoiceTab.tsx:85
 #: src/features/voice/components/voice_connection_status/AudioProcessingModal.tsx:47
 msgid "Enhanced"
@@ -13331,7 +13366,7 @@ msgstr "Sisääntuloäänet eivät ole käytettävissä"
 
 #. Heading shown above the error message in the channel search results error state.
 #: src/features/channel/components/bottomsheets/ChannelSearchBottomSheet.tsx:547
-#: src/features/channel/components/channel_search_results/ChannelSearchResultsShared.tsx:70
+#: src/features/channel/components/channel_search_results/ChannelSearchResultsShared.tsx:71
 #: src/features/user/components/modals/tabs/component_gallery_tab/OverlaysTab.tsx:132
 msgid "Error"
 msgstr "Virhe"
@@ -13697,7 +13732,7 @@ msgid "Expression autocomplete"
 msgstr "Ilmaisuautomaattinen täydennys"
 
 #. Aria label for the expression picker category nav.
-#: src/features/i18n/utils/CommonMessageDescriptors.ts:747
+#: src/features/i18n/utils/CommonMessageDescriptors.ts:751
 msgid "Expression picker categories"
 msgstr "Hymiövalitsimen kategoriat"
 
@@ -13985,12 +14020,12 @@ msgid "Failed to send code. Try again."
 msgstr "Koodin lähetys epäonnistui. Yritä uudelleen."
 
 #. Error message in the channel and chat user message.
-#: src/features/channel/components/UserMessage.tsx:67
+#: src/features/channel/components/UserMessage.tsx:71
 msgid "Failed to send message."
 msgstr "Viestin lähetys epäonnistui."
 
 #. Error message in the channel and chat user message.
-#: src/features/channel/components/UserMessage.tsx:63
+#: src/features/channel/components/UserMessage.tsx:67
 msgid "Failed to send message. Hold for options."
 msgstr "Viestin lähetys epäonnistui. Paina pitkään nähdäksesi vaihtoehdot."
 
@@ -14343,6 +14378,10 @@ msgstr "Suodata jäsenet, joilla ei ole roolia"
 #: src/features/messaging/components/popouts/RecentMentionsContent.tsx:48
 msgid "Filter mentions"
 msgstr "Suodata mainintoja"
+
+#: src/features/personas/components/popouts/PersonaPickerPopout.tsx:156
+msgid "Filter personas"
+msgstr "Suodata Personas"
 
 #. Settings search synonym. Used to match this term when the user types it in the settings search bar.
 #: src/features/user/components/settings_utils/section_registry/PrivacySafetySections.ts:192
@@ -14744,7 +14783,7 @@ msgstr "edelleenlähetys"
 #. Message context menu item that opens the forward-to-channel picker.
 #. Tooltip on the forward button in the inline message hover action bar.
 #: src/features/channel/components/MessageActionBar.tsx:86
-#: src/features/channel/components/MessageActionMenu.tsx:83
+#: src/features/channel/components/MessageActionMenu.tsx:86
 #: src/features/ui/action_menu/items/MessageMenuItems.tsx:54
 msgid "Forward"
 msgstr "Lähetä edelleen"
@@ -15107,7 +15146,7 @@ msgid "Germany"
 msgstr "Saksa"
 
 #. Generic upsell CTA button to start the Plutonium purchase flow. Preserve {premiumProductName}.
-#: src/features/i18n/utils/CommonMessageDescriptors.ts:791
+#: src/features/i18n/utils/CommonMessageDescriptors.ts:795
 msgid "Get {premiumProductName}"
 msgstr "Hanki {premiumProductName}"
 
@@ -15353,7 +15392,7 @@ msgstr "Lahjoitettu <0/> asti <1>{giftEndDate}</1>. Ei uusiudu automaattisesti. 
 #. Settings search entry label. Also used as a search synonym in the settings search bar.
 #. User settings tab for gift inventory and redemption codes.
 #: src/features/user/components/settings_utils/search_index/SharedDescriptors.ts:37
-#: src/features/user/components/settings_utils/SettingsConstants.tsx:94
+#: src/features/user/components/settings_utils/SettingsConstants.tsx:99
 msgid "Gifts"
 msgstr "Lahjat"
 
@@ -15458,13 +15497,13 @@ msgstr "Siirry viestiin"
 
 #. Accessible label for the jump-to-page input on the community members pagination control.
 #. Accessible label of the inline page-number input shown when the user opens the pagination ellipsis.
-#: src/features/channel/components/channel_search_results/ChannelSearchResultsShared.tsx:95
+#: src/features/channel/components/channel_search_results/ChannelSearchResultsShared.tsx:96
 #: src/features/channel/components/guild_members_page/MembersPagination.tsx:20
 msgid "Go to page"
 msgstr "Siirry sivulle"
 
 #. Accessible label of each pagination page button. page is the 1-indexed page number.
-#: src/features/channel/components/channel_search_results/ChannelSearchResultsShared.tsx:91
+#: src/features/channel/components/channel_search_results/ChannelSearchResultsShared.tsx:92
 msgid "Go to page {page}"
 msgstr "Siirry sivulle {page}"
 
@@ -16784,6 +16823,10 @@ msgstr "Tuo teemoja"
 msgid "Import unavailable"
 msgstr "Tuonti ei saatavilla"
 
+#: src/features/user/components/modals/tabs/PersonasTab.tsx:222
+msgid "Import..."
+msgstr "Tuo..."
+
 #. Markdown alert label for an important callout when copied as plaintext.
 #. Short label in the messaging block elements. Keep it concise. Keep the tone plain and specific.
 #: src/features/messaging/components/markdown/renderers/common/BlockElements.tsx:43
@@ -17006,13 +17049,13 @@ msgid "Incorrect PIN. Try again."
 msgstr "Väärä PIN-koodi. Yritä uudelleen."
 
 #. Header status shown while the channel is being indexed for the first time before search is available.
-#: src/features/channel/components/channel_search_results/ChannelSearchResultsShared.tsx:45
+#: src/features/channel/components/channel_search_results/ChannelSearchResultsShared.tsx:46
 msgid "Indexing"
 msgstr "Indeksoidaan"
 
 #. Heading of the indexing placeholder shown while the channel index is being built for the first time.
 #: src/features/channel/components/bottomsheets/ChannelSearchBottomSheet.tsx:522
-#: src/features/channel/components/channel_search_results/ChannelSearchResultsShared.tsx:61
+#: src/features/channel/components/channel_search_results/ChannelSearchResultsShared.tsx:62
 msgid "Indexing channel"
 msgstr "Kanavaa indeksoidaan"
 
@@ -17222,7 +17265,7 @@ msgstr "Käyttöliittymä"
 #. Settings section label for interface language selection.
 #. Settings section title in the language tab. Keep it concise.
 #: src/features/user/components/modals/tabs/LanguageTab.tsx:79
-#: src/features/user/components/settings_utils/section_registry/GeneralSettingsSections.ts:42
+#: src/features/user/components/settings_utils/section_registry/GeneralSettingsSections.ts:46
 msgid "Interface language"
 msgstr "Käyttöliittymän kieli"
 
@@ -17230,6 +17273,11 @@ msgstr "Käyttöliittymän kieli"
 #: src/features/user/components/settings_utils/section_registry/AppearanceSections.ts:202
 msgid "Interface size"
 msgstr "Käyttöliittymän koko"
+
+#. Label in the persona editor for a private name for a persona.
+#: src/features/user/components/modals/PersonaEditorModal.tsx:55
+msgid "Internal Name"
+msgstr "Sisäinen nimi"
 
 #. Error message in the use entrance sound.
 #. Error message in the use sound settings.
@@ -17629,7 +17677,7 @@ msgid "It may have left discovery or turned off new joins. Refresh the page and 
 msgstr "Se on ehkä poistunut löydettävistä tai poistanut uudet liittymiset käytöstä. Päivitä sivu, niin et näe sitä enää."
 
 #. Label in the channel and chat typing users.
-#: src/features/channel/components/TypingUsers.tsx:33
+#: src/features/channel/components/TypingUsers.tsx:35
 msgid "It's a full-blown typing fiesta in here"
 msgstr "Täällä kirjoitetaan nyt urakalla"
 
@@ -17837,7 +17885,7 @@ msgid "Jump to message"
 msgstr "Siirry viestiin"
 
 #. Label in the channel and chat user message. Preserve {displayName}, {formattedDate}; they are inserted by code.
-#: src/features/channel/components/UserMessage.tsx:54
+#: src/features/channel/components/UserMessage.tsx:58
 msgid "Jump to message from {displayName}, sent {formattedDate}"
 msgstr "Siirry käyttäjän {displayName} lähettämään viestiin, lähetetty {formattedDate}"
 
@@ -17853,7 +17901,7 @@ msgstr "Siirry seuraavaan lukemattomaan kanavaan, jossa on mainintoja"
 
 #. Accessible label of the ellipsis button in the pagination bar that reveals the page-number input.
 #. Placeholder text in the pagination jump input on the community members page.
-#: src/features/channel/components/channel_search_results/ChannelSearchResultsShared.tsx:99
+#: src/features/channel/components/channel_search_results/ChannelSearchResultsShared.tsx:100
 #: src/features/channel/components/guild_members_page/MembersPagination.tsx:24
 msgid "Jump to page"
 msgstr "Siirry sivulle"
@@ -18055,12 +18103,12 @@ msgstr "korea"
 #. User settings tab for language, locale, and time display preferences.
 #: src/features/app/components/setup/SetupWizardSteps.tsx:56
 #: src/features/user/components/settings_utils/search_index/LanguageIndex.ts:6
-#: src/features/user/components/settings_utils/SettingsConstants.tsx:132
+#: src/features/user/components/settings_utils/SettingsConstants.tsx:137
 msgid "Language"
 msgstr "Kieli"
 
 #. Settings search synonym. Used to match this term when the user types it in the settings search bar.
-#: src/features/user/components/settings_utils/section_registry/GeneralSettingsSections.ts:46
+#: src/features/user/components/settings_utils/section_registry/GeneralSettingsSections.ts:50
 msgid "Language settings"
 msgstr "Kieliasetukset"
 
@@ -18097,6 +18145,11 @@ msgstr "Viimeksi vaihdettu: ei koskaan"
 
 #: src/features/user/components/modals/tabs/DevicesTab.tsx:170
 msgid "Last used"
+msgstr "Viimeksi käytetty"
+
+#. A label for the latching modes (trigger behavior) setting.
+#: src/features/user/components/modals/tabs/PersonasTab.tsx:63
+msgid "Last Used"
 msgstr "Viimeksi käytetty"
 
 #. Aria label on the signal-strength icon. {latency} is the integer millisecond latency.
@@ -18523,7 +18576,7 @@ msgid "Links"
 msgstr "Linkit"
 
 #. User settings tab label shown on Linux desktop builds.
-#: src/features/user/components/settings_utils/SettingsConstants.tsx:73
+#: src/features/user/components/settings_utils/SettingsConstants.tsx:74
 msgid "Linux app"
 msgstr "Linux-sovellus"
 
@@ -18797,7 +18850,7 @@ msgid "Luxembourg"
 msgstr "Luxemburg"
 
 #. User settings tab label shown on macOS desktop builds.
-#: src/features/user/components/settings_utils/SettingsConstants.tsx:77
+#: src/features/user/components/settings_utils/SettingsConstants.tsx:78
 msgid "macOS app"
 msgstr "macOS-sovellus"
 
@@ -18847,6 +18900,16 @@ msgstr "Tehdäänkö käyttäjästä {userName} ryhmän omistaja? Menetät omist
 #: src/features/ui/action_menu/UserContextMenu.tsx:117
 msgid "Make group owner"
 msgstr "Tee ryhmän omistajaksi"
+
+#. A tooltip for the button that activates a persona.
+#: src/features/user/components/modals/tabs/PersonasTab.tsx:29
+msgid "Make persona active"
+msgstr "Tee Persona aktiiviseksi"
+
+#. A tooltip for the button that deactivates a persona.
+#: src/features/user/components/modals/tabs/PersonasTab.tsx:33
+msgid "Make persona not active"
+msgstr "Tee Persona ei-aktiiviseksi"
 
 #. Setup wizard branding step title.
 #: src/features/app/components/setup/SetupWizardSteps.tsx:81
@@ -18986,6 +19049,11 @@ msgstr "Hallinnoi ostamiasi {PREMIUM_PRODUCT_NAME}-lahjakoodeja. Jaa lahjan URL-
 #: src/features/user/components/settings_utils/search_index/PlutoniumIndex.ts:43
 msgid "Manage your subscription"
 msgstr "Hallinnoi tilaustasi"
+
+#. A label for the latching modes (trigger behavior) setting.
+#: src/features/user/components/modals/tabs/PersonasTab.tsx:55
+msgid "Manual"
+msgstr "Manuaalinen"
 
 #. Modal title when automatic in-app desktop updates cannot be used.
 #: src/features/updater/commands/UpdaterModalCommands.tsx:53
@@ -19472,7 +19540,7 @@ msgid "Member roles updated"
 msgstr "Jäsenen rooleja päivitetty"
 
 #: src/features/channel/components/guild_members_page/MembersTableHeaderRow.tsx:83
-#: src/features/user/components/popouts/UserProfileShared.tsx:278
+#: src/features/user/components/popouts/UserProfileShared.tsx:279
 msgid "Member since"
 msgstr "Jäsen alkaen"
 
@@ -19658,7 +19726,7 @@ msgid "Menu shortcuts"
 msgstr "Valikkopikakuvakkeet"
 
 #. Fallback role label used in screen-reader message summaries.
-#: src/features/channel/components/ChannelMessage.tsx:75
+#: src/features/channel/components/ChannelMessage.tsx:82
 msgid "message"
 msgstr "viesti"
 
@@ -19666,6 +19734,7 @@ msgstr "viesti"
 #. Action that opens a DM conversation with the selected user.
 #. Audit log target-type filter label. Filters entries that target an individual message.
 #. Generic placeholder text in the message textarea for unnamed channels.
+#. Label in the persona editor for the message prefixes and suffixes that trigger a persona for a message.
 #. Member actions sheet menu item. Sends a direct message to the target user. Standalone verb used as a menu label.
 #. Short label in the inputs tab. Keep it concise.
 #. Voice participant menu action that opens a DM conversation with the selected user.
@@ -19675,12 +19744,13 @@ msgstr "viesti"
 #: src/features/ui/action_menu/items/ActionsSubmenu.tsx:41
 #: src/features/ui/action_menu/items/MessageUserMenuItem.tsx:26
 #: src/features/ui/action_menu/items/voice_participant_menu_data/shared.ts:73
+#: src/features/user/components/modals/PersonaEditorModal.tsx:71
 #: src/features/user/components/modals/tabs/component_gallery_tab/ComponentGalleryTabInputsTab.tsx:86
 #: src/features/user/components/modals/UserProfileMobileSheet.tsx:712
 #: src/features/user/components/modals/UserProfileModal.tsx:562
 #: src/features/user/components/modals/UserProfileModal.tsx:770
-#: src/features/user/components/popouts/UserProfilePopout.tsx:418
-#: src/features/user/components/popouts/UserProfilePopout.tsx:448
+#: src/features/user/components/popouts/UserProfilePopout.tsx:436
+#: src/features/user/components/popouts/UserProfilePopout.tsx:466
 #: src/features/user/components/profile/ProfilePreview.tsx:321
 msgid "Message"
 msgstr "Viesti"
@@ -19736,7 +19806,7 @@ msgstr "Viesti sisältää liitteitä"
 #. Title of the developer-mode message debug modal opened from the message context menu.
 #. Title of the developer-mode message debug modal.
 #: src/features/channel/components/MessageActionBar.tsx:74
-#: src/features/channel/components/MessageActionMenu.tsx:71
+#: src/features/channel/components/MessageActionMenu.tsx:74
 #: src/features/ui/action_menu/items/MessageMenuItems.tsx:62
 msgid "Message debug"
 msgstr "Viestin virheenkorjaus"
@@ -20317,7 +20387,7 @@ msgid "Most popular"
 msgstr "Suosituin"
 
 #. Sort mode option label in the mobile search sort sheet. Sort by relevance score.
-#: src/features/channel/components/channel_search_results/ChannelSearchResultsShared.tsx:115
+#: src/features/channel/components/channel_search_results/ChannelSearchResultsShared.tsx:116
 #: src/features/search/components/search/SortModeSheet.tsx:31
 msgid "Most relevant"
 msgstr "Osuvimmat"
@@ -20771,6 +20841,11 @@ msgstr "Kaverini"
 msgid "My group"
 msgstr "Oma ryhmä"
 
+#. Slate message that shows in the Personas tab when there are no personas.
+#: src/features/user/components/modals/tabs/PersonasTab.tsx:41
+msgid "My name is Darth Vader. I am an extra-terrestrial from the planet Vulcan!"
+msgstr "Nimeni on Darth Vader. Olen avaruusolento planeetalta Vulcan!"
+
 #. Label in the add custom search engine modal.
 #: src/features/user/components/modals/tabs/chat_settings_tab/AddCustomSearchEngineModal.tsx:80
 msgid "My reverse image search"
@@ -20856,6 +20931,11 @@ msgstr "Nimeä tunnusavainlomake"
 #: src/features/guild/components/modals/guild_tabs/GuildAuditLogTabUtils.tsx:288
 msgid "Name: {0}."
 msgstr "Nimi: {0}."
+
+#. Placeholder text to hint at what can be used to filter personas in the list.
+#: src/features/personas/components/popouts/PersonaPickerPopout.tsx:32
+msgid "Names or pronouns"
+msgstr "Nimet tai pronominit"
 
 #. Settings search synonym. Used to match this term when the user types it in the settings search bar.
 #: src/features/user/components/settings_utils/section_registry/NotificationsSections.ts:271
@@ -21082,6 +21162,11 @@ msgstr "Uusi mikrofoni"
 msgid "New password"
 msgstr "Uusi salasana"
 
+#. The title of the persona editor modal when it's being used to create a new persona.
+#: src/features/user/components/modals/PersonaEditorModal.tsx:51
+msgid "New Persona"
+msgstr "Uusi Persona"
+
 #. Default name for a newly created role in the community roles settings tab. Short label.
 #: src/features/guild/components/modals/guild_tabs/GuildRolesTab.tsx:48
 msgid "New role"
@@ -21109,7 +21194,7 @@ msgstr "Uusi versio"
 
 #. Sort mode label in the mobile channel search bottom sheet. Sorts results newest first.
 #: src/features/channel/components/bottomsheets/ChannelSearchBottomSheet.tsx:73
-#: src/features/channel/components/channel_search_results/ChannelSearchResultsShared.tsx:113
+#: src/features/channel/components/channel_search_results/ChannelSearchResultsShared.tsx:114
 msgid "Newest"
 msgstr "Uusimmat"
 
@@ -21125,7 +21210,7 @@ msgstr "Uusimmat ensin"
 #. Primary button in the required-action modal. Moves to the next carousel step.
 #: src/features/app/components/setup/SelfHostedSetupWizardGate.tsx:81
 #: src/features/auth/components/modals/required_action/RequiredActionDescriptors.ts:154
-#: src/features/i18n/utils/CommonMessageDescriptors.ts:711
+#: src/features/i18n/utils/CommonMessageDescriptors.ts:715
 msgid "Next"
 msgstr "Seuraava"
 
@@ -21502,7 +21587,7 @@ msgid "No optional services are available on this instance. You can skip this st
 msgstr "Tässä instanssissa ei ole valinnaisia palveluita. Voit ohittaa tämän vaiheen."
 
 #. Body copy under the nothing-to-search-for heading. Preserve {query}; it is the text the user submitted and is inserted by code.
-#: src/features/channel/components/channel_search_results/ChannelSearchResultsShared.tsx:86
+#: src/features/channel/components/channel_search_results/ChannelSearchResultsShared.tsx:87
 msgid "No part of {query} could be applied. Fix the underlined value or add something to search for."
 msgstr "Mikään hakutuloksista ei vastannut hakua ”{query}”. Korjaa alleviivattu arvo tai lisää jotain haettavaksi."
 
@@ -21528,6 +21613,11 @@ msgstr "Ei käyttöoikeuksia"
 #: src/features/user/components/modals/tabs/LanguageTab.tsx:607
 msgid "No personal words yet."
 msgstr "Ei vielä henkilökohtaisia sanoja."
+
+#. Slate title that shows in the Personas tab when there are no personas.
+#: src/features/user/components/modals/tabs/PersonasTab.tsx:37
+msgid "No personas yet"
+msgstr "Ei Personas vielä"
 
 #. Developer tools debug menu label. Internal-only surface for developers; translators may keep this terse.
 #: src/features/channel/components/channel_header_components/developer_tools/OptionPresets.ts:47
@@ -21582,7 +21672,7 @@ msgstr "Vastausta ei vastaanotettu"
 #. Empty state title in the mobile memes picker when the search query matches nothing.
 #. Empty-state text in the channel and chat memes picker view.
 #. Heading shown when the channel search query returned zero matches.
-#: src/features/channel/components/channel_search_results/ChannelSearchResultsShared.tsx:74
+#: src/features/channel/components/channel_search_results/ChannelSearchResultsShared.tsx:75
 #: src/features/channel/components/MobileMemesPicker.tsx:66
 #: src/features/channel/components/pickers/memes/MemesPickerView.tsx:32
 msgid "No results"
@@ -21688,7 +21778,7 @@ msgid "No system channel"
 msgstr "Ei järjestelmäkanavaa"
 
 #. Screen-reader fragment indicating the message has no text body. Lowercase because it appears inside a longer sentence.
-#: src/features/channel/components/ChannelMessage.tsx:70
+#: src/features/channel/components/ChannelMessage.tsx:77
 msgid "no text content"
 msgstr "ei tekstisisältöä"
 
@@ -21906,7 +21996,7 @@ msgid "Nothing to refund"
 msgstr "Ei palautettavaa"
 
 #. Heading shown when the submitted search query produced no filter and no text the server could search on.
-#: src/features/channel/components/channel_search_results/ChannelSearchResultsShared.tsx:82
+#: src/features/channel/components/channel_search_results/ChannelSearchResultsShared.tsx:83
 msgid "Nothing to search for"
 msgstr "Ei hakukelpoista sisältöä"
 
@@ -21961,7 +22051,7 @@ msgid "Notifications"
 msgstr "Ilmoitukset"
 
 #. User settings tab for notification and alert sound controls.
-#: src/features/user/components/settings_utils/SettingsConstants.tsx:127
+#: src/features/user/components/settings_utils/SettingsConstants.tsx:132
 msgctxt "user-settings-tab"
 msgid "Notifications"
 msgstr "Ilmoitukset"
@@ -22012,6 +22102,7 @@ msgstr "OAuth2-URL-rakentaja"
 msgid "Objects"
 msgstr "Esineet"
 
+#. A label for the latching modes (trigger behavior) setting.
 #. Channel overview settings tab label, control, or validation message (name, topic, slowmode, voice region, mature content gate).
 #. Explicit content filter option in the community moderation settings tab. Short standalone label meaning disabled.
 #. Mature content option in the community moderation settings tab.
@@ -22024,6 +22115,7 @@ msgstr "Esineet"
 #: src/features/guild/components/modals/guild_tabs/GuildModerationTab.tsx:97
 #: src/features/guild/components/modals/guild_tabs/GuildModerationTab.tsx:139
 #: src/features/user/components/modals/tabs/advanced_settings_tab/AdvancedVideoControls.tsx:128
+#: src/features/user/components/modals/tabs/PersonasTab.tsx:47
 msgid "Off"
 msgstr "Pois päältä"
 
@@ -22049,7 +22141,7 @@ msgstr "Selvä"
 
 #. Sort mode label in the mobile channel search bottom sheet. Sorts results oldest first.
 #: src/features/channel/components/bottomsheets/ChannelSearchBottomSheet.tsx:77
-#: src/features/channel/components/channel_search_results/ChannelSearchResultsShared.tsx:114
+#: src/features/channel/components/channel_search_results/ChannelSearchResultsShared.tsx:115
 msgid "Oldest"
 msgstr "Vanhin"
 
@@ -22230,7 +22322,7 @@ msgstr "Vain valitut"
 msgid "Only Visionary members can join this community. Your access may have changed since this screen was opened."
 msgstr "Vain Visionary-jäsenet voivat liittyä tähän yhteisöön. Käyttöoikeutesi on saattanut muuttua tämän näytön avautumisen jälkeen."
 
-#: src/features/channel/components/UserMessage.tsx:427
+#: src/features/channel/components/UserMessage.tsx:431
 msgid "Only you can see this message. <0>Dismiss</0>"
 msgstr "Vain sinä näet tämän viestin. <0>Hylkää</0>"
 
@@ -22593,7 +22685,7 @@ msgstr "Avaa käyttäjän {directMessageName} profiili"
 #. Accessible label for the avatar button that opens a user profile.
 #. Short label in the app layout voice participant item. Preserve {displayName}; it is inserted by code.
 #: src/features/app/components/layout/VoiceParticipantItem.tsx:48
-#: src/features/ui/avatars/AvatarStack.tsx:21
+#: src/features/ui/avatars/AvatarStack.tsx:23
 msgid "Open profile for {displayName}"
 msgstr "Avaa käyttäjän {displayName} profiili"
 
@@ -23378,6 +23470,21 @@ msgstr "Käyttöoikeudet"
 msgid "Permissions for {0}"
 msgstr "{0}:n oikeudet"
 
+#. Short label in the persona editor. Keep it concise.
+#: src/features/user/components/modals/PersonaEditorModal.tsx:79
+msgid "Persona created"
+msgstr "Persona luotu"
+
+#. Short label in the persona editor. Keep it concise.
+#: src/features/user/components/modals/PersonaEditorModal.tsx:83
+msgid "Persona deleted"
+msgstr "Persona poistettu"
+
+#. Short label in the persona editor. Keep it concise.
+#: src/features/user/components/modals/PersonaEditorModal.tsx:75
+msgid "Persona updated"
+msgstr "Persona päivitetty"
+
 #. Settings search synonym. Used to match this term when the user types it in the settings search bar.
 #. Subsection title for personal dictionary settings. Keep it concise.
 #: src/features/user/components/modals/tabs/LanguageTab.tsx:128
@@ -23394,6 +23501,17 @@ msgstr "Omat muistiinpanot"
 #: src/features/channel/components/direct_message/DirectMessageList.tsx:85
 msgid "Personal notes were already empty"
 msgstr "Omat muistiinpanot olivat jo tyhjiä"
+
+#. Settings section label for editing personas.
+#. User settings tab for managing the list of available personas.
+#: src/features/user/components/settings_utils/section_registry/GeneralSettingsSections.ts:10
+#: src/features/user/components/settings_utils/SettingsConstants.tsx:91
+msgid "Personas"
+msgstr "Personas"
+
+#: src/features/user/components/modals/tabs/PersonasTab.tsx:181
+msgid "Personas are reusable profiles that you can attach to messages."
+msgstr "Personas ovat uudelleenkäytettäviä identiteettejä, joita voit liittää viesteihin."
 
 #. Keyboard shortcut keycap label for Page Down. Keep the abbreviation compact.
 #: src/features/ui/keybind_hint/KeybindHint.tsx:53
@@ -23540,7 +23658,7 @@ msgstr "Kuva kuvassa"
 
 #. Confirm button label on the pin message alert.
 #. Settings search synonym. Used to match this term when the user types it in the settings search bar.
-#: src/features/channel/components/MessageActionUtils.tsx:64
+#: src/features/channel/components/MessageActionUtils.tsx:65
 #: src/features/user/components/settings_utils/search_index/KeybindsIndex.ts:70
 msgid "Pin"
 msgstr "Kiinnitä"
@@ -23558,7 +23676,7 @@ msgstr "Kiinnitä ryhmä-DM"
 #. Generic action label that pins a message to the channel pins.
 #. Keyboard shortcut action label shown in the shortcuts list and keybind editor. Keep short, sentence case.
 #. Title of the confirmation alert shown when pinning a message.
-#: src/features/channel/components/MessageActionUtils.tsx:56
+#: src/features/channel/components/MessageActionUtils.tsx:57
 #: src/features/i18n/utils/CommonMessageDescriptors.ts:534
 #: src/features/input/state/input_keybind/shared.ts:13
 msgid "Pin message"
@@ -23585,7 +23703,7 @@ msgid "Pin or unpin any message."
 msgstr "Kiinnitä tai poista kiinnitys mistä tahansa viestistä."
 
 #. Body of the confirmation alert shown when pinning a message.
-#: src/features/channel/components/MessageActionUtils.tsx:60
+#: src/features/channel/components/MessageActionUtils.tsx:61
 msgid "Pin this message to the channel for everyone to see."
 msgstr "Kiinnitä tämä viesti kanavalle kaikkien nähtäväksi."
 
@@ -23909,6 +24027,11 @@ msgstr "Valitse näytön jakamisen koodekki"
 msgid "Prefers reduced motion"
 msgstr "Suosii vähennettyä liikettä"
 
+#. Label in the persona editor for the message prefixes and suffixes that trigger a persona for a message.
+#: src/features/user/components/modals/PersonaEditorModal.tsx:63
+msgid "Prefix"
+msgstr "Etuliite"
+
 #. Settings search synonym. Used to match this term when the user types it in the settings search bar.
 #: src/features/user/components/settings_utils/search_index/PlutoniumIndex.ts:15
 msgid "Premium"
@@ -24185,7 +24308,7 @@ msgstr "Prioriteettipuhuja"
 #. User settings tab for privacy and safety controls.
 #: src/features/user/components/modals/tabs/advanced_settings_tab/AdvancedSettingsCategories.ts:12
 #: src/features/user/components/settings_utils/section_registry/PrivacySafetySections.ts:60
-#: src/features/user/components/settings_utils/SettingsConstants.tsx:98
+#: src/features/user/components/settings_utils/SettingsConstants.tsx:103
 msgid "Privacy"
 msgstr "Tietosuoja"
 
@@ -24261,7 +24384,7 @@ msgid "Product name"
 msgstr "Tuotteen nimi"
 
 #. User settings tab for editing the current user profile.
-#: src/features/user/components/settings_utils/SettingsConstants.tsx:86
+#: src/features/user/components/settings_utils/SettingsConstants.tsx:87
 msgid "Profile"
 msgstr "Profiili"
 
@@ -24416,7 +24539,7 @@ msgid "Pronouns"
 msgstr "Pronominisi"
 
 #: src/features/user/components/modals/user_profile_modal/UserProfileModalUserInfo.tsx:79
-#: src/features/user/components/profile/profile_card/ProfileCardUserInfo.tsx:126
+#: src/features/user/components/profile/profile_card/ProfileCardUserInfo.tsx:129
 msgid "Pronouns: "
 msgstr "Pronominit: "
 
@@ -24505,7 +24628,7 @@ msgstr "Ostettu {0}"
 #. Settings section label for managing purchased gift codes.
 #: src/features/user/components/modals/tabs/GiftInventoryTab.tsx:411
 #: src/features/user/components/settings_utils/search_index/GiftInventoryIndex.ts:38
-#: src/features/user/components/settings_utils/section_registry/GeneralSettingsSections.ts:14
+#: src/features/user/components/settings_utils/section_registry/GeneralSettingsSections.ts:18
 msgid "Purchased gifts"
 msgstr "Ostetut lahjat"
 
@@ -25003,7 +25126,7 @@ msgstr "Lunasta"
 #. Settings section label for redeeming a gift code.
 #: src/features/user/components/modals/tabs/GiftInventoryTab.tsx:362
 #: src/features/user/components/settings_utils/search_index/GiftInventoryIndex.ts:10
-#: src/features/user/components/settings_utils/section_registry/GeneralSettingsSections.ts:10
+#: src/features/user/components/settings_utils/section_registry/GeneralSettingsSections.ts:14
 msgid "Redeem a gift"
 msgstr "Lunasta lahja"
 
@@ -25339,7 +25462,7 @@ msgid "Remove {userName} from your friends?"
 msgstr "Poistetaanko käyttäjä {userName} kavereistasi?"
 
 #. Confirm button label on the remove-all-reactions alert. Destructive.
-#: src/features/channel/components/MessageActionUtils.tsx:76
+#: src/features/channel/components/MessageActionUtils.tsx:77
 msgid "Remove all"
 msgstr "Poista kaikki"
 
@@ -25351,8 +25474,8 @@ msgstr "Poistetaanko kaikki {emojiNameWithColons}-reaktiot tästä viestistä?"
 #. Destructive message context menu item for moderators that clears every reaction on a message.
 #. Message action that removes every reaction from the selected message.
 #. Title of the confirmation alert shown when clearing every reaction on a message.
-#: src/features/channel/components/MessageActionMenu.tsx:79
-#: src/features/channel/components/MessageActionUtils.tsx:68
+#: src/features/channel/components/MessageActionMenu.tsx:82
+#: src/features/channel/components/MessageActionUtils.tsx:69
 #: src/features/ui/action_menu/items/MessageMenuItems.tsx:70
 msgid "Remove all reactions"
 msgstr "Poista kaikki reaktiot"
@@ -27434,7 +27557,7 @@ msgstr "Hae käyttöoikeuksia…"
 #. Default header title in the channel search results panel before a query has been submitted.
 #. Settings content title shown above results for a settings search query.
 #: src/features/app/components/dialogs/components/DesktopSettingsView.tsx:106
-#: src/features/channel/components/channel_search_results/ChannelSearchResultsShared.tsx:53
+#: src/features/channel/components/channel_search_results/ChannelSearchResultsShared.tsx:54
 msgid "Search results"
 msgstr "Hakutulokset"
 
@@ -27467,7 +27590,7 @@ msgstr "Haun kohde"
 
 #. Status label in the channel search results header announcing the current scope. label is the selected scope name.
 #. Tooltip and aria-label for the search scope button in the message search bar. Sentence case. Preserve {label}; it is inserted by code.
-#: src/features/channel/components/channel_search_results/ChannelSearchResultsShared.tsx:103
+#: src/features/channel/components/channel_search_results/ChannelSearchResultsShared.tsx:104
 #: src/features/channel/components/message_search_bar/MessageSearchBar.tsx:47
 msgid "Search scope: {label}"
 msgstr "Hakualue: {label}"
@@ -27542,7 +27665,7 @@ msgid "Search…"
 msgstr "Hae…"
 
 #. Header status shown while a search request is in flight in the channel search results panel.
-#: src/features/channel/components/channel_search_results/ChannelSearchResultsShared.tsx:49
+#: src/features/channel/components/channel_search_results/ChannelSearchResultsShared.tsx:50
 msgid "Searching"
 msgstr "Haetaan"
 
@@ -27776,6 +27899,11 @@ msgstr "Valitse GIF {title}"
 #: src/features/user/components/modals/tabs/LanguageTab.tsx:75
 msgid "Select interface language"
 msgstr "Valitse käyttöliittymän kieli"
+
+#. Tooltip for the persona selection button
+#: src/features/personas/components/PersonaPickerComposerButton.tsx:21
+msgid "Select persona"
+msgstr "Valitse Persona"
 
 #. Button or menu action label in the o auth builder section. Keep it concise. Keep the tone plain and specific.
 #: src/features/user/components/modals/tabs/applications_tab/application_detail/OAuthBuilderSection.tsx:39
@@ -28116,6 +28244,11 @@ msgstr "Haittaohjelmien tai vaarallisten linkkien lähettäminen"
 msgid "Sending messages is disabled in this community"
 msgstr "Viestien lähettäminen on poistettu käytöstä tässä yhteisössä"
 
+#. placeholder {0}: persona.display_name || persona.internal_name
+#: src/features/channel/components/ChannelPersonaBar.tsx:44
+msgid "Sending this message as <0/> <1>{0}</1>"
+msgstr "Tätä viestiä lähetetään profiilina <0/> <1>{0}</1>"
+
 #. Description for the studio / direct-input option in the voice processing settings radio group.
 #: src/features/voice/components/voice_connection_status/AudioProcessingModal.tsx:34
 msgid "Sends raw mic audio with no processing."
@@ -28145,7 +28278,7 @@ msgid "Sensitive media"
 msgstr "Arkaluontoinen media"
 
 #. Generic short status label confirming an item (invite, gift, theme link) was sent.
-#: src/features/i18n/utils/CommonMessageDescriptors.ts:799
+#: src/features/i18n/utils/CommonMessageDescriptors.ts:803
 msgid "Sent"
 msgstr "Lähetetty"
 
@@ -28454,6 +28587,10 @@ msgstr "Määritä puhepalvelun alue"
 msgid "Set webhook type to {0}."
 msgstr "WebHookin tyypiksi asetettu {0}."
 
+#: src/features/user/components/modals/tabs/PersonasTab.tsx:189
+msgid "Set what happens when you send a message using a persona's trigger."
+msgstr "Aseta, mitä tapahtuu, kun lähetät viestin käyttäen Persona-triggeriä."
+
 #: src/features/auth/components/pages/ResetPasswordPage.tsx:143
 msgid "Set your new password."
 msgstr "Aseta uusi salasanasi."
@@ -28516,7 +28653,7 @@ msgid "Setup key"
 msgstr "Asetusavain"
 
 #. Label in the channel and chat typing users.
-#: src/features/channel/components/TypingUsers.tsx:21
+#: src/features/channel/components/TypingUsers.tsx:23
 msgid "Several people are typing..."
 msgstr "Useita kirjoittaa..."
 
@@ -28706,7 +28843,7 @@ msgstr "Pikakuvakekonfliktit"
 #. User settings tab for keyboard shortcuts and custom bindings.
 #: src/features/user/components/settings_utils/search_index/KeybindsIndex.ts:18
 #: src/features/user/components/settings_utils/section_registry/AccessibilitySections.ts:175
-#: src/features/user/components/settings_utils/SettingsConstants.tsx:123
+#: src/features/user/components/settings_utils/SettingsConstants.tsx:128
 msgid "Shortcuts"
 msgstr "Pikakuvakkeet"
 
@@ -29311,7 +29448,7 @@ msgstr "Kirjautunut sisään"
 
 #. Settings section label for account sessions and devices.
 #: src/features/user/components/modals/tabs/DevicesTab.tsx:517
-#: src/features/user/components/settings_utils/section_registry/GeneralSettingsSections.ts:34
+#: src/features/user/components/settings_utils/section_registry/GeneralSettingsSections.ts:38
 msgid "Signed-in devices"
 msgstr "Kirjautuneet laitteet"
 
@@ -29898,7 +30035,7 @@ msgid "Sort"
 msgstr "Lajittele"
 
 #. Status label in the channel search results header announcing the current sort mode. label is the selected sort.
-#: src/features/channel/components/channel_search_results/ChannelSearchResultsShared.tsx:108
+#: src/features/channel/components/channel_search_results/ChannelSearchResultsShared.tsx:109
 msgid "Sort mode: {label}"
 msgstr "Lajittelutila: {label}"
 
@@ -29931,7 +30068,7 @@ msgstr "Äänenvoimakkuus"
 
 #. Section heading / tab label for the notification-sounds area.
 #. Settings search synonym. Used to match this term when the user types it in the settings search bar.
-#: src/features/i18n/utils/CommonMessageDescriptors.ts:803
+#: src/features/i18n/utils/CommonMessageDescriptors.ts:807
 #: src/features/user/components/settings_utils/section_registry/NotificationsSections.ts:135
 msgid "Sounds"
 msgstr "Äänet"
@@ -30046,7 +30183,7 @@ msgstr "Lue kaikki viestit ääneen"
 
 #. Message action that has the screen reader read the selected message aloud.
 #. Message context menu item that reads the message aloud via text-to-speech.
-#: src/features/channel/components/MessageActionMenu.tsx:99
+#: src/features/channel/components/MessageActionMenu.tsx:102
 #: src/features/ui/action_menu/items/MessageMenuItems.tsx:78
 msgid "Speak message"
 msgstr "Kuuntele viesti"
@@ -30129,7 +30266,7 @@ msgstr "Oikoluku"
 #: src/features/user/components/modals/tabs/LanguageTab.tsx:414
 #: src/features/user/components/modals/tabs/LanguageTab.tsx:456
 #: src/features/user/components/settings_utils/search_index/LanguageIndex.ts:74
-#: src/features/user/components/settings_utils/section_registry/GeneralSettingsSections.ts:50
+#: src/features/user/components/settings_utils/section_registry/GeneralSettingsSections.ts:54
 msgid "Spellcheck"
 msgstr "Oikoluku"
 
@@ -30436,7 +30573,7 @@ msgstr "Vaihe 4"
 #. Screen-reader fragment listing one sticker on a message. Lowercase because it appears inside a longer sentence.
 #. has:sticker chip label. Always lowercase; matches the typed query value 1:1.
 #: src/features/channel/components/bottomsheets/ChannelSearchBottomSheet.tsx:118
-#: src/features/channel/components/ChannelMessage.tsx:52
+#: src/features/channel/components/ChannelMessage.tsx:59
 #: src/features/search/utils/SearchUtils.ts:73
 msgid "sticker"
 msgstr "tarra"
@@ -30618,7 +30755,7 @@ msgstr "Lopetetaanko puheaktiivisuuden jakaminen kaikille kavereille?"
 
 #. Message action that stops the screen reader from speaking the selected message.
 #. Message context menu item that stops the text-to-speech playback in progress.
-#: src/features/channel/components/MessageActionMenu.tsx:95
+#: src/features/channel/components/MessageActionMenu.tsx:98
 #: src/features/ui/action_menu/items/MessageMenuItems.tsx:74
 msgid "Stop speaking"
 msgstr "Lopeta puhuminen"
@@ -30836,6 +30973,11 @@ msgstr "Lisäteksti"
 #: src/features/user/components/modals/tabs/component_gallery_tab/OverlaysTab.tsx:123
 msgid "Success"
 msgstr "Onnistui"
+
+#. Label in the persona editor for the message prefixes and suffixes that trigger a persona for a message.
+#: src/features/user/components/modals/PersonaEditorModal.tsx:67
+msgid "Suffix"
+msgstr "Jälkiliite"
 
 #. Helper text under the "Filter members without roles" explicit content filter option in the community moderation settings tab.
 #: src/features/guild/components/modals/guild_tabs/GuildModerationTab.tsx:112
@@ -32387,6 +32529,11 @@ msgstr "Tämä on toisen vaihtoehdon kuvaus"
 msgid "This is the third option description"
 msgstr "Tämä on kolmannen vaihtoehdon kuvaus"
 
+#. Tooltip on the crown icon on the persona entry that represents your main account.
+#: src/features/personas/components/popouts/PersonaPickerPopout.tsx:28
+msgid "This is your account."
+msgstr "Tämä on tilisi."
+
 #. Required-action form error for landline, toll-free, premium, shared-cost, UAN, voicemail and pager lines. Do not name which line type the provider returned.
 #: src/features/auth/components/modals/required_action/RequiredActionDescriptors.ts:549
 msgid "This isn't a mobile number, so it can't receive our text. Try a mobile number, or contact support if you think that's wrong."
@@ -32457,6 +32604,10 @@ msgstr "Tämä viesti on jo poistettu."
 #: src/features/messaging/components/alerts/AltTextUpdateFailedModal.tsx:14
 msgid "This message no longer exists."
 msgstr "Tätä viestiä ei enää ole."
+
+#: src/features/user/components/modals/PersonaEditorModal.tsx:378
+msgid "This name stays private, and only appears in lists of your own personas."
+msgstr "Tämä nimi pysyy yksityisenä ja näkyy vain omien Personas-listoissasi."
 
 #. Label in the my profile tab.
 #: src/features/user/components/modals/tabs/MyProfileTab.tsx:129
@@ -32617,7 +32768,7 @@ msgstr "tämä käyttäjä"
 msgid "This user has limited their profile. Some details are hidden from people who aren't their friends."
 msgstr "Tämä käyttäjä on rajoittanut profiiliaan. Jotkin tiedot on piilotettu henkilöiltä, jotka eivät ole hänen ystäviään."
 
-#: src/features/user/components/popouts/UserProfileShared.tsx:390
+#: src/features/user/components/popouts/UserProfileShared.tsx:391
 msgid "This user has no roles in this community."
 msgstr "Tällä käyttäjällä ei ole rooleja tässä yhteisössä."
 
@@ -32671,7 +32822,7 @@ msgid "This voice channel is no longer available."
 msgstr "Tämä äänikanava ei ole enää käytettävissä."
 
 #. Description text in the channel and chat user message. Preserve {silentMention}; it is inserted by code.
-#: src/features/channel/components/UserMessage.tsx:71
+#: src/features/channel/components/UserMessage.tsx:75
 msgid "This was a {silentMention} message."
 msgstr "Tämä oli {silentMention}-viesti."
 
@@ -32802,7 +32953,7 @@ msgstr "Aika"
 #. Settings section label for app time display format.
 #: src/features/user/components/modals/tabs/LanguageTab.tsx:374
 #: src/features/user/components/settings_utils/search_index/LanguageIndex.ts:26
-#: src/features/user/components/settings_utils/section_registry/GeneralSettingsSections.ts:38
+#: src/features/user/components/settings_utils/section_registry/GeneralSettingsSections.ts:42
 msgid "Time format"
 msgstr "Ajan esitysmuoto"
 
@@ -33209,9 +33360,23 @@ msgstr "Ilmaisinalueen kuvakkeen muutokset tulevat voimaan vasta uudelleenkäynn
 msgid "Trending GIFs"
 msgstr "Suositut GIFit"
 
+#: src/features/user/components/modals/tabs/PersonasTab.tsx:191
+msgid "Trigger Behavior"
+msgstr "Triggerin käyttäytyminen"
+
 #: src/features/channel/components/channel_header_components/developer_tools/ToolsMenu.tsx:383
 msgid "Trigger React crash"
 msgstr "Aiheuta React-kaatuminen"
+
+#. Label in the persona editor for the message prefixes and suffixes that trigger a persona for a message.
+#: src/features/user/components/modals/PersonaEditorModal.tsx:59
+msgid "Triggers"
+msgstr "Triggerit"
+
+#. A label for the latching modes (trigger behavior) setting.
+#: src/features/user/components/modals/tabs/PersonasTab.tsx:51
+msgid "Triggers don't do anything."
+msgstr "Triggerit eivät tee mitään."
 
 #. Title of the modal that lets the user crop a long audio file down to the entrance sound length cap.
 #: src/features/voice/components/EntranceSoundTrimmerModal.tsx:23
@@ -33292,7 +33457,7 @@ msgid "Try a different name."
 msgstr "Kokeile toista nimeä."
 
 #. Body copy under the no-results heading suggesting the user adjust their query.
-#: src/features/channel/components/channel_search_results/ChannelSearchResultsShared.tsx:78
+#: src/features/channel/components/channel_search_results/ChannelSearchResultsShared.tsx:79
 msgid "Try a different search query."
 msgstr "Kokeile toista hakua."
 
@@ -33919,7 +34084,7 @@ msgstr "Avaa linkin esikatselu"
 
 #. Settings section label for the embed debugger URL input.
 #: src/features/user/components/modals/tabs/EmbedDebuggerTab.tsx:230
-#: src/features/user/components/settings_utils/section_registry/GeneralSettingsSections.ts:62
+#: src/features/user/components/settings_utils/section_registry/GeneralSettingsSections.ts:66
 msgid "Unfurl debugger"
 msgstr "Avaa virheenkorjaus"
 
@@ -33938,7 +34103,7 @@ msgstr "Yleinen vararatkaisu. Huonoin laatu, mutta toimii kaikkialla."
 #. Generic fallback label when a more specific value is unavailable.
 #. Short label in the invite list item. Keep it concise.
 #: src/features/emoji/components/emojis/EmojiListItem.tsx:584
-#: src/features/i18n/utils/CommonMessageDescriptors.ts:751
+#: src/features/i18n/utils/CommonMessageDescriptors.ts:755
 #: src/features/invite/components/InviteListItem.tsx:34
 #: src/features/moderation/components/modals/BanDetailsModal.tsx:114
 #: src/features/updater/commands/UpdaterModalCommands.tsx:144
@@ -34256,7 +34421,7 @@ msgid "Unordered"
 msgstr "Järjestämätön"
 
 #. Confirm button label on the unpin message alert.
-#: src/features/channel/components/MessageActionUtils.tsx:52
+#: src/features/channel/components/MessageActionUtils.tsx:53
 msgid "Unpin"
 msgstr "Irrota kiinnitys"
 
@@ -34281,7 +34446,7 @@ msgid "Unpin message"
 msgstr "Irrota viesti"
 
 #. Body of the confirmation alert shown when unpinning a message.
-#: src/features/channel/components/MessageActionUtils.tsx:48
+#: src/features/channel/components/MessageActionUtils.tsx:49
 msgid "Unpin this message?"
 msgstr "Poistetaanko viestin kiinnitys?"
 
@@ -34414,7 +34579,7 @@ msgstr "Tiedostomuotoa ei tueta"
 
 #. Message action that re-enables embeds on the selected message.
 #. Message context menu item that re-shows previously hidden link previews and embeds on the message.
-#: src/features/channel/components/MessageActionMenu.tsx:87
+#: src/features/channel/components/MessageActionMenu.tsx:90
 #: src/features/ui/action_menu/items/MessageMenuItems.tsx:58
 msgid "Unsuppress embeds"
 msgstr "Näytä upotukset"
@@ -35308,7 +35473,7 @@ msgid "User record"
 msgstr "Käyttäjätiedot"
 
 #. Root label for the current user settings modal and settings search paths.
-#: src/features/user/components/settings_utils/SettingsConstants.tsx:341
+#: src/features/user/components/settings_utils/SettingsConstants.tsx:352
 msgid "User settings"
 msgstr "Käyttäjäasetukset"
 
@@ -36009,7 +36174,7 @@ msgstr "Näytä tiedot"
 msgid "View devices that are signed in to your account"
 msgstr "Näytä laitteet, joilla olet kirjautuneena tilillesi"
 
-#: src/features/user/components/popouts/UserProfileShared.tsx:194
+#: src/features/user/components/popouts/UserProfileShared.tsx:195
 msgid "View full profile"
 msgstr "Näytä koko profiili"
 
@@ -36043,6 +36208,10 @@ msgstr "Näytä häiriön tiedot"
 #: src/features/channel/components/channel_view/dm_channel_view/shared.ts:117
 msgid "View incoming call"
 msgstr "Näytä saapuva puhelu"
+
+#: src/features/user/components/profile/PersonaProfile.tsx:117
+msgid "View main profile"
+msgstr "Näytä pääprofiili"
 
 #. Button on the connection banner when maintenance is ongoing. Opens that maintenance on the status page.
 #: src/features/app/hooks/useConnectionNotice.ts:51
@@ -36082,7 +36251,7 @@ msgid "View profile for {displayName}"
 msgstr "Näytä käyttäjän {displayName} profiili"
 
 #. Message context menu item that opens the reactions list sheet for the message.
-#: src/features/channel/components/MessageActionMenu.tsx:75
+#: src/features/channel/components/MessageActionMenu.tsx:78
 msgid "View reactions"
 msgstr "Näytä reaktiot"
 
@@ -36235,7 +36404,7 @@ msgstr "Ääni (aikuisille)"
 
 #. User settings tab for microphone, speaker, camera, and call stats.
 #. User settings tab for microphone, speaker, camera, and call stats.
-#: src/features/user/components/settings_utils/SettingsConstants.tsx:119
+#: src/features/user/components/settings_utils/SettingsConstants.tsx:124
 #: src/features/voice/utils/VoiceMessageDescriptors.ts:30
 msgid "Voice & video"
 msgstr "Ääni ja video"
@@ -36752,7 +36921,7 @@ msgid "We're having trouble connecting to the space-time continuum. Check your c
 msgstr "Yhteyden muodostamisessa aika-avaruusjatkumoon on ongelmia. Tarkista yhteytesi ja yritä uudelleen."
 
 #. Body copy under the indexing heading explaining why search results are not yet available.
-#: src/features/channel/components/channel_search_results/ChannelSearchResultsShared.tsx:65
+#: src/features/channel/components/channel_search_results/ChannelSearchResultsShared.tsx:66
 msgid "We're indexing this channel for the first time. This may take a moment. Results will appear here when ready."
 msgstr "Indeksoimme tätä kanavaa ensimmäistä kertaa. Tämä voi kestää hetken. Tulokset näkyvät täällä, kun ne ovat valmiina."
 
@@ -37127,7 +37296,7 @@ msgid "Who is typing"
 msgstr "Kuka kirjoittaa"
 
 #. Label in the channel and chat typing users.
-#: src/features/channel/components/TypingUsers.tsx:37
+#: src/features/channel/components/TypingUsers.tsx:39
 msgid "Whoa, it's a typing apocalypse"
 msgstr "Huh, täällä kirjoitetaan urakalla"
 
@@ -37186,7 +37355,7 @@ msgid "Window state"
 msgstr "Ikkunan tila"
 
 #. User settings tab label shown on Windows desktop builds. Refers to the Microsoft Windows OS.
-#: src/features/user/components/settings_utils/SettingsConstants.tsx:69
+#: src/features/user/components/settings_utils/SettingsConstants.tsx:70
 msgid "Windows app"
 msgstr "Windows-sovellus"
 
@@ -37544,7 +37713,7 @@ msgstr "Et voi lähettää viestiä tälle käyttäjälle"
 #. Error message in the user profile popout.
 #. Error message in the user settings profile preview.
 #: src/features/user/components/modals/UserProfileModal.tsx:110
-#: src/features/user/components/popouts/UserProfilePopout.tsx:73
+#: src/features/user/components/popouts/UserProfilePopout.tsx:77
 #: src/features/user/components/profile/ProfilePreview.tsx:44
 msgid "You can't message yourself"
 msgstr "Et voi lähettää viestiä itsellesi"
@@ -37735,6 +37904,7 @@ msgid "You have refunded recently"
 msgstr "Olet palauttanut rahaa äskettäin"
 
 #: src/features/app/components/dialogs/shared/UnsavedChangesBannerContent.tsx:37
+#: src/features/user/components/modals/PersonaEditorModal.tsx:537
 msgid "You have unsaved changes."
 msgstr "Sinulla on tallentamattomia muutoksia."
 
@@ -38214,7 +38384,7 @@ msgstr "Tilauksesi ({premiumProductName}) on vanhentunut. Olet menettänyt kaikk
 msgid "Your {productName} session expired. Sign in again to continue authorizing this application."
 msgstr "{productName}-istuntosi vanheni. Kirjaudu uudelleen sisään jatkaaksesi tämän sovelluksen valtuuttamista."
 
-#: src/features/user/components/settings_utils/SettingsConstants.tsx:200
+#: src/features/user/components/settings_utils/SettingsConstants.tsx:205
 msgid "Your account"
 msgstr "Tilisi"
 
@@ -38404,22 +38574,22 @@ msgid "Your last purchase is outside the refund window. Contact support for bill
 msgstr "Viimeisin ostoksesi ei ole hyvityskelpoinen. Ota yhteyttä tukeen laskutusongelmissa."
 
 #. Label in the message queue state.
-#: src/features/messaging/state/MessageQueue.tsx:72
+#: src/features/messaging/state/MessageQueue.tsx:73
 msgid "Your message could not be delivered because it was flagged by our safety systems. If you believe this is a mistake, please contact support."
 msgstr "Viestisi toimitus epäonnistui, koska turvajärjestelmämme liputtivat sen. Jos uskot tämän olevan virhe, ota yhteyttä tukeen."
 
 #. Label in the message queue state.
-#: src/features/messaging/state/MessageQueue.tsx:59
+#: src/features/messaging/state/MessageQueue.tsx:60
 msgid "Your message could not be delivered. This is usually because you don't share a community with the recipient or the recipient is only accepting direct messages from friends. You may also need to adjust your own direct message privacy settings in {directMessagePrivacySettingsPath}."
 msgstr "Viestisi ei voitu toimittaa. Tämä johtuu yleensä siitä, että sinulla ja vastaanottajalla ei ole yhteistä yhteisöä tai vastaanottaja hyväksyy suoria viestejä vain ystäviltä. Sinun on ehkä myös säädettävä omia suorien viestien tietosuoja-asetuksiasi täällä: {directMessagePrivacySettingsPath}."
 
 #. Description text in the message queue state.
-#: src/features/messaging/state/MessageQueue.tsx:64
+#: src/features/messaging/state/MessageQueue.tsx:65
 msgid "Your message could not be delivered. You need to claim your account to send direct messages."
 msgstr "Viestisi ei voitu toimittaa. Sinun on vahvistettava tilisi, jotta voit lähettää suoria viestejä."
 
 #. Description text in the message queue state.
-#: src/features/messaging/state/MessageQueue.tsx:68
+#: src/features/messaging/state/MessageQueue.tsx:69
 msgid "Your message could not be delivered. You need to claim your account to send messages."
 msgstr "Viestisi ei voitu toimittaa. Sinun on vahvistettava tilisi, jotta voit lähettää viestejä."
 
