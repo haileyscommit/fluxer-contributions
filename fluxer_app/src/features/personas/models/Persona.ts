@@ -113,7 +113,7 @@ export const emptyOwnPersona = new Persona({
 	triggers: [],
 } as WireOwnPersona)
 
-export function makeFallbackPersona(other: any): Persona {
+export function makeFallbackPersona(other: PersonaSnapshot): Persona {
 	if (!other) return emptyOwnPersona;
 	return emptyOwnPersona.withUpdates({
 		id: other.id!,
