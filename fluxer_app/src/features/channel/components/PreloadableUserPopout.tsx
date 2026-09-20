@@ -16,6 +16,7 @@ import type {PopoutAnimationType, PopoutPosition} from '@app/features/ui/popover
 import {Popout} from '@app/features/ui/popover/PopoverPopout';
 import MobileLayout from '@app/features/ui/state/MobileLayout';
 import * as UserProfileCommands from '@app/features/user/commands/UserProfileCommands';
+import * as PersonaProfileMobile from '@app/features/personas/state/PersonaProfileMobile';
 import {UserProfileActionsSheet} from '@app/features/user/components/modals/UserProfileActionsSheet';
 import {UserProfilePopout} from '@app/features/user/components/popouts/UserProfilePopout';
 import {useUserProfileHoverPreload} from '@app/features/user/hooks/useUserProfileHoverPreload';
@@ -81,7 +82,11 @@ export const PreloadableUserPopout = React.forwardRef<
 		});
 		const handleMobileClick = useCallback(() => {
 			if (isWebhook) return;
-			UserProfileCommands.openUserProfile(user.id, guildId);
+			if (persona) {
+				PersonaProfileMobile.default.open(user.id, persona.id, false);
+			} else {
+				UserProfileCommands.openUserProfile(user.id, guildId);
+			}
 		}, [user.id, guildId, isWebhook]);
 		const isShiftMentionClick = useCallback(
 			(event: React.MouseEvent<HTMLElement>) =>
