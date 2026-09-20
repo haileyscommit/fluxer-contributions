@@ -46,6 +46,7 @@ import {resolveRetryAfterMs} from '@app/features/messaging/utils/RetryAfterUtils
 import * as IARCommands from '@app/features/moderation/commands/IARCommands';
 import * as NavigationCommands from '@app/features/navigation/commands/NavigationCommands';
 import Permission from '@app/features/permissions/state/Permission';
+import type { Persona } from '@app/features/personas/models/Persona';
 import {http} from '@app/features/platform/transport/RestTransport';
 import {HttpError} from '@app/features/platform/types/EndpointError';
 import type {RestResponse} from '@app/features/platform/types/TransportTypes';
@@ -58,6 +59,7 @@ import * as SlowmodeCommands from '@app/features/slowmode/commands/SlowmodeComma
 import * as ModalCommands from '@app/features/ui/commands/ModalCommands';
 import {modal} from '@app/features/ui/commands/ModalCommands';
 import {Switch} from '@app/features/ui/components/form/FormSwitch';
+import Personas from '@app/features/user/state/Personas';
 import {APIErrorCodes} from '@fluxer/constants/src/ApiErrorCodes';
 import {MessageFlags, Permissions} from '@fluxer/constants/src/ChannelConstants';
 import type {JumpType} from '@fluxer/constants/src/JumpConstants';
@@ -70,6 +72,7 @@ import type {
 	Message as WireMessage,
 } from '@fluxer/schema/src/domains/message/MessageResponseSchemas';
 import type { PersonaSnapshot } from '@fluxer/schema/src/domains/persona/PersonaSchemas.js';
+import { PersonaSettings_LatchMode } from '@fluxer/schema/src/gen/fluxer/user/preferences/v1/preferences_pb.js';
 import * as SnowflakeUtils from '@fluxer/snowflake/src/SnowflakeUtils';
 import type {I18n} from '@lingui/core';
 import {msg} from '@lingui/core/macro';
@@ -730,6 +733,35 @@ export async function edit(
 	persona?: PersonaSnapshot | null,
 ): Promise<WireMessage | null> {
 	logger.debug(`Editing message ${messageId} in channel ${channelId}`);
+	if (content && persona === undefined && Personas.latchMode !== PersonaSettings_LatchMode.OFF) {
+		logger.debug(`Searching for matching persona triggers on ${messageId}`);
+		// Find matching triggers
+		const matchesTrigger = (value: string) => (t: Persona['triggers'][0]) => {
+			const prefix = t.prefix?.toLowerCase().trim();
+			const suffix = t.suffix?.toLowerCase().trim();
+			if (!prefix && !suffix) return false;
+			if (prefix && !value.startsWith(prefix)) return false;
+			if (suffix && !value.endsWith(suffix)) return false;
+			return true;
+		};
+		const value = content.toLowerCase();
+		const matchingPersona = Personas.getOwnPersonas().find((p) => p.triggers.find(matchesTrigger(value)));
+		// Strip prefix and suffix from applied persona
+		if (matchingPersona) {
+			logger.debug(`Found matching persona ${matchingPersona.id} while editing ${messageId}`);
+			const matchingTrigger = matchingPersona.triggers.find(matchesTrigger(value));
+			const original = Messages.getMessage(channelId, messageId);
+			// Don't change personas if the trigger was already on the message
+			if ((original ? matchingTrigger && !matchesTrigger(original.content.toLowerCase())(matchingTrigger) : matchingTrigger) && original?.persona?.id !== matchingPersona?.id) {
+				logger.debug(`Applying persona ${matchingPersona.id} to edit ${messageId}`);
+				let ival = content;
+				if (matchingTrigger?.prefix) ival = ival.substring(matchingTrigger.prefix?.length ?? 0);
+				if (matchingTrigger?.suffix) ival = ival.substring(0, ival.length - matchingTrigger.suffix.length);
+				content = ival;
+				persona = matchingPersona.toSnapshot();
+			}
+		}
+	}
 	try {
 		const response = await http.patch<WireMessage>(Endpoints.CHANNEL_MESSAGE(channelId, messageId), {
 			body: buildMessageEditRequest({content, flags, allowedMentions, attachments, persona}),
