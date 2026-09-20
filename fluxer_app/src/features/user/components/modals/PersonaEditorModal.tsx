@@ -122,7 +122,7 @@ export const PersonaEditorModal: React.FC<PersonaEditorModalProps> = observer(
 			}
 		});
 		const [bioHydrationKey, setBioHydrationKey] = useState(0);
-		const triggers = form.watch("triggers");
+		const triggers = form.watch("triggers") || [];
 		const [hasChangedAvatar, setHasChangedAvatar] = useState(false);
 		const [hasChangedBanner, setHasChangedBanner] = useState(false);
 
@@ -477,7 +477,7 @@ export const PersonaEditorModal: React.FC<PersonaEditorModalProps> = observer(
 								title={i18n._(TRIGGERS_DESCRIPTOR)}>
 									{form.getFieldState("triggers").error?.message && <div className={styles.error}><WarningCircleIcon size={24} /><span>{form.getFieldState("triggers").error?.message}</span></div>}
 									{/* <p><Trans>Set prefix-suffix pairs that you can put on messages to use this persona for that message. Each prefix and suffix in a pair must be used together. You cannot leave both prefix and suffix empty, but neither are required.</Trans></p> */}
-								{triggers.map((trigger, i) => <TriggerRow
+								{triggers?.map((trigger, i) => <TriggerRow
 									key={i}
 									prefix={trigger.prefix || ""}
 									suffix={trigger.suffix || ""}
