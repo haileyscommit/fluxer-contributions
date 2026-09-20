@@ -84,6 +84,7 @@ export const PreloadableUserPopout = React.forwardRef<
 			if (isWebhook) return;
 			if (persona) {
 				PersonaProfileMobile.default.open(user.id, persona.id, false);
+				PersonaProfileMobile.default.initialPersona = persona;
 			} else {
 				UserProfileCommands.openUserProfile(user.id, guildId);
 			}

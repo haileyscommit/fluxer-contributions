@@ -4,10 +4,12 @@ import {Logger} from '@app/features/platform/utils/AppLogger';
 import * as PersonaCommands from '@app/features/personas/commands/Personas';
 import {makeAutoObservable} from 'mobx';
 import Personas from '@app/features/user/state/Personas';
+import type { Persona } from '../models/Persona';
 
 interface PersonaProfileMobileState {
 	userId: string | null;
 	personaId: string | null;
+	initialPersona?: Persona;
 	autoFocusNote?: boolean;
 }
 
@@ -15,6 +17,7 @@ class PersonaProfileMobile {
 	private logger = new Logger('PersonaProfileMobile');
 	userId: PersonaProfileMobileState['userId'] = null;
 	personaId: PersonaProfileMobileState['personaId'] = null;
+	initialPersona: PersonaProfileMobileState['initialPersona'] = undefined;
 	autoFocusNote: PersonaProfileMobileState['autoFocusNote'] = undefined;
 
 	constructor() {
@@ -38,6 +41,7 @@ class PersonaProfileMobile {
 		this.userId = null;
 		this.personaId = null;
 		this.autoFocusNote = undefined;
+		this.initialPersona = undefined;
 	}
 }
 

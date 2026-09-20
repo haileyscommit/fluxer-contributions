@@ -111,6 +111,7 @@ import * as ColorUtils from '@app/features/theme/utils/ColorUtils';
 import { Avatar } from '@app/features/ui/components/Avatar';
 import { isKeyboardActivationKey } from '@app/features/input/utils/KeyboardUtils';
 import { clsx } from 'clsx';
+import { getDefaultAvatarPrimaryColor } from '@app/features/user/utils/AvatarSourceUtils';
 
 const UNBLOCK_USER_DESCRIPTOR = msg({
 	message: 'Unblock user',
@@ -130,7 +131,7 @@ export const PersonaProfileMobileSheet: React.FC = observer(function PersonaProf
 	// const channelGuildId =
 	// 	selectedChannel?.guildId && selectedChannel.guildId !== ME ? selectedChannel.guildId : undefined;
 	//const guildId = explicitGuildId ?? channelGuildId;
-	const persona = personaId ? Personas.getPersona(personaId) || emptyOwnPersona : emptyOwnPersona;
+	const persona = (personaId ? Personas.getPersona(personaId) : null) || PersonaProfileMobile.initialPersona || emptyOwnPersona;
 	const storeUser = userId ? Users.getUser(userId) : null;
 	const user = storeUser;
 	const fallbackUser = useMemo(
@@ -271,7 +272,7 @@ const PersonaProfileMobileSheetContent: React.FC<PersonaProfileMobileSheetConten
 		const isBlocked = relationshipType === RelationshipTypes.BLOCKED;
 		const hasActiveDirectCall = hasActiveDirectCallWithUser(user.id);
 		const currentUserUnclaimed = !(Users.currentUser?.isClaimed() ?? true);
-		const persona = personaId ? Personas.getPersona(personaId) : null;
+		const persona = (personaId ? Personas.getPersona(personaId) : null) || PersonaProfileMobile.initialPersona || null;
 		// const profileMembership = resolveProfileGuildMembership(profile, {
 		// 	fallbackGuildId: guildId,
 		// 	userId: user.id,
@@ -301,12 +302,20 @@ const PersonaProfileMobileSheetContent: React.FC<PersonaProfileMobileSheetConten
 			[user, profile],
 		);
 		const shouldAutoplayProfileAnimations = useAutoplayExpandedProfileAnimations();
+		const personaContext: ProfileDisplayUtils.ProfileDisplayContext = {
+			...profileContext,
+			user: profileContext.user.withUpdates({
+				id: persona?.id ?? user.id,
+				avatar: persona?.avatar ?? null,
+				banner: persona?.banner ?? null,
+			})
+		}
 		const {avatarUrl, hoverAvatarUrl} = useMemo(
-			() => ProfileDisplayUtils.getProfileAvatarUrls(profileContext, undefined, MEDIA_PROXY_AVATAR_SIZE_DEFAULT),
+			() => ProfileDisplayUtils.getProfileAvatarUrls(personaContext, undefined, MEDIA_PROXY_AVATAR_SIZE_DEFAULT),
 			[profileContext],
 		);
 		const {bannerUrl: staticBannerUrl, hoverBannerUrl} = useMemo(
-			() => ProfileDisplayUtils.getProfileBannerUrls(profileContext, undefined, MEDIA_PROXY_PROFILE_BANNER_SIZE_MODAL),
+			() => ProfileDisplayUtils.getProfileBannerUrls(personaContext, undefined, MEDIA_PROXY_PROFILE_BANNER_SIZE_MODAL),
 			[profileContext],
 		);
 		const {
@@ -321,7 +330,7 @@ const PersonaProfileMobileSheetContent: React.FC<PersonaProfileMobileSheetConten
 		const effectiveProfile = profile.userProfile;
 		const displayName = persona?.display_name || "Persona";
 		const isDisplayNameUsername = displayName === user.username;
-		const bannerColor = profile.userProfile?.banner_color ? ColorUtils.int2hex(profile.userProfile?.banner_color) : "#000000";
+		const bannerColor = ColorUtils.int2hex(profile.userProfile?.accent_color ?? persona?.accent_color ?? getDefaultAvatarPrimaryColor(persona?.id ?? user.id));
 		// useEffect(() => {
 		// 	if (autoFocusNote && !hidePrivateDetails) {
 		// 		setNoteSheetOpen(true);
@@ -597,7 +606,7 @@ const PersonaProfileMobileSheetContent: React.FC<PersonaProfileMobileSheetConten
 												data-flx="user.user-profile-mobile-sheet.user-profile-mobile-sheet-content.actions-container"
 											>
 												{/* {!isCurrentUser && renderRelationshipButton()} */}
-												<button
+												{/* <button
 													type="button"
 													onClick={() => setActionsSheetOpen(true)}
 													className={styles.actionButton}
@@ -608,7 +617,7 @@ const PersonaProfileMobileSheetContent: React.FC<PersonaProfileMobileSheetConten
 														weight="bold"
 														data-flx="user.user-profile-mobile-sheet.user-profile-mobile-sheet-content.icon"
 													/>
-												</button>
+												</button> */}
 											</div>
 											<div
 												className={styles.usernameContainer}
@@ -812,7 +821,7 @@ const PersonaProfileMobileSheetContent: React.FC<PersonaProfileMobileSheetConten
 						data-flx="user.user-profile-mobile-sheet.user-profile-mobile-sheet-content.note-edit-sheet"
 					/>
 				)}
-				<UserProfileActionsSheet
+				{/* <UserProfileActionsSheet
 					isOpen={actionsSheetOpen}
 					onClose={() => setActionsSheetOpen(false)}
 					user={user}
@@ -823,7 +832,7 @@ const PersonaProfileMobileSheetContent: React.FC<PersonaProfileMobileSheetConten
 					// guildId={guildId}
 					// guildMember={guildMember}
 					data-flx="user.user-profile-mobile-sheet.user-profile-mobile-sheet-content.user-profile-actions-sheet"
-				/>
+				/> */}
 				<EmojiInfoBottomSheet
 					isOpen={emojiInfoOpen}
 					onClose={() => setEmojiInfoOpen(false)}
