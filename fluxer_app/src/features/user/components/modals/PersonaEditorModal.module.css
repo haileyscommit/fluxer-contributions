@@ -10,6 +10,21 @@
 	font-size: 0.875rem;
 	line-height: 1.25rem;
 }
+
+.unsavedChangesTransition:not(.prefersReducedMotion) {
+	transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+	transition-duration: 200ms;
+	transition-timing-function: ease-out;
+}
+
+.unsavedChangesArea.flashingUnsavedChanges {
+	background-color: var(--accent-danger, #d00);
+	color: var(--button-danger-text, #fff);
+	.unsavedChangesWarning {
+		color: var(--button-danger-text, #fff);
+	}
+}
+
 .deleteButton {
 	margin-inline-end: auto;
 }

@@ -8,7 +8,7 @@ import { Form } from '@app/features/ui/components/form/Form';
 import {useForm, useWatch} from 'react-hook-form';
 import { Input } from '@app/features/ui/components/form/FormInput';
 import { Trans, useLingui } from '@lingui/react/macro';
-import { DISPLAY_NAME_DESCRIPTOR, DOC_I_M_FROM_THE_FUTURE_I_CAME_DESCRIPTOR, PRONOUNS_DESCRIPTOR } from './tabs/MyProfileTab';
+import { DISPLAY_NAME_DESCRIPTOR, DOC_I_M_FROM_THE_FUTURE_I_CAME_DESCRIPTOR, PRONOUNS_DESCRIPTOR, WARNING_YOU_HAVE_UNSAVED_CHANGES_PLEASE_SAVE_YOUR_DESCRIPTOR } from './tabs/MyProfileTab';
 import { SettingsSection } from '@app/features/app/components/dialogs/shared/SettingsSection';
 import styles from '@app/features/user/components/modals/PersonaEditorModal.module.css';
 import previewStyles from '@app/features/user/components/profile/ProfilePreview.module.css';
@@ -18,7 +18,7 @@ import { ProfilePreview } from '../profile/ProfilePreview';
 import { Button } from '@app/features/ui/button/Button';
 import { modal } from '@app/features/ui/commands/ModalCommands';
 import { Modals } from '@app/features/app/components/dialogs/Modals';
-import { useCallback, useMemo, useRef, useState, type SetStateAction } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type SetStateAction } from 'react';
 import * as ToastCommands from '@app/features/ui/commands/ToastCommands';
 import * as UnsavedChangesCommands from '@app/features/ui/commands/UnsavedChangesCommands';
 import * as PersonaCommands from '@app/features/personas/commands/Personas';
@@ -43,6 +43,9 @@ import { Accordion } from '@app/features/ui/accordion/Accordion';
 import { PlusIcon, WarningCircleIcon } from '@phosphor-icons/react';
 import { Tooltip } from '@app/features/ui/tooltip/Tooltip';
 import { body } from 'framer-motion/client';
+import { useUnsavedChangesFlash } from '../../hooks/useUnsavedChangesFlash';
+import { useModalBackHandler } from '@app/features/app/hooks/useModalBackHandler';
+import Accessibility from '@app/features/accessibility/state/Accessibility';
 
 const EDIT_PERSONA_DESCRIPTOR = msg({
 	message: 'Edit Persona',
@@ -125,6 +128,10 @@ export const PersonaEditorModal: React.FC<PersonaEditorModalProps> = observer(
 		const triggers = form.watch("triggers") || [];
 		const [hasChangedAvatar, setHasChangedAvatar] = useState(false);
 		const [hasChangedBanner, setHasChangedBanner] = useState(false);
+		const [flashingUnsavedChanges, setFlashingUnsavedChanges] = useState(false);
+		const [flashTrigger, setFlashTrigger] = useState(0);
+		const [lastFlashTrigger, setLastFlashTrigger] = useState(0);
+		const [ariaAnnouncement, setAriaAnnouncement] = useState('');
 
 		const setTriggers = useCallback((f: (oldValue: Persona['triggers']) => Persona['triggers']) => {
 			const newTriggers = f(triggers);
@@ -357,9 +364,42 @@ export const PersonaEditorModal: React.FC<PersonaEditorModalProps> = observer(
 			</div>
 		}, []);
 
-		/* TODO: still need UnsavedChanges */
-		return <Modal.Root size={"large"}>
-			<Modal.Header title={initialPersona ? i18n._(EDIT_PERSONA_DESCRIPTOR) : i18n._(CREATE_PERSONA_DESCRIPTOR)} />
+		const prefersReducedMotion = Accessibility.useReducedMotion;
+		useEffect(() => {
+			if (flashTrigger > lastFlashTrigger) {
+				setLastFlashTrigger(flashTrigger);
+				setAriaAnnouncement(i18n._(WARNING_YOU_HAVE_UNSAVED_CHANGES_PLEASE_SAVE_YOUR_DESCRIPTOR));
+				setTimeout(() => {
+					setAriaAnnouncement('');
+				}, 1000);
+			}
+		}, [flashTrigger, lastFlashTrigger]);
+		useEffect(() => {
+			if (flashTrigger > lastFlashTrigger && !flashingUnsavedChanges) {
+				setFlashingUnsavedChanges(true);
+				setTimeout(() => {
+					setFlashingUnsavedChanges(false);
+				}, 200);
+			}
+		}, [flashTrigger, lastFlashTrigger]);
+		const handleClose = useCallback(() => {
+			if (form.formState.isDirty) {
+				setFlashTrigger((f) => f+1);
+				return;
+			}
+			ModalCommands.pop();
+		}, [setFlashTrigger, form.formState.isDirty]);
+
+		return <Modal.Root size={"large"} onClose={handleClose}>
+			<output
+				aria-live="assertive"
+				aria-atomic="true"
+				className={profileStyles.srOnly}
+				data-flx="user.persona-editor-modal.sr-only"
+			>
+				{ariaAnnouncement}
+			</output>
+			<Modal.Header onClose={handleClose} title={initialPersona ? i18n._(EDIT_PERSONA_DESCRIPTOR) : i18n._(CREATE_PERSONA_DESCRIPTOR)} />
 			<Modal.Content>
 				<Form
 					form={form}
@@ -533,7 +573,7 @@ export const PersonaEditorModal: React.FC<PersonaEditorModalProps> = observer(
 					</div>
 				</Form>
 			</Modal.Content>
-			<Modal.FormFooter>
+			<Modal.FormFooter className={clsx(styles.unsavedChangesTransition, styles.unsavedChangesArea, flashingUnsavedChanges && styles.flashingUnsavedChanges, prefersReducedMotion && styles.prefersReducedMotion)}>
 				{form.formState.isDirty && <span className={styles.unsavedChangesWarning}><Trans>You have unsaved changes.</Trans></span>}
 				{!form.formState.isDirty && initialPersona && <Button
 					variant="danger"

@@ -77,7 +77,7 @@ const PROFILE_UPDATED_DESCRIPTOR = msg({
 	message: 'Profile updated',
 	comment: 'Short label in the my profile tab. Keep it concise.',
 });
-const WARNING_YOU_HAVE_UNSAVED_CHANGES_PLEASE_SAVE_YOUR_DESCRIPTOR = msg({
+export const WARNING_YOU_HAVE_UNSAVED_CHANGES_PLEASE_SAVE_YOUR_DESCRIPTOR = msg({
 	message: 'You have unsaved changes. Save or reset before leaving.',
 	comment: 'Warning text in the my profile tab. Keep the tone plain and specific.',
 });
