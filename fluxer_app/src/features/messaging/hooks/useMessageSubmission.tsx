@@ -224,6 +224,7 @@ export const useMessageSubmission = ({channel, referencedMessage, replyingMessag
 				flags: 0,
 				stickers: messageData.stickers || [],
 				favoriteMemeId: sendOptions.favoriteMemeId,
+				persona: messageData.persona,
 			})
 				.then((sentMessage) => {
 					if (sentMessage) {

@@ -10,10 +10,13 @@ import {
 	type PrepareTextareaTextChange,
 } from '@app/features/messaging/utils/TextareaNativeEditUtils';
 import {type MentionSegment, TextareaSegmentManager} from '@app/features/messaging/utils/TextareaSegmentManager';
+import type { Persona } from '@app/features/personas/models/Persona';
 import {ComponentBus} from '@app/features/platform/utils/ComponentBus';
+import Personas from '@app/features/user/state/Personas';
 import Users from '@app/features/user/state/Users';
 import * as NicknameUtils from '@app/features/user/utils/NicknameUtils';
 import type {MessageAttachment, MessageStickerItem} from '@fluxer/schema/src/domains/message/MessageResponseSchemas';
+import type { PersonaSnapshot } from '@fluxer/schema/src/domains/persona/PersonaSchemas.js';
 import {useCallback, useEffect} from 'react';
 
 interface UseTextareaExpressionHandlersOptions {
@@ -39,6 +42,7 @@ interface UseTextareaExpressionHandlersOptions {
 			content: string;
 			stickers?: Array<MessageStickerItem>;
 			attachments?: Array<MessageAttachment>;
+			persona?: PersonaSnapshot;
 		},
 		sendOptions: {
 			hasAttachments: boolean;
@@ -46,6 +50,7 @@ interface UseTextareaExpressionHandlersOptions {
 		},
 	) => void;
 	enabled?: boolean;
+	selectedPersona?: Persona;
 }
 
 export const useTextareaExpressionHandlers = ({
@@ -58,7 +63,9 @@ export const useTextareaExpressionHandlers = ({
 	segmentManagerRef,
 	sendOptimisticMessage,
 	enabled = true,
+	selectedPersona,
 }: UseTextareaExpressionHandlersOptions) => {
+	const persona = selectedPersona?.toSnapshot() || Personas.getGlobalActivePersona()?.toSnapshot();
 	const appendText = useCallback(
 		(text: string) => {
 			if (!enabled) return;
@@ -76,7 +83,7 @@ export const useTextareaExpressionHandlers = ({
 				selectionStart: nextValue.length,
 			});
 		},
-		[enabled, prepareTextChange, previousValueRef, segmentManagerRef, setValue, textareaRef],
+		[persona, enabled, prepareTextChange, previousValueRef, segmentManagerRef, setValue, textareaRef],
 	);
 	useEffect(() => {
 		const handleGifSelect = (payload?: unknown) => {
@@ -88,13 +95,13 @@ export const useTextareaExpressionHandlers = ({
 			if (!gif) return;
 			const gifUrl = GifSlugUtils.resolveShareUrl(gif.provider, {url: gif.url, slug: gif.slug});
 			if (autoSend) {
-				sendOptimisticMessage({content: gifUrl}, {hasAttachments: false});
+				sendOptimisticMessage({content: gifUrl, persona}, {hasAttachments: false});
 			} else {
 				appendText(gifUrl);
 			}
 		};
 		return ComponentBus.subscribe('GIF_SELECT', handleGifSelect);
-	}, [appendText, sendOptimisticMessage, enabled]);
+	}, [persona, appendText, sendOptimisticMessage, enabled]);
 	useEffect(() => {
 		const handleStickerSelect = (payload?: unknown) => {
 			if (!enabled) return;
@@ -102,10 +109,10 @@ export const useTextareaExpressionHandlers = ({
 				sticker?: GuildSticker;
 			};
 			if (!sticker) return;
-			sendOptimisticMessage({content: '', stickers: [sticker.toJSON()]}, {hasAttachments: false});
+			sendOptimisticMessage({content: '', persona, stickers: [sticker.toJSON()]}, {hasAttachments: false});
 		};
 		return ComponentBus.subscribe('STICKER_SELECT', handleStickerSelect);
-	}, [sendOptimisticMessage, enabled]);
+	}, [persona, sendOptimisticMessage, enabled]);
 	useEffect(() => {
 		const handleFavoriteMemeSelect = (payload?: unknown) => {
 			if (!enabled) return;
@@ -121,7 +128,7 @@ export const useTextareaExpressionHandlers = ({
 				meme.gifProvider && meme.gifSlug ? GifSlugUtils.buildShareUrl(meme.gifProvider, meme.gifSlug) : null;
 			if (autoSend) {
 				if (providerShareUrl) {
-					sendOptimisticMessage({content: providerShareUrl}, {hasAttachments: false});
+					sendOptimisticMessage({content: providerShareUrl, persona}, {hasAttachments: false});
 				} else if (canSendFavoriteMemeId) {
 					const uploadingAttachment = UploadingAttachment.fromDescriptor({
 						filename: meme.filename,
@@ -130,7 +137,7 @@ export const useTextareaExpressionHandlers = ({
 						contentType: meme.contentType,
 					}).toJSON();
 					sendOptimisticMessage(
-						{content: '', attachments: [uploadingAttachment]},
+						{content: '', persona, attachments: [uploadingAttachment]},
 						{hasAttachments: false, favoriteMemeId: meme.id},
 					);
 				} else {
@@ -145,7 +152,7 @@ export const useTextareaExpressionHandlers = ({
 			}
 		};
 		return ComponentBus.subscribe('FAVORITE_MEME_SELECT', handleFavoriteMemeSelect);
-	}, [appendText, canSendFavoriteMemeId, sendOptimisticMessage, enabled]);
+	}, [persona, appendText, canSendFavoriteMemeId, sendOptimisticMessage, enabled]);
 	useEffect(() => {
 		const handleInsertMention = (payload?: unknown) => {
 			if (!enabled) return;
@@ -185,5 +192,5 @@ export const useTextareaExpressionHandlers = ({
 			});
 		};
 		return ComponentBus.subscribe('INSERT_MENTION', handleInsertMention);
-	}, [insertSegment, previousValueRef, setValue, textareaRef, segmentManagerRef, prepareTextChange, enabled]);
+	}, [insertSegment, previousValueRef, setValue, textareaRef, segmentManagerRef, prepareTextChange, enabled, persona]);
 };

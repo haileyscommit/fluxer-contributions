@@ -12,11 +12,13 @@ import MessageQueue from '@app/features/messaging/state/MessageQueue';
 import {CloudUpload} from '@app/features/messaging/upload/CloudUpload';
 import {isDialogPasteTarget} from '@app/features/messaging/utils/TextInputEditUtils';
 import {formatUploadingAttachmentSummary} from '@app/features/messaging/utils/UploadingAttachmentLabelUtils';
+import type { Persona } from '@app/features/personas/models/Persona';
 import {ComponentBus} from '@app/features/platform/utils/ComponentBus';
 import {useSlowmode} from '@app/features/slowmode/hooks/useSlowmode';
 import * as ModalCommands from '@app/features/ui/commands/ModalCommands';
 import {modal} from '@app/features/ui/commands/ModalCommands';
 import Modal from '@app/features/ui/state/Modal';
+import Personas from '@app/features/user/state/Personas';
 import Users from '@app/features/user/state/Users';
 import {MessageStates, MessageTypes} from '@fluxer/constants/src/ChannelConstants';
 import {MAX_ATTACHMENTS_PER_MESSAGE} from '@fluxer/constants/src/LimitConstants';
@@ -30,11 +32,12 @@ const hasFileTransfer = (event: DragEvent): boolean => event.dataTransfer?.types
 
 interface UploadManagerProps {
 	channel: Channel;
+	selectedPersona?: Persona;
 	canAttachFiles: boolean;
 	canSendMessages: boolean;
 }
 
-export const UploadManager = observer(({channel, canAttachFiles, canSendMessages}: UploadManagerProps) => {
+export const UploadManager = observer(({channel, selectedPersona, canAttachFiles, canSendMessages}: UploadManagerProps) => {
 	const {i18n} = useLingui();
 	const [isDragging, setIsDragging] = useState(false);
 	const [dragCounter, setDragCounter] = useState(0);
@@ -122,11 +125,13 @@ export const UploadManager = observer(({channel, canAttachFiles, canSendMessages
 					state: MessageStates.SENDING,
 					nonce,
 					attachments: [uploadingAttachment],
+					persona: selectedPersona?.toSnapshot() || Personas.getGlobalActivePersona()?.toSnapshot() || null
 				});
 				MessageCommands.createOptimistic(channel.id, message.toJSON());
 				MessageCommands.send(channel.id, {
 					content: '',
 					nonce,
+					persona: message.persona || undefined,
 					hasAttachments: true,
 				});
 			} else {
