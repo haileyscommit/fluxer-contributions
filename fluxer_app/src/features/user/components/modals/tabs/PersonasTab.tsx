@@ -11,7 +11,7 @@ import Personas from "@app/features/user/state/Personas";
 import { Avatar } from "@app/features/ui/components/Avatar";
 import { ChevronRightIcon } from "@app/features/ui/action_menu/ContextMenuIcons";
 import { Button } from "@app/features/ui/button/Button";
-import { BugIcon, CircleIcon, DownloadIcon, PlusIcon, RadioButtonIcon, UserCirclePlusIcon, UserSwitchIcon } from "@phosphor-icons/react";
+import { BugIcon, CircleIcon, DownloadIcon, PlusIcon, RadioButtonIcon, UserCircleDashedIcon, UserCirclePlusIcon, UserSwitchIcon } from "@phosphor-icons/react";
 import { Tooltip } from "@app/features/ui/tooltip/Tooltip";
 import * as ModalCommands from '@app/features/ui/commands/ModalCommands';
 import type { User } from "@app/features/user/models/User";
@@ -25,6 +25,10 @@ import { StatusSlate } from "@app/features/app/components/dialogs/shared/StatusS
 import { SettingsSection } from "@app/features/app/components/dialogs/shared/SettingsSection";
 import { RadioGroup } from "@app/features/ui/radio_group/RadioGroup";
 import { PersonaSettings_LatchMode } from "@fluxer/schema/src/gen/fluxer/user/preferences/v1/preferences_pb.js";
+import { Input } from "@app/features/ui/components/form/FormInput";
+import { PERSONA_FILTER_PLACEHOLDER_DESCRIPTOR } from "@app/features/personas/components/popouts/PersonaPickerPopout";
+import MobileLayout from "@app/features/ui/state/MobileLayout";
+import { clsx } from "clsx";
 
 const ACTIVATE_PERSONA_DESCRIPTOR = msg({
 	message: "Make persona active",
@@ -42,6 +46,14 @@ const CREATE_A_PERSONA_TO_GET_STARTED_DESCRIPTOR = msg({
 	//message: "Create a persona to get started.",
 	message: "My name is Darth Vader. I am an extra-terrestrial from the planet Vulcan!",
 	comment: "Slate message that shows in the Personas tab when there are no personas."
+});
+const NO_PERSONAS_FOUND_DESCRIPTOR = msg({
+	message: "No personas found",
+	comment: "Slate title that shows in the Personas tab when there are no personas when filtered."
+});
+const TRY_A_DIFFERENT_SEARCH_DESCRIPTOR = msg({
+	message: "Try a different search, or check your spelling.",
+	comment: "Slate message that shows in the Personas tab when there are no personas when filtered."
 });
 
 export const LATCH_OFF_DESCRIPTOR = msg({
@@ -147,16 +159,33 @@ const PersonasTabComponent = observer(function PersonasTabComponent({
 	const {i18n} = useLingui();
 	const user = useMemo(() => Users.currentUser, []);
 	const [ariaAnnouncement, setAriaAnnouncement] = useState('');
-	const [personas, setPersonas] = useState<Array<Persona>>([...Personas.getOwnPersonas()]);
+	const [allPersonas, setPersonas] = useState<Array<Persona>>([...Personas.getOwnPersonas()]);
+	const [filter, setFilter] = useState('');
 	const [selected, updateSelected] = useState(() => Personas.getGlobalActivePersona());
 
 	const personaUpdateCallback = useCallback(() => {
 		const newPersonas = Personas.getOwnPersonas();
-		if (newPersonas !== personas) {
+		if (newPersonas !== allPersonas) {
 			setPersonas([...newPersonas]);
 			updateSelected(Personas.getGlobalActivePersona());
 		}
 	}, [user]);
+	const personas = useMemo(() => {
+		const sources = new Map(allPersonas.map((v) => [v.id, v]));
+		if (filter === "") return [...sources.values()];
+		const sourceValues = [...sources.values()];
+		const termedSources = new Map(sourceValues.map((v) => [
+			v.id,
+			[v.internal_name, v.display_name, v.pronouns, ...v.triggers.map((t) => `${t.prefix||""} ${t.suffix||""}`), ...v.tags].join(" ").toLowerCase()
+		]));
+		const results: Array<Persona> = [];
+		for (const [id, value] of termedSources.entries()) {
+			if (value.includes(filter.toLowerCase())) {
+				results.push(sources.get(id)!);
+			}
+		}
+		return results;
+	}, [allPersonas, filter])
 	useEffect(() => {
 		runInAction(() => {
 			fetchUserPersonas().then((personas) => {
@@ -167,6 +196,16 @@ const PersonasTabComponent = observer(function PersonasTabComponent({
 			});
 		})
 	}, [user]);
+
+	const isMobile = MobileLayout.isMobileLayout();
+	const FilterInput = useCallback(({filter, disabled} : {filter: string, disabled?: boolean}) => (<Input
+		label={<Trans>Filter personas</Trans>}
+		placeholder={i18n._(PERSONA_FILTER_PLACEHOLDER_DESCRIPTOR)}
+		value={filter}
+		disabled={disabled}
+		type="text"
+		onChange={(e) => setFilter(e.target.value)}
+	/>), [setFilter]);
 
 	return <>
 		<output
@@ -212,7 +251,8 @@ const PersonasTabComponent = observer(function PersonasTabComponent({
 					]}
 				/>
 			</SettingsSection>
-			<div className={styles.buttonRow}>
+			<div className={clsx(styles.buttonRow, isMobile && styles.mobile)}>
+				{!isMobile && <FilterInput filter={filter} disabled={!allPersonas} />}
 				<Button
 					disabled
 					variant="secondary"
@@ -229,6 +269,7 @@ const PersonasTabComponent = observer(function PersonasTabComponent({
 					data-flx="user.personas-tab.personas-tab-component.create-personas-button"
 				><Trans>Create Persona</Trans></Button>
 			</div>
+			{isMobile && allPersonas && <FilterInput filter={filter} />}
 			{personas.map((v) => (<div key={v.id}><PersonaTile
 				persona={v}
 				user={user!}
@@ -242,11 +283,16 @@ const PersonasTabComponent = observer(function PersonasTabComponent({
 					updateSelected(Personas.getGlobalActivePersona());
 				})}
 			/></div>))}
-			{personas.length === 0 && <StatusSlate
+			{personas.length === 0 && (filter ? <StatusSlate
+				Icon={UserCircleDashedIcon}
+				title={i18n._(NO_PERSONAS_FOUND_DESCRIPTOR)}
+				description={i18n._(TRY_A_DIFFERENT_SEARCH_DESCRIPTOR)}
+			/>
+			: <StatusSlate
 				Icon={UserCirclePlusIcon}
 				title={i18n._(NO_PERSONAS_DESCRIPTOR)}
 				description={i18n._(CREATE_A_PERSONA_TO_GET_STARTED_DESCRIPTOR)}
-			/>}
+			/>)}
 		</SettingsTabContainer>
 	</>;
 });

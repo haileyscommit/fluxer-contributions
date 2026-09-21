@@ -29,8 +29,8 @@ const MAIN_ACCOUNT_DESCRIPTOR = msg({
 	message: "This is your account.",
 	comment: "Tooltip on the crown icon on the persona entry that represents your main account."
 });
-const PERSONA_FILTER_PLACEHOLDER_DESCRIPTOR = msg({
-	message: "Names or pronouns",
+export const PERSONA_FILTER_PLACEHOLDER_DESCRIPTOR = msg({
+	message: "Names, pronouns, or triggers",
 	comment: "Placeholder text to hint at what can be used to filter personas in the list."
 });
 
