@@ -420,7 +420,7 @@ export const Message: React.FC<MessageProps> = observer((props) => {
 					void MessageCommands.edit(
 						channel.id,
 						message.id,
-						message.content,
+						undefined,
 						undefined,
 						undefined,
 						buildExistingAttachmentEditReferences(message),
