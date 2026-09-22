@@ -115,7 +115,7 @@ export const MessageAuthorInfo = observer((props: MessageAuthorInfoProps) => {
 					>
 						<span className={styles.messageAuthorPart} data-flx="channel.message-author-info.message-author-part">
 							{timeoutIndicator}
-							{username}{"tetse"}
+							{message.persona?.name || username}
 							{author.bot && (
 								<UserTag
 									className={styles.userTagOffset}
