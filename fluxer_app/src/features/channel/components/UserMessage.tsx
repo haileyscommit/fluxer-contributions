@@ -674,6 +674,7 @@ export const UserMessage = observer(() => {
 									previewName={previewOverrides?.displayName}
 									data-flx="channel.user-message.message-username--3"
 								/>
+								{message.persona && <PersonaTag className={styles.messagePersonaTagBase} />}
 								{author.bot && (
 									<UserTag
 										className={styles.userTagOffset}
