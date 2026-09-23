@@ -29,6 +29,9 @@ import { Input } from "@app/features/ui/components/form/FormInput";
 import { PERSONA_FILTER_PLACEHOLDER_DESCRIPTOR } from "@app/features/personas/components/popouts/PersonaPickerPopout";
 import MobileLayout from "@app/features/ui/state/MobileLayout";
 import { clsx } from "clsx";
+import * as PersonaImportCommands from '@app/features/personas/commands/PersonaImports';
+import { showGenericErrorModal } from "@app/features/app/components/alerts/GenericErrorModalCommands";
+import Toast from "@app/features/ui/state/Toast";
 
 const ACTIVATE_PERSONA_DESCRIPTOR = msg({
 	message: "Make persona active",
@@ -79,6 +82,11 @@ export const LATCH_TRIGGER_SWITCHING_DESCRIPTOR = msg({
 const LATCH_TRIGGER_SWITCHING_DESCRIPTION_DESCRIPTOR = msg({
 	message: "A trigger sets its persona as active until the active persona is changed. This may also be called \"latching\".",
 	comment: "A label for the latching modes (trigger behavior) setting."
+});
+
+const ACCEPTED_IMPORT_FORMATS_DESCRIPTOR = msg({
+	message: "You can import JSON files exported from Pluralkit, Tupperbox, /plu/ral, Fishing Bucket, or anything that exports to a compatible format.",
+	comment: "A list of supported import formats. The names of each format should remain untranslated since they are proper nouns."
 });
 
 
@@ -207,6 +215,17 @@ const PersonasTabComponent = observer(function PersonasTabComponent({
 		onChange={(e) => setFilter(e.target.value)}
 	/>), [setFilter]);
 
+	const [isImporting, setImporting] = useState(false);
+	//const importButtonRef = useRef<HTMLButtonElement>(null);
+	const importInputRef = useRef<HTMLInputElement>(null);
+	useEffect(() => {
+		const listener = (_) => setImporting(false);
+		importInputRef.current?.addEventListener("cancel", listener);
+		return () => {
+			importInputRef.current?.removeEventListener("cancel", listener);
+		}
+	}, [importInputRef.current]);
+
 	return <>
 		<output
 			aria-live="assertive"
@@ -253,13 +272,54 @@ const PersonasTabComponent = observer(function PersonasTabComponent({
 			</SettingsSection>
 			<div className={clsx(styles.buttonRow, isMobile && styles.mobile)}>
 				{!isMobile && <FilterInput filter={filter} disabled={!allPersonas} />}
-				<Button
-					disabled
-					variant="secondary"
-					leftIcon={<DownloadIcon />}
-					onClick={() => {}}
-					data-flx="user.personas-tab.personas-tab-component.import-personas-button"
-				><Trans>Import...</Trans></Button>
+				<Tooltip maxWidth="xl" position="top" text={i18n._(ACCEPTED_IMPORT_FORMATS_DESCRIPTOR)}>
+					<Button
+						variant="secondary"
+						submitting={isImporting}
+						leftIcon={<DownloadIcon />}
+						onClick={() => {
+							if (isImporting) return;
+							setImporting(true);
+							importInputRef.current?.click();
+						}}
+						data-flx="user.personas-tab.personas-tab-component.import-personas-button"
+					><Trans>Import...</Trans></Button>
+				</Tooltip>
+				<input
+					type="file"
+					accept=".json,application/json"
+					className={styles.hiddenInput}
+					ref={importInputRef}
+					onChange={async (e) => {
+						const data = await e.target.files?.item(0)?.text();
+						if (!data) {
+							setImporting(false);
+							return;
+						}
+						setImporting(true);
+						try {
+							const imported = PersonaImportCommands.parseFile(data);
+							console.log(imported);
+							const assets_updated = await PersonaImportCommands.prepareMedia(imported);
+							console.log(assets_updated);
+							// TODO: blocking loading modal while import runs
+							await PersonaImportCommands.uploadImport(assets_updated);
+							Toast.createToast({
+								type: "success",
+								children: "Successfully imported personas",
+							});
+							setPersonas([...Personas.getOwnPersonas()]);
+						} catch(e) {
+							console.error("Could not import personas", e);
+							showGenericErrorModal({
+								title: "An error occurred",
+								message: (e as any)?.message ?? "Could not import personas"
+							});
+						} finally {
+							setImporting(false);
+						}
+					}}
+				/>
 				<Button
 					variant="primary"
 					leftIcon={<PlusIcon />}

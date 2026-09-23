@@ -43,8 +43,8 @@ export type OwnPersonaResponse = z.infer<typeof OwnPersonaResponse>;
 export const PersonaCreateRequest = z.object({
 	internal_name: z.string().min(1).max(100).describe('The name to use for the persona in private lists'),
 	display_name: z.string().min(1).max(100).nullish().describe('The display name of the persona, defaults to internal_name'),
-	avatar: createBase64StringType(0, AVATAR_MAX_SIZE).nullish().describe('The hash of the persona avatar'),
-	banner: createBase64StringType(0, AVATAR_MAX_SIZE).nullish().describe('The hash of the persona banner'),
+	avatar: createBase64StringType(0, AVATAR_MAX_SIZE).nullish().describe('Base64 of the persona avatar file'),
+	banner: createBase64StringType(0, AVATAR_MAX_SIZE).nullish().describe('Base64 of the persona banner file'),
 	accent_color: z.int32().nullish().describe('The accent colour of the persona as an RGB integer'),
 	bio: z.string().nullish().describe('The persona biography or description text'),
 	pronouns: z.string().nullish().describe('The preferred pronouns of the persona'),

@@ -238,6 +238,8 @@ export const Endpoints = {
 	CONNECTION_VERIFY: (type: string, connectionId: string) => `/users/@me/connections/${type}/${connectionId}/verify`,
 	CONNECTIONS_REORDER: '/users/@me/connections/reorder',
 	USER_PERSONAS: '/users/@me/personas',
+	USER_PERSONAS_BATCH: '/users/@me/personas/import',
 	USER_PERSONA: (personaId: string) => `/users/@me/personas/${personaId}`,
 	USER_PERSONA_OTHER: (userId: string, personaId: string) => `/users/${userId}/personas/${personaId}`,
+	USER_PERSONA_AVATAR: '/import_image_proxy',
 } as const;
