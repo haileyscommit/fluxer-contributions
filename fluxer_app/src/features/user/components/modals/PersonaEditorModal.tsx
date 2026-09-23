@@ -208,6 +208,8 @@ export const PersonaEditorModal: React.FC<PersonaEditorModalProps> = observer(
 				// selectedGuildId,
 				user,
 				initialPersona,
+				hasChangedAvatar,
+				hasChangedBanner,
 				// activeProfileData,
 				// avatarAsset,
 				// bannerAsset,
