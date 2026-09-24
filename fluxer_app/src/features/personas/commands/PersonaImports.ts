@@ -7,6 +7,7 @@ import { Endpoints } from "@app/features/app/constants/Endpoints";
 import { isUint8Array } from "uint8array-extras";
 import { readStateServerAckMachine } from "@app/features/read_state/state/read_states/ReadStateServerAckMachine";
 import { AVATAR_MAX_SIZE } from "@fluxer/constants/src/LimitConstants.js";
+import type { PersonaImportModalProps } from "../components/modals/PersonaImportModal";
 
 const logger = new Logger('PersonaImports');
 
@@ -82,8 +83,8 @@ async function prepareStaticImage({image, maxBytes, ...props}: PrepareStaticImag
 	return await canvas.convertToBlob({type: "image/png"});
 }
 
-export async function prepareMedia(inputs: Array<NewPersona>): Promise<Array<NewPersona>> {
-	return (await Promise.allSettled<NewPersona>(inputs.map(async (persona): Promise<NewPersona> => {
+async function prepareMedia(inputs: Array<NewPersona>, progressCallback?: (index: number) => void): Promise<Array<NewPersona>> {
+	return (await Promise.allSettled<NewPersona>(inputs.map(async (persona, i): Promise<NewPersona> => {
 		let newAvatar: string | undefined;
 		let newBanner: string | undefined;
 		if (persona.avatar?.match(/^https?[:]\/\//)) {
@@ -149,6 +150,7 @@ export async function prepareMedia(inputs: Array<NewPersona>): Promise<Array<New
 				persona.banner = null;
 			}
 		}
+		void progressCallback?.(i);
 		return {...persona,
 			avatar: newAvatar ?? persona.avatar,
 			banner: newBanner ?? persona.banner,
@@ -160,6 +162,66 @@ export async function prepareMedia(inputs: Array<NewPersona>): Promise<Array<New
 	});
 }
 
-export async function uploadImport(inputs: Array<NewPersona>): Promise<void> {
+async function uploadImport(inputs: Array<NewPersona>): Promise<void> {
 	await http.post(Endpoints.USER_PERSONAS_BATCH, {body: inputs});
+}
+
+export async function processImport(
+	data: string,
+	setImportState: (setter: PersonaImportModalProps | ((state: PersonaImportModalProps) => PersonaImportModalProps)) => void,
+	markUpdated: () => void,
+	stopUpdating: () => void,
+) {
+	try {
+		const imported = parseFile(data);
+		console.log(imported);
+
+		setImportState((state) => ({...state,
+			stage: "FETCHING_MEDIA",
+			max: imported.length,
+			value: 0,
+		}));
+		const assets_updated = await prepareMedia(imported, (i) => setImportState((state) => {
+			if (state.stage === "FETCHING_MEDIA" && state.value < i) state.value = i+1;
+			return state;
+		}));
+
+		let filtered: typeof imported;
+		await new Promise<void>((resolve, _) => {
+			setImportState((state) => ({...state, stage: "PENDING_FILTER", filterInput: assets_updated, onFiltered: (v) => {
+				filtered = v;
+				resolve();
+			}}))
+		});
+		//@ts-expect-error(2454): this is always set before the promise above resolves. it may also just be empty
+		if (!filtered || !filtered.length) {
+			setImportState((state) => ({...state,
+				stage: "DONE",
+				max: 0,
+				value: 0,
+			}));
+			return;
+		}
+
+		setImportState((state) => ({...state, stage: "UPLOADING"}));
+		// TODO: blocking loading modal while import runs
+		await uploadImport(filtered);
+		setImportState((state) => ({...state,
+			stage: "DONE",
+			max: filtered.length,
+			value: filtered.length,
+		}));
+		markUpdated() // setImportEpoch((v) => v+1);
+	} catch(e) {
+		console.error("Could not import personas", e);
+		setImportState((state) => ({...state,
+			stage: "ERROR",
+			error: {
+				code: "UPLOAD_FAILED",
+				message: String(e)
+			}
+		}));
+	} finally {
+		stopUpdating(); // setImporting(false);
+	};
 }

@@ -32,6 +32,7 @@ import { clsx } from "clsx";
 import * as PersonaImportCommands from '@app/features/personas/commands/PersonaImports';
 import { showGenericErrorModal } from "@app/features/app/components/alerts/GenericErrorModalCommands";
 import Toast from "@app/features/ui/state/Toast";
+import { PersonaImportModal, type PersonaImportModalProps } from "@app/features/personas/components/modals/PersonaImportModal";
 
 const ACTIVATE_PERSONA_DESCRIPTOR = msg({
 	message: "Make persona active",
@@ -170,6 +171,7 @@ const PersonasTabComponent = observer(function PersonasTabComponent({
 	const [allPersonas, setPersonas] = useState<Array<Persona>>([...Personas.getOwnPersonas()]);
 	const [filter, setFilter] = useState('');
 	const [selected, updateSelected] = useState(() => Personas.getGlobalActivePersona());
+	const [importEpoch, setImportEpoch] = useState(0);
 
 	const personaUpdateCallback = useCallback(() => {
 		const newPersonas = Personas.getOwnPersonas();
@@ -203,7 +205,7 @@ const PersonasTabComponent = observer(function PersonasTabComponent({
 				return Personas.subscribe(personaUpdateCallback);
 			});
 		})
-	}, [user]);
+	}, [user, importEpoch]);
 
 	const isMobile = MobileLayout.isMobileLayout();
 	const FilterInput = useCallback(({filter, disabled} : {filter: string, disabled?: boolean}) => (<Input
@@ -225,6 +227,14 @@ const PersonasTabComponent = observer(function PersonasTabComponent({
 			importInputRef.current?.removeEventListener("cancel", listener);
 		}
 	}, [importInputRef.current]);
+	const defaultImportState = useMemo(() => ({
+		max: 1,
+		value: 0,
+		stage: "UNKNOWN",
+	} as PersonaImportModalProps), []);
+	const [importState, setImportState] = useState<PersonaImportModalProps>(defaultImportState);
+
+	const onImport = useMemo(() => PersonaImportCommands.processImport, []);
 
 	return <>
 		<output
@@ -291,33 +301,14 @@ const PersonasTabComponent = observer(function PersonasTabComponent({
 					className={styles.hiddenInput}
 					ref={importInputRef}
 					onChange={async (e) => {
+						setImportState((state) => ({...state, stage: "PARSING"}));
 						const data = await e.target.files?.item(0)?.text();
 						if (!data) {
 							setImporting(false);
 							return;
 						}
 						setImporting(true);
-						try {
-							const imported = PersonaImportCommands.parseFile(data);
-							console.log(imported);
-							const assets_updated = await PersonaImportCommands.prepareMedia(imported);
-							console.log(assets_updated);
-							// TODO: blocking loading modal while import runs
-							await PersonaImportCommands.uploadImport(assets_updated);
-							Toast.createToast({
-								type: "success",
-								children: "Successfully imported personas",
-							});
-							setPersonas([...Personas.getOwnPersonas()]);
-						} catch(e) {
-							console.error("Could not import personas", e);
-							showGenericErrorModal({
-								title: "An error occurred",
-								message: (e as any)?.message ?? "Could not import personas"
-							});
-						} finally {
-							setImporting(false);
-						}
+						void onImport(data, setImportState, () => setImportEpoch((i) => i+1), () => setImporting(false));
 					}}
 				/>
 				<Button
@@ -354,6 +345,7 @@ const PersonasTabComponent = observer(function PersonasTabComponent({
 				description={i18n._(CREATE_A_PERSONA_TO_GET_STARTED_DESCRIPTOR)}
 			/>)}
 		</SettingsTabContainer>
+		<PersonaImportModal {...importState} onClose={() => setImportState(defaultImportState)} />
 	</>;
 });
 
