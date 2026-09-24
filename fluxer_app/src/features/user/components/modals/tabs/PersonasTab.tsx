@@ -3,7 +3,8 @@ import Users from "@app/features/user/state/Users";
 import { Trans, useLingui } from "@lingui/react/macro";
 import { observer } from "mobx-react-lite";
 import styles from "./PersonasTab.module.css";
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import type React from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { runInAction } from "mobx";
 import { fetchUserPersonas } from "@app/features/personas/commands/Personas";
 import { Persona } from "@app/features/personas/models/Persona";
@@ -11,7 +12,7 @@ import Personas from "@app/features/user/state/Personas";
 import { Avatar } from "@app/features/ui/components/Avatar";
 import { ChevronRightIcon } from "@app/features/ui/action_menu/ContextMenuIcons";
 import { Button } from "@app/features/ui/button/Button";
-import { BugIcon, CircleIcon, DownloadIcon, PlusIcon, RadioButtonIcon, UserCircleDashedIcon, UserCirclePlusIcon, UserSwitchIcon } from "@phosphor-icons/react";
+import { CircleIcon, DownloadIcon, PlusIcon, RadioButtonIcon, UserCircleDashedIcon, UserCirclePlusIcon, } from "@phosphor-icons/react";
 import { Tooltip } from "@app/features/ui/tooltip/Tooltip";
 import * as ModalCommands from '@app/features/ui/commands/ModalCommands';
 import type { User } from "@app/features/user/models/User";
@@ -20,7 +21,6 @@ import { isKeyboardActivationKey } from "@app/features/input/utils/KeyboardUtils
 import { i18n } from "@lingui/core";
 import { msg } from "@lingui/core/macro";
 import { PersonaEditorModal } from "../PersonaEditorModal";
-import { Slate } from "@app/features/app/components/dialogs/components/Slate";
 import { StatusSlate } from "@app/features/app/components/dialogs/shared/StatusSlate";
 import { SettingsSection } from "@app/features/app/components/dialogs/shared/SettingsSection";
 import { RadioGroup } from "@app/features/ui/radio_group/RadioGroup";
@@ -30,8 +30,6 @@ import { PERSONA_FILTER_PLACEHOLDER_DESCRIPTOR } from "@app/features/personas/co
 import MobileLayout from "@app/features/ui/state/MobileLayout";
 import { clsx } from "clsx";
 import * as PersonaImportCommands from '@app/features/personas/commands/PersonaImports';
-import { showGenericErrorModal } from "@app/features/app/components/alerts/GenericErrorModalCommands";
-import Toast from "@app/features/ui/state/Toast";
 import { PersonaImportModal, type PersonaImportModalProps } from "@app/features/personas/components/modals/PersonaImportModal";
 
 const ACTIVATE_PERSONA_DESCRIPTOR = msg({
@@ -159,15 +157,11 @@ const PersonaTile = observer(({persona, user, selected, onSelect} : PersonaTileP
 	</div>;
 });
 
-const PERSONAS_TAB_ID = 'personas';
-const PersonasTabComponent = observer(function PersonasTabComponent({
-	//initialGuildId,
-}: {
-	//initialGuildId?: string;
-} = {}) {
+//const PERSONAS_TAB_ID = 'personas';
+const PersonasTabComponent = observer(function PersonasTabComponent() {
 	const {i18n} = useLingui();
 	const user = useMemo(() => Users.currentUser, []);
-	const [ariaAnnouncement, setAriaAnnouncement] = useState('');
+	// const [ariaAnnouncement, setAriaAnnouncement] = useState('');
 	const [allPersonas, setPersonas] = useState<Array<Persona>>([...Personas.getOwnPersonas()]);
 	const [filter, setFilter] = useState('');
 	const [selected, updateSelected] = useState(() => Personas.getGlobalActivePersona());
@@ -221,7 +215,7 @@ const PersonasTabComponent = observer(function PersonasTabComponent({
 	//const importButtonRef = useRef<HTMLButtonElement>(null);
 	const importInputRef = useRef<HTMLInputElement>(null);
 	useEffect(() => {
-		const listener = (_) => setImporting(false);
+		const listener = () => setImporting(false);
 		importInputRef.current?.addEventListener("cancel", listener);
 		return () => {
 			importInputRef.current?.removeEventListener("cancel", listener);
@@ -237,14 +231,14 @@ const PersonasTabComponent = observer(function PersonasTabComponent({
 	const onImport = useMemo(() => PersonaImportCommands.processImport, []);
 
 	return <>
-		<output
+		{/* <output
 			aria-live="assertive"
 			aria-atomic="true"
 			className={styles.srOnly}
 			data-flx="user.personas-tab.personas-tab-component.sr-only"
 		>
 			{ariaAnnouncement}
-		</output>
+		</output> */}
 		<SettingsTabContainer data-flx="user.personas-tab.personas-tab-component.settings-tab-container">
 			<p data-flx="user.personas-tab.personas-tab-component.personas-explanation"><Trans>Personas are reusable profiles that you can attach to messages.</Trans></p>
 			{/* <div className={styles.column}></div> */}
