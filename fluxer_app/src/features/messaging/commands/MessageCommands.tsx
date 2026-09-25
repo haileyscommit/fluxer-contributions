@@ -959,6 +959,7 @@ export async function forward(
 ): Promise<boolean> {
 	logger.debug(`Forwarding message ${messageReference.message_id} to ${channelIds.length} channels`);
 	const normalizedComment = optionalMessage == null ? null : normalizeMessageContent(optionalMessage);
+	const persona = Personas.getGlobalActivePersona();
 	try {
 		for (const channelId of channelIds) {
 			const nonce = SnowflakeUtils.fromTimestamp(Date.now());
@@ -973,6 +974,7 @@ export async function forward(
 					embed_indices: messageReference.embed_indices,
 					type: 1,
 				},
+				persona: persona?.toSnapshot(),
 				flags: 1,
 			});
 			if (!forwardedMessage) {
@@ -986,6 +988,7 @@ export async function forward(
 					content: normalizedComment.content,
 					nonce: commentNonce,
 					flags: normalizedComment.flags,
+					persona: persona?.toSnapshot(),
 				});
 				if (!commentMessage) {
 					logger.warn(`Forward comment send failed in channel ${channelId}`);
