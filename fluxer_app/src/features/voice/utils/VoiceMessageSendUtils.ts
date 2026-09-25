@@ -4,7 +4,9 @@ import * as MessageCommands from '@app/features/messaging/commands/MessageComman
 import {Message} from '@app/features/messaging/models/MessagingMessage';
 import {UploadingAttachment} from '@app/features/messaging/models/UploadingAttachment';
 import {CloudUpload} from '@app/features/messaging/upload/CloudUpload';
+import { Persona } from '@app/features/personas/models/Persona';
 import {Logger} from '@app/features/platform/utils/AppLogger';
+import Personas from '@app/features/user/state/Personas';
 import Users from '@app/features/user/state/Users';
 import {MessageFlags, MessageStates, MessageTypes} from '@fluxer/constants/src/ChannelConstants';
 import * as SnowflakeUtils from '@fluxer/snowflake/src/SnowflakeUtils';
@@ -34,6 +36,7 @@ export async function sendVoiceMessage(params: SendVoiceMessageParams): Promise<
 	if (!currentUser) {
 		throw new Error('Current user missing');
 	}
+	const persona = Personas.getGlobalActivePersona();
 	const uploadingAttachment = UploadingAttachment.fromDescriptor({
 		filename: file.name,
 		title: title ?? file.name,
@@ -54,6 +57,7 @@ export async function sendVoiceMessage(params: SendVoiceMessageParams): Promise<
 		state: MessageStates.SENDING,
 		nonce,
 		attachments: [uploadingAttachment],
+		persona: persona?.toSnapshot(),
 	});
 	MessageCommands.createOptimistic(channelId, {...message.toJSON(), attachments: [uploadingAttachment]});
 	try {
@@ -62,6 +66,7 @@ export async function sendVoiceMessage(params: SendVoiceMessageParams): Promise<
 			nonce,
 			hasAttachments: true,
 			flags: MessageFlags.VOICE_MESSAGE,
+			persona: persona?.toSnapshot(),
 		});
 	} catch (error) {
 		logger.error({error}, 'Failed to dispatch voice message');
